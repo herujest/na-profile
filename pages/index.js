@@ -1,20 +1,22 @@
+import Head from "next/head";
+import Link from "next/link";
 import { useRef } from "react";
+import { stagger } from "../animations";
+import Button from "../components/Button";
+import Cursor from "../components/Cursor";
+import Footer from "../components/Footer";
 import Header from "../components/Header";
 import ServiceCard from "../components/ServiceCard";
 import Socials from "../components/Socials";
 import WorkCard from "../components/WorkCard";
 import { useIsomorphicLayoutEffect } from "../utils";
-import { stagger } from "../animations";
-import Footer from "../components/Footer";
-import Head from "next/head";
-import Button from "../components/Button";
-import Link from "next/link";
-import Cursor from "../components/Cursor";
 
 // Local Data
+import { useState } from "react";
 import data from "../data/portfolio.json";
 
 export default function Home() {
+  const [popupProject, setPopupProject] = useState(null);
   // Ref
   const workRef = useRef();
   const aboutRef = useRef();
@@ -103,7 +105,7 @@ export default function Home() {
                 img={project.imageSrc}
                 name={project.title}
                 description={project.description}
-                onClick={() => window.open(project.url)}
+                onClick={() => setPopupProject(project)}
               />
             ))}
           </div>
@@ -137,6 +139,39 @@ export default function Home() {
         </div>
         <Footer />
       </div>
+
+      {/* Popup for project details */}
+      {popupProject && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+          onClick={() => setPopupProject(null)}
+        >
+          <div
+            className="p-5 rounded-lg max-w-3xl w-full relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-5 right-5 text-white text-2xl"
+              onClick={() => setPopupProject(null)}
+            >
+              &times;
+            </button>
+            <h2 className="text-2xl font-bold mb-4">{popupProject.title}</h2>
+            <img
+              src={popupProject.imageSrc}
+              alt={popupProject.title}
+              className="w-full h-auto mb-4"
+            />
+            <p>{popupProject.description}</p>
+            <button
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+              onClick={() => window.open(popupProject.url)}
+            >
+              Visit Project
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
