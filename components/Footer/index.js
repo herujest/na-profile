@@ -28,9 +28,6 @@ const Footer = ({}) => {
         <Link href="">
           <a className="underline underline-offset-1">heruu.js</a>
         </Link>
-        {/* <Link href="http://www.chetanverma.com">
-          <a className="underline underline-offset-1">Chetan Verma</a>
-        </Link> */}
       </h1>
     </>
   );
