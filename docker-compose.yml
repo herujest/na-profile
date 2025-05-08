@@ -1,0 +1,10 @@
+version: "3.8"
+
+services:
+  nisa-profile:
+    container_name: nisa-profile
+    image: registry.gigsnow.in/nisa-profile:1.0.0
+    build: .
+    ports:
+      - "5175:3000"
+    restart: always
