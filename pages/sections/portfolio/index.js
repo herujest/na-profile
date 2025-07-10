@@ -1,0 +1,74 @@
+import { useEffect, useState } from "react";
+import WorkCard from "../../../components/WorkCard";
+import { listR2Files } from "../../../utils/s3Config";
+
+export default function Portfolio({ workRef, projects }) {
+  const [popupProject, setPopupProject] = useState(null);
+
+  useEffect(() => {
+    const fetchFiles = async () => {
+      const res = await fetch("/api/portfolio/list-files");
+      const data = await res.json();
+
+      if (res.ok) {
+        // setFiles(data.files);
+        console.log("data.files", data.files);
+      } else {
+        console.error("Failed to fetch files:", data.error);
+      }
+    };
+
+    fetchFiles();
+  }, []);
+
+  return (
+    <div className="mt-10 laptop:mt-30 p-2 laptop:p-0" ref={workRef}>
+      <h1 className="text-2xl text-bold">Work.</h1>
+
+      <div className="mt-5 laptop:mt-10 grid grid-cols-1 tablet:grid-cols-2 gap-4">
+        {projects.map((project) => (
+          <WorkCard
+            key={project.id}
+            img={project.imageSrc}
+            name={project.title}
+            description={project.description}
+            onClick={() => setPopupProject(project)}
+          />
+        ))}
+      </div>
+
+      {/* Popup for project details */}
+      {popupProject && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+          onClick={() => setPopupProject(null)}
+        >
+          <div
+            className="p-5 rounded-lg max-w-3xl w-full relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-5 right-5 text-white text-2xl"
+              onClick={() => setPopupProject(null)}
+            >
+              &times;
+            </button>
+            <h2 className="text-2xl font-bold mb-4">{popupProject.title}</h2>
+            <img
+              src={popupProject.imageSrc}
+              alt={popupProject.title}
+              className="w-full h-auto mb-4"
+            />
+            <p>{popupProject.description}</p>
+            <button
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+              onClick={() => window.open(popupProject.url)}
+            >
+              Visit Project
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -14,9 +14,27 @@ import { useIsomorphicLayoutEffect } from "../utils";
 // Local Data
 import { useState } from "react";
 import data from "../data/portfolio.json";
+import Portfolio from "./sections/portfolio";
+
+// // Import the functions you need from the SDKs you need
+// import { initializeApp } from "firebase/app";
+// import { getAnalytics } from "firebase/analytics";
+// // TODO: Add SDKs for Firebase products that you want to use
+// // https://firebase.google.com/docs/web/setup#available-libraries
+
+// // Your web app's Firebase configuration
+// // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// const firebaseConfig = {
+//   apiKey: "AIzaSyBO1rAYRUpIFba1s7IPWumAlOuGD6PLcys",
+//   authDomain: "nisaaulia.firebaseapp.com",
+//   projectId: "nisaaulia",
+//   storageBucket: "nisaaulia.firebasestorage.app",
+//   messagingSenderId: "694173162533",
+//   appId: "1:694173162533:web:2fe1afa424cade038db3cc",
+//   measurementId: "G-WZ2L92EBV3",
+// };
 
 export default function Home() {
-  const [popupProject, setPopupProject] = useState(null);
   // Ref
   const workRef = useRef();
   const aboutRef = useRef();
@@ -24,6 +42,9 @@ export default function Home() {
   const textTwo = useRef();
   const textThree = useRef();
   const textFour = useRef();
+
+  // const app = initializeApp(firebaseConfig);
+  // const analytics = getAnalytics(app);
 
   // Handling Scroll
   const handleWorkScroll = () => {
@@ -95,21 +116,8 @@ export default function Home() {
 
           <Socials className="mt-2 laptop:mt-5" />
         </div>
-        <div className="mt-10 laptop:mt-30 p-2 laptop:p-0" ref={workRef}>
-          <h1 className="text-2xl text-bold">Work.</h1>
-
-          <div className="mt-5 laptop:mt-10 grid grid-cols-1 tablet:grid-cols-2 gap-4">
-            {data.projects.map((project) => (
-              <WorkCard
-                key={project.id}
-                img={project.imageSrc}
-                name={project.title}
-                description={project.description}
-                onClick={() => setPopupProject(project)}
-              />
-            ))}
-          </div>
-        </div>
+        {/* WORK */}
+        <Portfolio workRef={workRef} projects={data.projects} />
 
         <div className="mt-10 laptop:mt-30 p-2 laptop:p-0">
           <h1 className="tablet:m-10 text-2xl text-bold">Services.</h1>
@@ -139,39 +147,6 @@ export default function Home() {
         </div>
         <Footer />
       </div>
-
-      {/* Popup for project details */}
-      {popupProject && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
-          onClick={() => setPopupProject(null)}
-        >
-          <div
-            className="p-5 rounded-lg max-w-3xl w-full relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="absolute top-5 right-5 text-white text-2xl"
-              onClick={() => setPopupProject(null)}
-            >
-              &times;
-            </button>
-            <h2 className="text-2xl font-bold mb-4">{popupProject.title}</h2>
-            <img
-              src={popupProject.imageSrc}
-              alt={popupProject.title}
-              className="w-full h-auto mb-4"
-            />
-            <p>{popupProject.description}</p>
-            <button
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-              onClick={() => window.open(popupProject.url)}
-            >
-              Visit Project
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
