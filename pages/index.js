@@ -15,7 +15,7 @@ import { useIsomorphicLayoutEffect } from "../utils";
 import { useState } from "react";
 import data from "../data/portfolio.json";
 import Portfolio from "./sections/portfolio";
-import Tabs from "../components/HomeViews/Tabs";
+
 import TabButton from "../components/Button/TabButton";
 import Collaboration from "./sections/collaboration";
 
