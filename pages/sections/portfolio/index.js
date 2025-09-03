@@ -2,8 +2,31 @@ import { useEffect, useState } from "react";
 import WorkCard from "../../../components/WorkCard";
 import { listR2Files } from "../../../utils/s3Config";
 
-export default function Portfolio({ workRef, projects }) {
+export default function Portfolio({ workRef, collabs }) {
   const [popupProject, setPopupProject] = useState(null);
+
+  const ProjectWrapper = () => {
+    if (!collabs?.length) return null;
+    console.log("collabs", collabs);
+
+    return (
+      <div className="mt-5 laptop:mt-10 grid grid-cols-2 tablet:grid-cols-2 gap-4">
+        {collabs.map((project) => {
+          console.log("collabsss", collabs);
+
+          return (
+            <WorkCard
+              key={project.id}
+              imgs={project.media}
+              name={project.title}
+              description={project.description}
+              onClick={() => setPopupProject(project)}
+            />
+          );
+        })}
+      </div>
+    );
+  };
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -21,22 +44,14 @@ export default function Portfolio({ workRef, projects }) {
     fetchFiles();
   }, []);
 
+  useEffect(() => {
+    console.log("collabs", collabs);
+  }, [collabs]);
+
   return (
     <div className="mt-10 laptop:mt-30 p-2 laptop:p-0" ref={workRef}>
-      <h1 className="text-2xl text-bold">Work.</h1>
-
-      <div className="mt-5 laptop:mt-10 grid grid-cols-1 tablet:grid-cols-2 gap-4">
-        {projects.map((project) => (
-          <WorkCard
-            key={project.id}
-            img={project.imageSrc}
-            name={project.title}
-            description={project.description}
-            onClick={() => setPopupProject(project)}
-          />
-        ))}
-      </div>
-
+      <h1 className="text-2xl text-bold">Collaborations.</h1>
+      <ProjectWrapper />
       {/* Popup for project details */}
       {popupProject && (
         <div

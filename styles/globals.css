@@ -75,3 +75,28 @@ body {
   background: inherit;
   border-radius: inherit;
 }
+
+.row-item {
+  display: flex;
+  flex-direction:row;
+}
+.button-tab {
+  border-radius: 20;
+}
+
+.switch-active {
+  background-color: #ff1b6b;
+  border-width: 1pt;
+  border-color: #ffffff;
+}
+.switch-inactive {
+  /* background-color: #ffffff; */
+  border-width: 1pt;
+  border-color: #ff1b6b;
+
+}
+.heading {
+  font-weight: 700;
+  z-index: 200;
+
+}

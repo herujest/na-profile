@@ -15,6 +15,9 @@ import { useIsomorphicLayoutEffect } from "../utils";
 import { useState } from "react";
 import data from "../data/portfolio.json";
 import Portfolio from "./sections/portfolio";
+import Tabs from "../components/HomeViews/Tabs";
+import TabButton from "../components/Button/TabButton";
+import Collaboration from "./sections/collaboration";
 
 // // Import the functions you need from the SDKs you need
 // import { initializeApp } from "firebase/app";
@@ -34,6 +37,19 @@ import Portfolio from "./sections/portfolio";
 //   measurementId: "G-WZ2L92EBV3",
 // };
 
+const homeTabs = [
+  {
+    id: "tabPortfolio",
+    label: "Portfolio",
+    route: "portfolio",
+  },
+  {
+    id: "tabAffiliateProducts",
+    label: "Affiliates",
+    route: "affiliates",
+  },
+];
+
 export default function Home() {
   // Ref
   const workRef = useRef();
@@ -42,6 +58,14 @@ export default function Home() {
   const textTwo = useRef();
   const textThree = useRef();
   const textFour = useRef();
+
+  const [currentTabIndex, setCurrentTabIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState(homeTabs[currentTabIndex]);
+
+  function onChangeActiveTab(index) {
+    setCurrentTabIndex(index);
+    setActiveTab(homeTabs[index]);
+  }
 
   // const app = initializeApp(firebaseConfig);
   // const analytics = getAnalytics(app);
@@ -116,8 +140,29 @@ export default function Home() {
 
           <Socials className="mt-2 laptop:mt-5" />
         </div>
-        {/* WORK */}
-        <Portfolio workRef={workRef} projects={data.projects} />
+        {/* WORK Collaborations */}
+        <div className="row-item">
+          <TabButton
+            classes={`button-tab ${
+              currentTabIndex === 0 ? "switch-active" : "switch-inactive"
+            }`}
+            onClick={() => onChangeActiveTab(0)}
+          >
+            Collaboration
+          </TabButton>
+          <TabButton
+            classes={`button-tab ${
+              currentTabIndex === 1 ? "switch-active" : "switch-inactive"
+            }`}
+            onClick={() => onChangeActiveTab(1)}
+          >
+            Gallery
+          </TabButton>
+        </div>
+        {currentTabIndex === 0 ? (
+          <Portfolio workRef={workRef} collabs={data.collaborations} />
+        ) : null}
+        {currentTabIndex === 1 ? <Collaboration /> : null}
 
         <div className="mt-10 laptop:mt-30 p-2 laptop:p-0">
           <h1 className="tablet:m-10 text-2xl text-bold">Services.</h1>

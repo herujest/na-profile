@@ -85,6 +85,88 @@
       "url": ""
     }
   ],
+  "collaborations": [
+    {
+      "id": "collab-01",
+      "title": "@uwind_bulet17",
+      "description": "",
+      "media": [
+        { "imageSrc": "/images/1000474136.jpg" },
+        { "imageSrc": "/images/1000474136.jpg" },
+        { "imageSrc": "/images/1000474136.jpg" }
+      ]
+    },
+    {
+      "id": "collab-02",
+      "title": "@koalamakeupart",
+      "description": "",
+      "media": [
+        { "imageSrc": "/images/1000474136.jpg" },
+        { "imageSrc": "/images/1000474136.jpg" },
+        { "imageSrc": "/images/1000474136.jpg" }
+      ]
+    },
+    {
+      "id": "collab-03",
+      "title": "@makeupaliyahbasa",
+      "description": "",
+      "media": [
+        { "imageSrc": "/images/1000474136.jpg" },
+        { "imageSrc": "/images/1000474136.jpg" },
+        { "imageSrc": "/images/1000474136.jpg" }
+      ]
+    },
+    {
+      "id": "collab-04",
+      "title": "@ernylimmakeup_br",
+      "description": "",
+      "media": [
+        { "imageSrc": "/images/1000474136.jpg" },
+        { "imageSrc": "/images/1000474136.jpg" },
+        { "imageSrc": "/images/1000474136.jpg" }
+      ]
+    },
+    {
+      "id": "collab-05",
+      "title": "@nazwa_make_up",
+      "description": "",
+      "media": [
+        { "imageSrc": "/images/1000474136.jpg" },
+        { "imageSrc": "/images/1000474136.jpg" },
+        { "imageSrc": "/images/1000474136.jpg" }
+      ]
+    },
+    {
+      "id": "collab-06",
+      "title": "@anastasiaichibeautystudio",
+      "description": "",
+      "media": [
+        { "imageSrc": "/images/1000474136.jpg" },
+        { "imageSrc": "/images/1000474136.jpg" },
+        { "imageSrc": "/images/1000474136.jpg" }
+      ]
+    },
+    {
+      "id": "collab-07",
+      "title": "@abil.beauty",
+      "description": "",
+      "media": [
+        { "imageSrc": "/images/1000474136.jpg" },
+        { "imageSrc": "/images/1000474136.jpg" },
+        { "imageSrc": "/images/1000474136.jpg" }
+      ]
+    },
+    {
+      "id": "collab-07",
+      "title": "@ebiiiephotograph",
+      "description": "",
+      "media": [
+        { "imageSrc": "/images/1000474136.jpg" },
+        { "imageSrc": "/images/1000474136.jpg" },
+        { "imageSrc": "/images/1000474136.jpg" }
+      ]
+    }
+  ],
   "services": [
     {
       "id": "1",
