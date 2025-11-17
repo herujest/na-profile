@@ -11,15 +11,32 @@ import BlogEditor from "../../components/BlogEditor";
 import { useRouter } from "next/router";
 import Cursor from "../../components/Cursor";
 import data from "../../data/portfolio.json";
+import { GetStaticProps, GetStaticPaths } from "next";
 
-const BlogPost = ({ post }) => {
-  const [showEditor, setShowEditor] = useState(false);
-  const textOne = useRef();
-  const textTwo = useRef();
+interface BlogPost {
+  date: string;
+  slug: string;
+  preview: string;
+  title: string;
+  tagline: string;
+  image: string;
+  content: string;
+}
+
+interface BlogPostProps {
+  post: BlogPost;
+}
+
+const BlogPost: React.FC<BlogPostProps> = ({ post }) => {
+  const [showEditor, setShowEditor] = useState<boolean>(false);
+  const textOne = useRef<HTMLHeadingElement>(null);
+  const textTwo = useRef<HTMLHeadingElement>(null);
   const router = useRouter();
 
   useIsomorphicLayoutEffect(() => {
-    stagger([textOne.current, textTwo.current], { y: 30 }, { y: 0 });
+    if (textOne.current && textTwo.current) {
+      stagger([textOne.current, textTwo.current], { y: 30 }, { y: 0 });
+    }
   }, []);
 
   return (
@@ -70,15 +87,16 @@ const BlogPost = ({ post }) => {
         <BlogEditor
           post={post}
           close={() => setShowEditor(false)}
-          refresh={() => router.reload(window.location.pathname)}
+          refresh={() => router.reload()}
         />
       )}
     </>
   );
 };
 
-export async function getStaticProps({ params }) {
-  const post = getPostBySlug(params.slug, [
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const slug = params?.slug as string;
+  const post = getPostBySlug(slug, [
     "date",
     "slug",
     "preview",
@@ -96,20 +114,22 @@ export async function getStaticProps({ params }) {
       },
     },
   };
-}
+};
 
-export async function getStaticPaths() {
+export const getStaticPaths: GetStaticPaths = async () => {
   const posts = getAllPosts(["slug"]);
 
   return {
-    paths: posts.map((post) => {
+    paths: posts.map((post: Record<string, any>) => {
       return {
         params: {
-          slug: post.slug,
+          slug: post.slug as string,
         },
       };
     }),
     fallback: false,
   };
-}
+};
+
 export default BlogPost;
+

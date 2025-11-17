@@ -3,8 +3,9 @@ import matter from "gray-matter";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
 import { getRandomImage } from "../../../utils";
+import { NextApiRequest, NextApiResponse } from "next";
 
-export default function handler(req, res) {
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const postsfolder = join(process.cwd(), `/_posts/${uuidv4()}.md`);
   if (process.env.NODE_ENV === "development") {
     if (req.method === "POST") {
@@ -16,7 +17,7 @@ export default function handler(req, res) {
           "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
         image: getRandomImage(),
       });
-      fs.writeFileSync(postsfolder, data, (err) => console.error(err));
+      fs.writeFileSync(postsfolder, data);
       res.status(200).json({ status: "CREATED" });
     }
     if (req.method === "DELETE") {
@@ -28,3 +29,4 @@ export default function handler(req, res) {
     res.status(200).json({ name: "This route works in development mode only" });
   }
 }
+

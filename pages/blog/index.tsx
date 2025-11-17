@@ -8,21 +8,38 @@ import Header from "../../components/Header";
 import data from "../../data/portfolio.json";
 import { ISOToDate, useIsomorphicLayoutEffect } from "../../utils";
 import { getAllPosts } from "../../utils/api";
-const Blog = ({ posts }) => {
+import { GetStaticProps } from "next";
+
+interface BlogPost {
+  slug: string;
+  title: string;
+  image: string;
+  preview: string;
+  author?: string;
+  date: string;
+}
+
+interface BlogProps {
+  posts: BlogPost[];
+}
+
+const Blog: React.FC<BlogProps> = ({ posts }) => {
   const showBlog = useRef(data.showBlog);
-  const text = useRef();
+  const text = useRef<HTMLHeadingElement>(null);
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState<boolean>(false);
 
   useIsomorphicLayoutEffect(() => {
-    stagger(
-      [text.current],
-      { y: 40, x: -10, transform: "scale(0.95) skew(10deg)" },
-      { y: 0, x: 0, transform: "scale(1)" }
-    );
-    if (showBlog.current) stagger([text.current], { y: 30 }, { y: 0 });
-    else router.push("/");
-  }, []);
+    if (text.current) {
+      stagger(
+        [text.current],
+        { y: 40, x: -10, transform: "scale(0.95) skew(10deg)" },
+        { y: 0, x: 0, transform: "scale(1)" }
+      );
+      if (showBlog.current) stagger([text.current], { y: 30 }, { y: 0 });
+      else router.push("/");
+    }
+  }, [router]);
 
   useEffect(() => {
     setMounted(true);
@@ -36,14 +53,14 @@ const Blog = ({ posts }) => {
           "Content-Type": "application/json",
         },
       }).then(() => {
-        router.reload(window.location.pathname);
+        router.reload();
       });
     } else {
       alert("This thing only works in development mode.");
     }
   };
 
-  const deleteBlog = (slug) => {
+  const deleteBlog = (slug: string) => {
     if (process.env.NODE_ENV === "development") {
       fetch("/api/blog", {
         method: "DELETE",
@@ -54,7 +71,7 @@ const Blog = ({ posts }) => {
           slug,
         }),
       }).then(() => {
-        router.reload(window.location.pathname);
+        router.reload();
       });
     } else {
       alert("This thing only works in development mode.");
@@ -99,11 +116,10 @@ const Blog = ({ posts }) => {
                       {ISOToDate(post.date)}
                     </span>
                     {process.env.NODE_ENV === "development" && mounted && (
-                      <div className="absolute top-0 right-0">
+                      <div className="absolute top-0 right-0" onClick={(e) => e.stopPropagation()}>
                         <Button
-                          onClick={(e) => {
+                          onClick={() => {
                             deleteBlog(post.slug);
-                            e.stopPropagation();
                           }}
                           type={"primary"}
                         >
@@ -128,7 +144,7 @@ const Blog = ({ posts }) => {
   );
 };
 
-export async function getStaticProps() {
+export const getStaticProps: GetStaticProps = async () => {
   const posts = getAllPosts([
     "slug",
     "title",
@@ -143,6 +159,7 @@ export async function getStaticProps() {
       posts: [...posts],
     },
   };
-}
+};
 
 export default Blog;
+

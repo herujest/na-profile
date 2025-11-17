@@ -3,8 +3,8 @@ import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/cjs/styles/prism";
 
-const CodeBlock = {
-  code({ node, inline, className, children, ...props }) {
+const CodeBlock: any = {
+  code({ node, inline, className, children, ...props }: any) {
     const match = /language-(\w+)/.exec(className || "");
     return !inline && match ? (
       <SyntaxHighlighter
@@ -23,7 +23,11 @@ const CodeBlock = {
   },
 };
 
-const ContentSection = ({ content }) => {
+interface ContentSectionProps {
+  content: string;
+}
+
+const ContentSection: React.FC<ContentSectionProps> = ({ content }) => {
   return (
     <ReactMarkdown components={CodeBlock} className="markdown-class">
       {content}
@@ -32,3 +36,4 @@ const ContentSection = ({ content }) => {
 };
 
 export default ContentSection;
+

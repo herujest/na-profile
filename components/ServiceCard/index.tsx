@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 
-const ServiceCard = ({ name, description }) => {
+interface ServiceCardProps {
+  name?: string;
+  description?: string;
+}
+
+const ServiceCard: React.FC<ServiceCardProps> = ({ name, description }) => {
   const { theme } = useTheme();
-  const [mounted, setMounted] = useState();
+  const [mounted, setMounted] = useState<boolean>(false);
 
   useEffect(() => {
     setMounted(true);
@@ -25,3 +30,4 @@ const ServiceCard = ({ name, description }) => {
 };
 
 export default ServiceCard;
+

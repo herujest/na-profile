@@ -6,11 +6,35 @@ import { useTheme } from "next-themes";
 
 import "react-datepicker/dist/react-datepicker.css";
 
-const BlogEditor = ({ post, close, refresh }) => {
+interface BlogPost {
+  slug: string;
+  content: string;
+  date: string;
+  title: string;
+  tagline: string;
+  preview: string;
+  image: string;
+}
+
+interface BlogEditorProps {
+  post: BlogPost;
+  close: () => void;
+  refresh: () => void;
+}
+
+interface BlogVariables {
+  date: string;
+  title: string;
+  tagline: string;
+  preview: string;
+  image: string;
+}
+
+const BlogEditor: React.FC<BlogEditorProps> = ({ post, close, refresh }) => {
   const { theme } = useTheme();
-  const [currentTabs, setCurrentTabs] = useState("BLOGDETAILS");
-  const [blogContent, setBlogContent] = useState(post.content);
-  const [blogVariables, setBlogVariables] = useState({
+  const [currentTabs, setCurrentTabs] = useState<string>("BLOGDETAILS");
+  const [blogContent, setBlogContent] = useState<string>(post.content);
+  const [blogVariables, setBlogVariables] = useState<BlogVariables>({
     date: post.date,
     title: post.title,
     tagline: post.tagline,
@@ -62,13 +86,13 @@ const BlogEditor = ({ post, close, refresh }) => {
             <div className="flex items-center">
               <Button
                 onClick={() => setCurrentTabs("BLOGDETAILS")}
-                type={currentTabs === "BLOGDETAILS" && "primary"}
+                type={currentTabs === "BLOGDETAILS" ? "primary" : undefined}
               >
                 Blog Details
               </Button>
               <Button
                 onClick={() => setCurrentTabs("CONTENT")}
-                type={currentTabs === "CONTENT" && "primary"}
+                type={currentTabs === "CONTENT" ? "primary" : undefined}
               >
                 Content
               </Button>
@@ -82,11 +106,13 @@ const BlogEditor = ({ post, close, refresh }) => {
               <DatePicker
                 selected={new Date(blogVariables.date)}
                 className="w-full mt-2 p-4 hover:border-blue-400 rounded-md shadow-lg border-2"
-                onChange={(date) => {
-                  setBlogVariables({
-                    ...blogVariables,
-                    date: date.toISOString(),
-                  });
+                onChange={(date: Date | null) => {
+                  if (date) {
+                    setBlogVariables({
+                      ...blogVariables,
+                      date: date.toISOString(),
+                    });
+                  }
                 }}
               />
             </div>
@@ -127,7 +153,6 @@ const BlogEditor = ({ post, close, refresh }) => {
                   })
                 }
                 className="w-full mt-2 p-4 hover:border-blue-400 rounded-md shadow-lg border-2"
-                type="text"
               ></textarea>
             </div>
             <div className="mt-5 flex flex-col items-center">
@@ -165,3 +190,4 @@ const BlogEditor = ({ post, close, refresh }) => {
 };
 
 export default BlogEditor;
+

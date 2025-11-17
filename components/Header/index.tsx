@@ -6,10 +6,16 @@ import Button from "../Button";
 // Local Data
 import data from "../../data/portfolio.json";
 
-const Header = ({ handleWorkScroll, handleAboutScroll, isBlog }) => {
+interface HeaderProps {
+  handleWorkScroll?: () => void;
+  handleAboutScroll?: () => void;
+  isBlog?: boolean;
+}
+
+const Header: React.FC<HeaderProps> = ({ handleWorkScroll, handleAboutScroll, isBlog }) => {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState<boolean>(false);
 
   const { name, showBlog, showResume } = data;
 
@@ -19,8 +25,9 @@ const Header = ({ handleWorkScroll, handleAboutScroll, isBlog }) => {
 
   return (
     <>
+      {/* @ts-ignore - @headlessui/react Popover has type issues with React 18 */}
       <Popover className="block tablet:hidden mt-5">
-        {({ open }) => (
+        {({ open }: { open: boolean }): React.ReactNode => (
           <>
             <div className="flex items-center justify-between p-2 laptop:p-0">
               <h1
@@ -42,10 +49,12 @@ const Header = ({ handleWorkScroll, handleAboutScroll, isBlog }) => {
                       src={`/images/${
                         theme === "dark" ? "moon.svg" : "sun.svg"
                       }`}
+                      alt="theme toggle"
                     ></img>
                   </Button>
                 )}
 
+                {/* @ts-ignore */}
                 <Popover.Button>
                   <img
                     className="h-5"
@@ -58,10 +67,12 @@ const Header = ({ handleWorkScroll, handleAboutScroll, isBlog }) => {
                         ? "cancel.svg"
                         : "cancel-white.svg"
                     }`}
+                    alt="menu"
                   ></img>
                 </Popover.Button>
               </div>
             </div>
+            {/* @ts-ignore */}
             <Popover.Panel
               className={`absolute right-0 z-10 w-11/12 p-4 ${
                 theme === "dark" ? "bg-slate-800" : "bg-white"
@@ -155,6 +166,7 @@ const Header = ({ handleWorkScroll, handleAboutScroll, isBlog }) => {
                 <img
                   className="h-6"
                   src={`/images/${theme === "dark" ? "moon.svg" : "sun.svg"}`}
+                  alt="theme toggle"
                 ></img>
               </Button>
             )}
@@ -185,6 +197,7 @@ const Header = ({ handleWorkScroll, handleAboutScroll, isBlog }) => {
                 <img
                   className="h-6"
                   src={`/images/${theme === "dark" ? "moon.svg" : "sun.svg"}`}
+                  alt="theme toggle"
                 ></img>
               </Button>
             )}
@@ -196,3 +209,4 @@ const Header = ({ handleWorkScroll, handleAboutScroll, isBlog }) => {
 };
 
 export default Header;
+

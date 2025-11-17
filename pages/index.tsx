@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { stagger } from "../animations";
 import Button from "../components/Button";
 import Cursor from "../components/Cursor";
@@ -8,36 +8,22 @@ import Footer from "../components/Footer";
 import Header from "../components/Header";
 import ServiceCard from "../components/ServiceCard";
 import Socials from "../components/Socials";
-import WorkCard from "../components/WorkCard";
 import { useIsomorphicLayoutEffect } from "../utils";
 
 // Local Data
-import { useState } from "react";
 import data from "../data/portfolio.json";
 import Portfolio from "./sections/portfolio";
 
 import TabButton from "../components/Button/TabButton";
 import Collaboration from "./sections/collaboration";
 
-// // Import the functions you need from the SDKs you need
-// import { initializeApp } from "firebase/app";
-// import { getAnalytics } from "firebase/analytics";
-// // TODO: Add SDKs for Firebase products that you want to use
-// // https://firebase.google.com/docs/web/setup#available-libraries
+interface HomeTab {
+  id: string;
+  label: string;
+  route: string;
+}
 
-// // Your web app's Firebase configuration
-// // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-// const firebaseConfig = {
-//   apiKey: "AIzaSyBO1rAYRUpIFba1s7IPWumAlOuGD6PLcys",
-//   authDomain: "nisaaulia.firebaseapp.com",
-//   projectId: "nisaaulia",
-//   storageBucket: "nisaaulia.firebasestorage.app",
-//   messagingSenderId: "694173162533",
-//   appId: "1:694173162533:web:2fe1afa424cade038db3cc",
-//   measurementId: "G-WZ2L92EBV3",
-// };
-
-const homeTabs = [
+const homeTabs: HomeTab[] = [
   {
     id: "tabPortfolio",
     label: "Portfolio",
@@ -52,47 +38,50 @@ const homeTabs = [
 
 export default function Home() {
   // Ref
-  const workRef = useRef();
-  const aboutRef = useRef();
-  const textOne = useRef();
-  const textTwo = useRef();
-  const textThree = useRef();
-  const textFour = useRef();
+  const workRef = useRef<HTMLDivElement>(null);
+  const aboutRef = useRef<HTMLDivElement>(null);
+  const textOne = useRef<HTMLHeadingElement>(null);
+  const textTwo = useRef<HTMLHeadingElement>(null);
+  const textThree = useRef<HTMLHeadingElement>(null);
+  const textFour = useRef<HTMLHeadingElement>(null);
 
-  const [currentTabIndex, setCurrentTabIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState(homeTabs[currentTabIndex]);
+  const [currentTabIndex, setCurrentTabIndex] = useState<number>(0);
+  const [activeTab, setActiveTab] = useState<HomeTab>(homeTabs[currentTabIndex]);
 
-  function onChangeActiveTab(index) {
+  function onChangeActiveTab(index: number) {
     setCurrentTabIndex(index);
     setActiveTab(homeTabs[index]);
   }
 
-  // const app = initializeApp(firebaseConfig);
-  // const analytics = getAnalytics(app);
-
   // Handling Scroll
   const handleWorkScroll = () => {
-    window.scrollTo({
-      top: workRef.current.offsetTop,
-      left: 0,
-      behavior: "smooth",
-    });
+    if (workRef.current) {
+      window.scrollTo({
+        top: workRef.current.offsetTop,
+        left: 0,
+        behavior: "smooth",
+      });
+    }
   };
 
   const handleAboutScroll = () => {
-    window.scrollTo({
-      top: aboutRef.current.offsetTop,
-      left: 0,
-      behavior: "smooth",
-    });
+    if (aboutRef.current) {
+      window.scrollTo({
+        top: aboutRef.current.offsetTop,
+        left: 0,
+        behavior: "smooth",
+      });
+    }
   };
 
   useIsomorphicLayoutEffect(() => {
-    stagger(
-      [textOne.current, textTwo.current, textThree.current, textFour.current],
-      { y: 40, x: -10, transform: "scale(0.95) skew(10deg)" },
-      { y: 0, x: 0, transform: "scale(1)" }
-    );
+    if (textOne.current && textTwo.current && textThree.current && textFour.current) {
+      stagger(
+        [textOne.current, textTwo.current, textThree.current, textFour.current],
+        { y: 40, x: -10, transform: "scale(0.95) skew(10deg)" },
+        { y: 0, x: 0, transform: "scale(1)" }
+      );
+    }
   }, []);
 
   return (
@@ -160,14 +149,14 @@ export default function Home() {
           </TabButton>
         </div>
         {currentTabIndex === 0 ? (
-          <Portfolio workRef={workRef} collabs={data.collaborations} />
+          <Portfolio workRef={workRef as React.RefObject<HTMLDivElement>} collabs={data.collaborations || []} />
         ) : null}
         {currentTabIndex === 1 ? <Collaboration /> : null}
 
         <div className="mt-10 laptop:mt-30 p-2 laptop:p-0">
           <h1 className="tablet:m-10 text-2xl text-bold">Services.</h1>
           <div className="mt-5 tablet:m-10 grid grid-cols-1 laptop:grid-cols-2 gap-6">
-            {data.services.map((service, index) => (
+            {data.services.map((service: { title: string; description: string }, index: number) => (
               <ServiceCard
                 key={index}
                 name={service.title}
@@ -195,3 +184,4 @@ export default function Home() {
     </div>
   );
 }
+

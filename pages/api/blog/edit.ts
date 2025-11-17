@@ -1,8 +1,9 @@
 import fs from "fs";
 import { join } from "path";
 import matter from "gray-matter";
+import { NextApiRequest, NextApiResponse } from "next";
 
-export default function handler(req, res) {
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const postsfolder = join(process.cwd(), `/_posts/`);
   if (process.env.NODE_ENV === "development") {
     if (req.method === "POST") {
@@ -25,5 +26,8 @@ export default function handler(req, res) {
         .status(200)
         .json({ name: "This route works in development mode only" });
     }
+  } else {
+    res.status(200).json({ name: "This route works in development mode only" });
   }
 }
+

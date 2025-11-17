@@ -8,10 +8,74 @@ import { useTheme } from "next-themes";
 import yourData from "../data/portfolio.json";
 import Cursor from "../components/Cursor";
 
-const Edit = () => {
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  imageSrc: string;
+  url: string;
+}
+
+interface Service {
+  id: string;
+  title: string;
+  description: string;
+}
+
+interface Social {
+  id: string;
+  title: string;
+  link: string;
+}
+
+interface Experience {
+  id: string;
+  dates: string;
+  type: string;
+  position: string;
+  bullets: string | string[];
+}
+
+interface Education {
+  universityName: string;
+  universityDate: string;
+  universityPara: string;
+}
+
+interface Resume {
+  tagline: string;
+  description: string;
+  experiences: Experience[];
+  education: Education;
+  languages: string[];
+  frameworks: string[];
+  others: string[];
+}
+
+interface PortfolioData {
+  name: string;
+  headerTaglineOne: string;
+  headerTaglineTwo: string;
+  headerTaglineThree: string;
+  headerTaglineFour: string;
+  showCursor: boolean;
+  showBlog: boolean;
+  darkMode: boolean;
+  showResume: boolean;
+  socials: Social[];
+  projects: Project[];
+  services: Service[];
+  aboutpara: string;
+  resume: Resume;
+  collaborations?: any[];
+}
+
+type TabType = "HEADER" | "PROJECTS" | "SERVICES" | "ABOUT" | "SOCIAL" | "RESUME";
+
+const Edit: React.FC = () => {
   // states
-  const [data, setData] = useState(yourData);
-  const [currentTabs, setCurrentTabs] = useState("HEADER");
+  const [data, setData] = useState<PortfolioData>(yourData as PortfolioData);
+  const [currentTabs, setCurrentTabs] = useState<TabType>("HEADER");
   const { theme } = useTheme();
 
   const saveData = () => {
@@ -29,8 +93,8 @@ const Edit = () => {
   };
 
   // Project Handler
-  const editProjects = (projectIndex, editProject) => {
-    let copyProjects = data.projects;
+  const editProjects = (projectIndex: number, editProject: Project) => {
+    const copyProjects = [...data.projects];
     copyProjects[projectIndex] = { ...editProject };
     setData({ ...data, projects: copyProjects });
   };
@@ -46,23 +110,20 @@ const Edit = () => {
           description: "Web Design & Development",
           imageSrc:
             "https://images.unsplash.com/photo-1517479149777-5f3b1511d5ad?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxzZWFyY2h8MTAyfHxwYXN0ZWx8ZW58MHx8MHw%3D&auto=format&fit=crop&w=400&q=60",
-
           url: "http://chetanverma.com/",
         },
       ],
     });
   };
 
-  const deleteProject = (id) => {
-    const copyProjects = data.projects;
-    copyProjects = copyProjects.filter((project) => project.id !== id);
+  const deleteProject = (id: string) => {
+    const copyProjects = data.projects.filter((project) => project.id !== id);
     setData({ ...data, projects: copyProjects });
   };
 
   // Services Handler
-
-  const editServices = (serviceIndex, editService) => {
-    let copyServices = data.services;
+  const editServices = (serviceIndex: number, editService: Service) => {
+    const copyServices = [...data.services];
     copyServices[serviceIndex] = { ...editService };
     setData({ ...data, services: copyServices });
   };
@@ -82,16 +143,14 @@ const Edit = () => {
     });
   };
 
-  const deleteService = (id) => {
-    const copyServices = data.services;
-    copyServices = copyServices.filter((service) => service.id !== id);
+  const deleteService = (id: string) => {
+    const copyServices = data.services.filter((service) => service.id !== id);
     setData({ ...data, services: copyServices });
   };
 
   // Socials Handler
-
-  const editSocials = (socialIndex, editSocial) => {
-    let copySocials = data.socials;
+  const editSocials = (socialIndex: number, editSocial: Social) => {
+    const copySocials = [...data.socials];
     copySocials[socialIndex] = { ...editSocial };
     setData({ ...data, socials: copySocials });
   };
@@ -110,14 +169,12 @@ const Edit = () => {
     });
   };
 
-  const deleteSocials = (id) => {
-    const copySocials = data.socials;
-    copySocials = copySocials.filter((social) => social.id !== id);
+  const deleteSocials = (id: string) => {
+    const copySocials = data.socials.filter((social) => social.id !== id);
     setData({ ...data, socials: copySocials });
   };
 
   // Resume
-
   const handleAddExperiences = () => {
     setData({
       ...data,
@@ -130,15 +187,15 @@ const Edit = () => {
             dates: "Enter Dates",
             type: "Full Time",
             position: "Frontend Engineer at X",
-            bullets: ["Worked on the frontend of a React application"],
+            bullets: "Worked on the frontend of a React application",
           },
         ],
       },
     });
   };
 
-  const handleEditExperiences = (index, editExperience) => {
-    let copyExperiences = data.resume.experiences;
+  const handleEditExperiences = (index: number, editExperience: Experience) => {
+    const copyExperiences = [...data.resume.experiences];
     copyExperiences[index] = { ...editExperience };
     setData({
       ...data,
@@ -164,37 +221,37 @@ const Edit = () => {
           <div className="flex items-center">
             <Button
               onClick={() => setCurrentTabs("HEADER")}
-              type={currentTabs === "HEADER" && "primary"}
+              type={currentTabs === "HEADER" ? "primary" : undefined}
             >
               Header
             </Button>
             <Button
               onClick={() => setCurrentTabs("PROJECTS")}
-              type={currentTabs === "PROJECTS" && "primary"}
+              type={currentTabs === "PROJECTS" ? "primary" : undefined}
             >
               Projects
             </Button>
             <Button
               onClick={() => setCurrentTabs("SERVICES")}
-              type={currentTabs === "SERVICES" && "primary"}
+              type={currentTabs === "SERVICES" ? "primary" : undefined}
             >
               Services
             </Button>
             <Button
               onClick={() => setCurrentTabs("ABOUT")}
-              type={currentTabs === "ABOUT" && "primary"}
+              type={currentTabs === "ABOUT" ? "primary" : undefined}
             >
               About
             </Button>
             <Button
               onClick={() => setCurrentTabs("SOCIAL")}
-              type={currentTabs === "SOCIAL" && "primary"}
+              type={currentTabs === "SOCIAL" ? "primary" : undefined}
             >
               Social
             </Button>
             <Button
               onClick={() => setCurrentTabs("RESUME")}
-              type={currentTabs === "RESUME" && "primary"}
+              type={currentTabs === "RESUME" ? "primary" : undefined}
             >
               Resume
             </Button>
@@ -269,14 +326,14 @@ const Edit = () => {
               <div className="w-4/5 ml-10 flex items-center">
                 <Button
                   onClick={() => setData({ ...data, showBlog: true })}
-                  type={data.showBlog && "primary"}
+                  type={data.showBlog ? "primary" : undefined}
                 >
                   Yes
                 </Button>
                 <Button
                   onClick={() => setData({ ...data, showBlog: false })}
                   classes={
-                    !data.showBlog && "bg-red-500 text-white hover:bg-red-600"
+                    !data.showBlog ? "bg-red-500 text-white hover:bg-red-600" : undefined
                   }
                 >
                   No
@@ -288,14 +345,14 @@ const Edit = () => {
               <div className="w-4/5 ml-10 flex items-center">
                 <Button
                   onClick={() => setData({ ...data, darkMode: true })}
-                  type={data.darkMode && "primary"}
+                  type={data.darkMode ? "primary" : undefined}
                 >
                   Yes
                 </Button>
                 <Button
                   onClick={() => setData({ ...data, darkMode: false })}
                   classes={
-                    !data.darkMode && "bg-red-500 text-white hover:bg-red-600"
+                    !data.darkMode ? "bg-red-500 text-white hover:bg-red-600" : undefined
                   }
                 >
                   No
@@ -307,14 +364,14 @@ const Edit = () => {
               <div className="w-4/5 ml-10 flex items-center">
                 <Button
                   onClick={() => setData({ ...data, showResume: true })}
-                  type={data.showResume && "primary"}
+                  type={data.showResume ? "primary" : undefined}
                 >
                   Yes
                 </Button>
                 <Button
                   onClick={() => setData({ ...data, showResume: false })}
                   classes={
-                    !data.showResume && "bg-red-500 text-white hover:bg-red-600"
+                    !data.showResume ? "bg-red-500 text-white hover:bg-red-600" : undefined
                   }
                 >
                   No
@@ -326,14 +383,14 @@ const Edit = () => {
               <div className="w-4/5 ml-10 flex items-center">
                 <Button
                   onClick={() => setData({ ...data, showCursor: true })}
-                  type={data.showCursor && "primary"}
+                  type={data.showCursor ? "primary" : undefined}
                 >
                   Yes
                 </Button>
                 <Button
                   onClick={() => setData({ ...data, showCursor: false })}
                   classes={
-                    !data.showCursor && "bg-red-500 text-white hover:bg-red-600"
+                    !data.showCursor ? "bg-red-500 text-white hover:bg-red-600" : undefined
                   }
                 >
                   No
@@ -498,48 +555,46 @@ const Edit = () => {
         {currentTabs === "SOCIAL" && (
           <div className="mt-10">
             {data.socials.map((social, index) => (
-              <>
-                <div key={social.id}>
-                  <div className="flex items-center justify-between">
-                    <h1 className="text-2xl">{social.title}</h1>
-                    <Button
-                      onClick={() => deleteSocials(social.id)}
-                      type="primary"
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                  <div className="flex items-center mt-5">
-                    <label className="w-1/5 text-lg opacity-50">Title</label>
-                    <input
-                      value={social.title}
-                      onChange={(e) =>
-                        editSocials(index, {
-                          ...social,
-                          title: e.target.value,
-                        })
-                      }
-                      className="w-4/5 ml-10 p-2 rounded-md shadow-lg border-2"
-                      type="text"
-                    ></input>
-                  </div>
-                  <div className="flex items-center mt-5">
-                    <label className="w-1/5 text-lg opacity-50">Link</label>
-                    <input
-                      value={social.link}
-                      onChange={(e) =>
-                        editSocials(index, {
-                          ...social,
-                          link: e.target.value,
-                        })
-                      }
-                      className="w-4/5 ml-10 p-2 rounded-md shadow-lg border-2"
-                      type="text"
-                    />
-                  </div>
-                  <hr className="my-10"></hr>
+              <div key={social.id}>
+                <div className="flex items-center justify-between">
+                  <h1 className="text-2xl">{social.title}</h1>
+                  <Button
+                    onClick={() => deleteSocials(social.id)}
+                    type="primary"
+                  >
+                    Delete
+                  </Button>
                 </div>
-              </>
+                <div className="flex items-center mt-5">
+                  <label className="w-1/5 text-lg opacity-50">Title</label>
+                  <input
+                    value={social.title}
+                    onChange={(e) =>
+                      editSocials(index, {
+                        ...social,
+                        title: e.target.value,
+                      })
+                    }
+                    className="w-4/5 ml-10 p-2 rounded-md shadow-lg border-2"
+                    type="text"
+                  ></input>
+                </div>
+                <div className="flex items-center mt-5">
+                  <label className="w-1/5 text-lg opacity-50">Link</label>
+                  <input
+                    value={social.link}
+                    onChange={(e) =>
+                      editSocials(index, {
+                        ...social,
+                        link: e.target.value,
+                      })
+                    }
+                    className="w-4/5 ml-10 p-2 rounded-md shadow-lg border-2"
+                    type="text"
+                  />
+                </div>
+                <hr className="my-10"></hr>
+              </div>
             ))}
             <div className="my-10">
               <Button onClick={addSocials} type="primary">
@@ -582,25 +637,20 @@ const Edit = () => {
 
             <h1>Experiences</h1>
             <div className="mt-10">
-              {data.resume.experiences.map((experiences, index) => (
-                <div className="mt-5" key={experiences.id}>
+              {data.resume.experiences.map((experience, index) => (
+                <div className="mt-5" key={experience.id}>
                   <div className="flex items-center justify-between">
-                    <h1 className="text-2xl">{experiences.position}</h1>
-                    <Button
-                      // onClick={() => deleteProject(project.id)}
-                      type="primary"
-                    >
-                      Delete
-                    </Button>
+                    <h1 className="text-2xl">{experience.position}</h1>
+                    <Button type="primary">Delete</Button>
                   </div>
 
                   <div className="flex items-center mt-5">
                     <label className="w-1/5 text-lg opacity-50">Dates</label>
                     <input
-                      value={experiences.dates}
+                      value={experience.dates}
                       onChange={(e) =>
                         handleEditExperiences(index, {
-                          ...experiences,
+                          ...experience,
                           dates: e.target.value,
                         })
                       }
@@ -611,10 +661,10 @@ const Edit = () => {
                   <div className="flex items-center mt-2">
                     <label className="w-1/5 text-lg opacity-50">Type</label>
                     <input
-                      value={experiences.type}
+                      value={experience.type}
                       onChange={(e) =>
                         handleEditExperiences(index, {
-                          ...experiences,
+                          ...experience,
                           type: e.target.value,
                         })
                       }
@@ -625,10 +675,10 @@ const Edit = () => {
                   <div className="flex items-center mt-2">
                     <label className="w-1/5 text-lg opacity-50">Position</label>
                     <input
-                      value={experiences.position}
+                      value={experience.position}
                       onChange={(e) =>
                         handleEditExperiences(index, {
-                          ...experiences,
+                          ...experience,
                           position: e.target.value,
                         })
                       }
@@ -640,10 +690,10 @@ const Edit = () => {
                     <label className="w-1/5 text-lg opacity-50">Bullets</label>
                     <div className="w-4/5 ml-10 flex flex-col">
                       <input
-                        value={experiences.bullets}
+                        value={typeof experience.bullets === "string" ? experience.bullets : experience.bullets.join(", ")}
                         onChange={(e) =>
                           handleEditExperiences(index, {
-                            ...experiences,
+                            ...experience,
                             bullets: e.target.value,
                           })
                         }
@@ -909,3 +959,4 @@ const Edit = () => {
 };
 
 export default Edit;
+

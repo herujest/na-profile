@@ -7,12 +7,18 @@ const client = new S3Client({
   region: "auto",
   endpoint: process.env.R2_ENDPOINT,
   credentials: {
-    accessKeyId: accessKeyId,
-    secretAccessKey: secretAccessKey,
+    accessKeyId: accessKeyId || "",
+    secretAccessKey: secretAccessKey || "",
   },
 });
 
-export async function listR2Files(bucketName, prefix = "") {
+export interface R2File {
+  key: string | undefined;
+  size: number | undefined;
+  lastModified: Date | undefined;
+}
+
+export async function listR2Files(bucketName: string, prefix = ""): Promise<R2File[]> {
   try {
     const command = new ListObjectsV2Command({
       Bucket: bucketName,
@@ -35,3 +41,4 @@ export async function listR2Files(bucketName, prefix = "") {
     throw err;
   }
 }
+

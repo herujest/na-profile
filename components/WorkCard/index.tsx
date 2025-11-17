@@ -1,8 +1,23 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Image from "next/image";
 
-const WorkCard = ({ imgs, name, description, onClick }) => {
+interface WorkCardProps {
+  imgs?: Array<{ imageSrc: string | string[] }>;
+  name?: string;
+  description?: string;
+  onClick?: () => void;
+}
+
+const WorkCard: React.FC<WorkCardProps> = ({ imgs, name, description, onClick }) => {
   if (!imgs?.length) return null;
+
+  const imageSrc = Array.isArray(imgs[0]?.imageSrc)
+    ? imgs[0].imageSrc[0]
+    : imgs[0]?.imageSrc;
+
+  const finalImageSrc = imageSrc?.startsWith("/")
+    ? imageSrc
+    : `/images/${imageSrc}`;
 
   return (
     <div
@@ -36,21 +51,20 @@ const WorkCard = ({ imgs, name, description, onClick }) => {
         >
           {name}
         </span>
-        <Image
-          alt={name}
-          className="h-full w-full object-cover hover:scale-110 transition-all ease-out duration-300"
-          src={
-            imgs[0]?.imageSrc[0]?.startsWith("/")
-              ? imgs[0]?.imageSrc
-              : `/images/${imgs[0]?.imageSrc[0]}`
-          }
-          layout="fill"
-          sizes="100vw"
-          style={{ objectFit: "cover" }}
-        />
+        {imageSrc && (
+          <Image
+            alt={name || "Work"}
+            className="h-full w-full object-cover hover:scale-110 transition-all ease-out duration-300"
+            src={finalImageSrc}
+            layout="fill"
+            sizes="100vw"
+            style={{ objectFit: "cover" }}
+          />
+        )}
       </div>
     </div>
   );
 };
 
 export default WorkCard;
+

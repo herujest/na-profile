@@ -1,11 +1,21 @@
 import { useState } from "react";
 
-const Collaboration = () => {
-  const [activeTemplate, setActiveTemplate] = useState("magazine");
-  const [selectedProject, setSelectedProject] = useState(null);
+interface Project {
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  category: string;
+  tech: string[];
+  url: string;
+}
+
+const Collaboration: React.FC = () => {
+  const [activeTemplate, setActiveTemplate] = useState<string>("magazine");
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   // Sample data
-  const projects = [
+  const projects: Project[] = [
     {
       id: 1,
       title: "E-commerce Platform",
@@ -74,14 +84,19 @@ const Collaboration = () => {
     },
   ];
 
-  const templates = {
+  const templates: Record<string, string> = {
     masonry: "Masonry Grid",
     cards: "Card Grid",
     minimal: "Minimal List",
     magazine: "Magazine Style",
   };
 
-  const ProjectCard = ({ project, template }) => {
+  interface ProjectCardProps {
+    project: Project;
+    template: string;
+  }
+
+  const ProjectCard: React.FC<ProjectCardProps> = ({ project, template }) => {
     const baseClasses = "group cursor-pointer transition-all duration-300";
 
     switch (template) {
@@ -471,3 +486,4 @@ const Collaboration = () => {
 };
 
 export default Collaboration;
+

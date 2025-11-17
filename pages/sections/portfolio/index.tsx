@@ -1,9 +1,26 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, RefObject } from "react";
 import WorkCard from "../../../components/WorkCard";
-import { listR2Files } from "../../../utils/s3Config";
 
-export default function Portfolio({ workRef, collabs }) {
-  const [popupProject, setPopupProject] = useState(null);
+interface MediaItem {
+  imageSrc: string | string[];
+}
+
+interface Collaboration {
+  id: string;
+  title: string;
+  description: string;
+  media?: MediaItem[];
+  imageSrc?: string;
+  url?: string;
+}
+
+interface PortfolioProps {
+  workRef?: RefObject<HTMLDivElement>;
+  collabs?: Collaboration[];
+}
+
+export default function Portfolio({ workRef, collabs }: PortfolioProps) {
+  const [popupProject, setPopupProject] = useState<Collaboration | null>(null);
 
   const ProjectWrapper = () => {
     if (!collabs?.length) return null;
@@ -69,21 +86,26 @@ export default function Portfolio({ workRef, collabs }) {
               &times;
             </button>
             <h2 className="text-2xl font-bold mb-4">{popupProject.title}</h2>
-            <img
-              src={popupProject.imageSrc}
-              alt={popupProject.title}
-              className="w-full h-auto mb-4"
-            />
+            {popupProject.imageSrc && (
+              <img
+                src={popupProject.imageSrc}
+                alt={popupProject.title}
+                className="w-full h-auto mb-4"
+              />
+            )}
             <p>{popupProject.description}</p>
-            <button
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-              onClick={() => window.open(popupProject.url)}
-            >
-              Visit Project
-            </button>
+            {popupProject.url && (
+              <button
+                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+                onClick={() => window.open(popupProject.url)}
+              >
+                Visit Project
+              </button>
+            )}
           </div>
         </div>
       )}
     </div>
   );
 }
+
