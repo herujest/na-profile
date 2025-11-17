@@ -12,3 +12,59 @@ export const stagger = (
   );
 };
 
+export const scrollAnimation = (
+  element: HTMLElement | null,
+  options?: {
+    from?: gsap.TweenVars;
+    to?: gsap.TweenVars;
+    duration?: number;
+    delay?: number;
+    once?: boolean;
+  }
+) => {
+  if (!element) return;
+
+  const {
+    from = { opacity: 0, y: 50 },
+    to = { opacity: 1, y: 0 },
+    duration = 0.8,
+    delay = 0,
+    once = true,
+  } = options || {};
+
+  // Set initial state
+  gsap.set(element, from);
+
+  // Create intersection observer
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          gsap.to(entry.target, {
+            ...to,
+            duration,
+            delay,
+            ease: Power3.easeOut,
+          });
+
+          // If once is true, stop observing after animation
+          if (once) {
+            observer.unobserve(entry.target);
+          }
+        }
+      });
+    },
+    {
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px",
+    }
+  );
+
+  observer.observe(element);
+
+  // Return cleanup function
+  return () => {
+    observer.disconnect();
+  };
+};
+

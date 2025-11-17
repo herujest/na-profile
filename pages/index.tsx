@@ -1,13 +1,14 @@
 import Head from "next/head";
 import Link from "next/link";
-import { useRef, useState } from "react";
-import { stagger } from "../animations";
+import { useRef, useState, useEffect } from "react";
+import { stagger, scrollAnimation } from "../animations";
 import Button from "../components/Button";
 import Cursor from "../components/Cursor";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import ServiceCard from "../components/ServiceCard";
 import Socials from "../components/Socials";
+import FloatingScrollButton from "../components/FloatingScrollButton";
 import { useIsomorphicLayoutEffect } from "../utils";
 
 // Local Data
@@ -38,12 +39,17 @@ const homeTabs: HomeTab[] = [
 
 export default function Home() {
   // Ref
+  const headerRef = useRef<HTMLDivElement>(null);
   const workRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
   const textOne = useRef<HTMLHeadingElement>(null);
   const textTwo = useRef<HTMLHeadingElement>(null);
   const textThree = useRef<HTMLHeadingElement>(null);
   const textFour = useRef<HTMLHeadingElement>(null);
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const servicesRef = useRef<HTMLDivElement>(null);
+  const socialsRef = useRef<HTMLDivElement>(null);
+  const collaborationRef = useRef<HTMLDivElement>(null);
 
   const [currentTabIndex, setCurrentTabIndex] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<HomeTab>(homeTabs[currentTabIndex]);
@@ -82,7 +88,94 @@ export default function Home() {
         { y: 0, x: 0, transform: "scale(1)" }
       );
     }
+
+    // Scroll animations for sections
+    const cleanupFunctions: (() => void)[] = [];
+
+    // Tabs section animation
+    if (tabsRef.current) {
+      const cleanup = scrollAnimation(tabsRef.current, {
+        from: { opacity: 0, y: 30 },
+        to: { opacity: 1, y: 0 },
+        duration: 0.6,
+        delay: 0.1,
+      });
+      if (cleanup) cleanupFunctions.push(cleanup);
+    }
+
+    // Work/Portfolio section animation
+    if (workRef.current) {
+      const cleanup = scrollAnimation(workRef.current, {
+        from: { opacity: 0, y: 50 },
+        to: { opacity: 1, y: 0 },
+        duration: 0.8,
+        delay: 0.2,
+      });
+      if (cleanup) cleanupFunctions.push(cleanup);
+    }
+
+    // Note: Collaboration section animation is handled in useEffect below
+    // because it's conditionally rendered
+
+    // Services section animation
+    if (servicesRef.current) {
+      const cleanup = scrollAnimation(servicesRef.current, {
+        from: { opacity: 0, y: 50 },
+        to: { opacity: 1, y: 0 },
+        duration: 0.8,
+        delay: 0.1,
+      });
+      if (cleanup) cleanupFunctions.push(cleanup);
+    }
+
+    // About section animation
+    if (aboutRef.current) {
+      const cleanup = scrollAnimation(aboutRef.current, {
+        from: { opacity: 0, y: 50 },
+        to: { opacity: 1, y: 0 },
+        duration: 0.8,
+        delay: 0.1,
+      });
+      if (cleanup) cleanupFunctions.push(cleanup);
+    }
+
+    // Socials animation
+    if (socialsRef.current) {
+      const cleanup = scrollAnimation(socialsRef.current, {
+        from: { opacity: 0, y: 20 },
+        to: { opacity: 1, y: 0 },
+        duration: 0.6,
+        delay: 0.2,
+      });
+      if (cleanup) cleanupFunctions.push(cleanup);
+    }
+
+    // Cleanup function
+    return () => {
+      cleanupFunctions.forEach((cleanup) => cleanup());
+    };
   }, []);
+
+  // Handle animation for conditionally rendered Collaboration section
+  useEffect(() => {
+    if (currentTabIndex === 1 && collaborationRef.current) {
+      // Small delay to ensure DOM is ready
+      const timer = setTimeout(() => {
+        if (collaborationRef.current) {
+          scrollAnimation(collaborationRef.current, {
+            from: { opacity: 0, y: 50 },
+            to: { opacity: 1, y: 0 },
+            duration: 0.8,
+            delay: 0.2,
+          });
+        }
+      }, 100);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [currentTabIndex]);
 
   return (
     <div className={`relative ${data.showCursor && "cursor-none"}`}>
@@ -99,7 +192,7 @@ export default function Home() {
           handleWorkScroll={handleWorkScroll}
           handleAboutScroll={handleAboutScroll}
         />
-        <div className="laptop:mt-20 mt-10">
+        <div className="laptop:mt-20 mt-10" ref={headerRef}>
           <div className="mt-5">
             <h1
               ref={textOne}
@@ -127,10 +220,12 @@ export default function Home() {
             </h1>
           </div>
 
-          <Socials className="mt-2 laptop:mt-5" />
+          <div ref={socialsRef}>
+            <Socials className="mt-2 laptop:mt-5" />
+          </div>
         </div>
         {/* WORK Collaborations */}
-        <div className="row-item">
+        <div className="row-item" ref={tabsRef}>
           <TabButton
             classes={`button-tab ${
               currentTabIndex === 0 ? "switch-active" : "switch-inactive"
@@ -151,9 +246,13 @@ export default function Home() {
         {currentTabIndex === 0 ? (
           <Portfolio workRef={workRef as React.RefObject<HTMLDivElement>} collabs={data.collaborations || []} />
         ) : null}
-        {currentTabIndex === 1 ? <Collaboration /> : null}
+        {currentTabIndex === 1 ? (
+          <div ref={workRef}>
+            <Collaboration />
+          </div>
+        ) : null}
 
-        <div className="mt-10 laptop:mt-30 p-2 laptop:p-0">
+        <div className="mt-10 laptop:mt-30 p-2 laptop:p-0" ref={servicesRef}>
           <h1 className="tablet:m-10 text-2xl text-bold">Services.</h1>
           <div className="mt-5 tablet:m-10 grid grid-cols-1 laptop:grid-cols-2 gap-6">
             {data.services.map((service: { title: string; description: string }, index: number) => (
@@ -181,6 +280,17 @@ export default function Home() {
         </div>
         <Footer />
       </div>
+
+      {/* Floating Scroll Button */}
+      <FloatingScrollButton
+        sections={[
+          { ref: headerRef, id: "header" },
+          { ref: tabsRef, id: "tabs" },
+          { ref: workRef, id: "work" },
+          { ref: servicesRef, id: "services" },
+          { ref: aboutRef, id: "about" },
+        ]}
+      />
     </div>
   );
 }

@@ -100,3 +100,29 @@ body {
   z-index: 200;
 
 }
+
+@keyframes floatBounce {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-12px);
+  }
+}
+
+@keyframes arrowBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+
+.floating-scroll-button {
+  animation: floatBounce 1.2s ease-in-out infinite;
+}
+
+.floating-scroll-button svg {
+  animation: arrowBounce 1.2s ease-in-out infinite;
+}
