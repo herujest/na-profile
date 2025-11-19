@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Menu, Transition } from "@headlessui/react";
+import { Fragment } from "react";
 
 interface Project {
   id: number;
@@ -85,10 +87,64 @@ const Collaboration: React.FC = () => {
   ];
 
   const templates: Record<string, string> = {
-    masonry: "Masonry Grid",
     cards: "Card Grid",
     minimal: "Minimal List",
     magazine: "Magazine Style",
+  };
+
+  const templateIcons: Record<string, React.ReactElement> = {
+    cards: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <rect x="14" y="14" width="7" height="7" rx="1" />
+      </svg>
+    ),
+    minimal: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <line x1="8" y1="6" x2="21" y2="6" />
+        <line x1="8" y1="12" x2="21" y2="12" />
+        <line x1="8" y1="18" x2="21" y2="18" />
+        <line x1="3" y1="6" x2="3.01" y2="6" />
+        <line x1="3" y1="12" x2="3.01" y2="12" />
+        <line x1="3" y1="18" x2="3.01" y2="18" />
+      </svg>
+    ),
+    magazine: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <line x1="3" y1="9" x2="21" y2="9" />
+        <line x1="9" y1="21" x2="9" y2="9" />
+      </svg>
+    ),
   };
 
   interface ProjectCardProps {
@@ -100,52 +156,6 @@ const Collaboration: React.FC = () => {
     const baseClasses = "group cursor-pointer transition-all duration-300";
 
     switch (template) {
-      case "masonry":
-        return (
-          <div className={`${baseClasses} break-inside-avoid mb-6`}>
-            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transform hover:-translate-y-1">
-              <div className="relative overflow-hidden">
-                <img
-                  src={project.image}
-                  alt={project.title}
-                  className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
-                  <button
-                    onClick={() => setSelectedProject(project)}
-                    className="opacity-0 group-hover:opacity-100 bg-white text-gray-900 p-3 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-all duration-300"
-                  >
-                    {/* <Eye size={20} /> */}
-                  </button>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                    {project.category}
-                  </span>
-                </div>
-                <h3 className="font-bold text-lg mb-2 text-gray-900 dark:text-white">
-                  {project.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                  {project.description}
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  {project.tech.map((tech, index) => (
-                    <span
-                      key={index}
-                      className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
       case "cards":
         return (
           <div className={`${baseClasses}`}>
@@ -318,18 +328,6 @@ const Collaboration: React.FC = () => {
 
   const renderGrid = () => {
     switch (activeTemplate) {
-      case "masonry":
-        return (
-          <div className="columns-1 md:columns-2 lg:columns-3 gap-6">
-            {projects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                template="masonry"
-              />
-            ))}
-          </div>
-        );
       case "cards":
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -375,29 +373,101 @@ const Collaboration: React.FC = () => {
     <div className="w-full mt-10 laptop:mt-30 p-2 laptop:p-0">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl text-bold mb-4">Gallery.</h1>
-        {/* Template Selector */}
-        <div className="flex flex-wrap gap-2">
-          {Object.entries(templates).map(([key, name]) => (
-            <button
-              key={key}
-              onClick={() => setActiveTemplate(key)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                activeTemplate === key
-                  ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-              }`}
-            >
-              {name}
-            </button>
-          ))}
+        <h1 className="text-2xl text-bold mb-4">Partner in Collaborations.</h1>
+        {/* Template Selector Dropdown */}
+        <div className="relative inline-block text-left">
+          {/* @ts-ignore - @headlessui/react Menu has type issues with React 18 */}
+          <Menu>
+            {({ open }: { open: boolean }): React.ReactNode => (
+              <>
+                {/* @ts-ignore */}
+                <Menu.Button className="inline-flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 min-w-[200px]">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-900 dark:text-white">
+                      {templateIcons[activeTemplate]}
+                    </span>
+                    <span>{templates[activeTemplate]}</span>
+                  </div>
+                  <svg
+                    className={`ml-2 -mr-1 h-5 w-5 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${
+                      open ? "rotate-180" : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </Menu.Button>
+
+                {/* @ts-ignore */}
+                <Transition
+                  as={Fragment}
+                  enter="transition ease-out duration-100"
+                  enterFrom="transform opacity-0 scale-95"
+                  enterTo="transform opacity-100 scale-100"
+                  leave="transition ease-in duration-75"
+                  leaveFrom="transform opacity-100 scale-100"
+                  leaveTo="transform opacity-0 scale-95"
+                >
+                  {/* @ts-ignore */}
+                  <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-left bg-white dark:bg-gray-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10 border border-gray-200 dark:border-gray-700">
+                    <div className="py-1">
+                      {Object.entries(templates).map(([key, name]) => (
+                        /* @ts-ignore */
+                        <Menu.Item key={key}>
+                          {({ active }: { active: boolean }) => (
+                            <button
+                              onClick={() => setActiveTemplate(key)}
+                              className={`${
+                                active || activeTemplate === key
+                                  ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
+                                  : "text-gray-700 dark:text-gray-300"
+                              } group flex items-center w-full px-4 py-2 text-sm transition-all duration-150 hover:bg-gray-100 dark:hover:bg-gray-700`}
+                            >
+                              <span
+                                className={`mr-3 flex-shrink-0 ${
+                                  active || activeTemplate === key
+                                    ? "text-blue-600 dark:text-blue-400"
+                                    : "text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400"
+                                } transition-colors duration-150`}
+                              >
+                                {templateIcons[key]}
+                              </span>
+                              <span className="flex-1 text-left">{name}</span>
+                              {activeTemplate === key && (
+                                <svg
+                                  className="h-4 w-4 text-blue-600 dark:text-blue-400"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              )}
+                            </button>
+                          )}
+                        </Menu.Item>
+                      ))}
+                    </div>
+                  </Menu.Items>
+                </Transition>
+              </>
+            )}
+          </Menu>
         </div>
       </div>
 
       {/* Content */}
-      <div className="w-full">
-        {renderGrid()}
-      </div>
+      <div className="w-full">{renderGrid()}</div>
 
       {/* Modal */}
       {selectedProject && (
@@ -474,4 +544,3 @@ const Collaboration: React.FC = () => {
 };
 
 export default Collaboration;
-
