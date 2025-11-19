@@ -84,7 +84,9 @@ const Collaboration: React.FC = () => {
     <div className="w-full mt-10 laptop:mt-30 p-2 laptop:p-0">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-6">Partner in Collaborations.</h1>
+        <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
+          Partner in Collaborations.
+        </h1>
 
         {/* Category Filter Tabs */}
         <div className="flex flex-wrap gap-2 mb-6">

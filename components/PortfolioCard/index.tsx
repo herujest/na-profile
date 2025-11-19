@@ -127,7 +127,9 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
 
         {/* Content below image */}
         <div className="mt-4">
-          <h3 className="text-lg font-light mb-2">{title}</h3>
+          <h3 className="text-lg font-light mb-2 text-gray-900 dark:text-white">
+            {title}
+          </h3>
           {summary && (
             <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
               {summary}
@@ -138,13 +140,13 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
               {techStack.slice(0, 3).map((tech, idx) => (
                 <span
                   key={idx}
-                  className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded"
+                  className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded"
                 >
                   {tech}
                 </span>
               ))}
               {techStack.length > 3 && (
-                <span className="text-xs px-2 py-1 text-gray-500">
+                <span className="text-xs px-2 py-1 text-gray-500 dark:text-gray-400">
                   +{techStack.length - 3}
                 </span>
               )}

@@ -32,7 +32,7 @@ const Header: React.FC<HeaderProps> = ({ handleWorkScroll, handleAboutScroll, is
             <div className="flex items-center justify-between p-2 laptop:p-0">
               <h1
                 onClick={() => router.push("/")}
-                className="font-medium p-2 laptop:p-0 link"
+                className="font-medium p-2 laptop:p-0 link text-gray-900 dark:text-white cursor-pointer"
               >
                 {name}.
               </h1>
@@ -74,9 +74,7 @@ const Header: React.FC<HeaderProps> = ({ handleWorkScroll, handleAboutScroll, is
             </div>
             {/* @ts-ignore */}
             <Popover.Panel
-              className={`absolute right-0 z-10 w-11/12 p-4 ${
-                theme === "dark" ? "bg-slate-800" : "bg-white"
-              } shadow-md rounded-md`}
+              className="absolute right-0 z-10 w-11/12 p-4 bg-white/95 dark:bg-black/95 backdrop-blur-md shadow-md rounded-md border border-gray-200/50 dark:border-gray-800/50"
             >
               {!isBlog ? (
                 <div className="grid grid-cols-1">
@@ -130,12 +128,12 @@ const Header: React.FC<HeaderProps> = ({ handleWorkScroll, handleAboutScroll, is
         )}
       </Popover>
       <div
-        className="mt-10 hidden flex-row items-center justify-between sticky bg-white dark:bg-transparent dark:text-white top-0 z-10 tablet:flex"
+        className="mt-10 hidden flex-row items-center justify-between sticky top-0 z-10 tablet:flex py-3 px-4"
         suppressHydrationWarning
       >
         <h1
           onClick={() => router.push("/")}
-          className="font-medium cursor-pointer mob:p-2 laptop:p-0"
+          className="font-medium cursor-pointer mob:p-2 laptop:p-0 text-gray-900 dark:text-white"
         >
           {name}.
         </h1>

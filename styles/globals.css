@@ -8,8 +8,12 @@
   font-family: "Hind";
 }
 
+html {
+  @apply dark:bg-black;
+}
+
 body {
-  @apply dark:bg-black dark:text-white;
+  @apply bg-white dark:bg-black dark:text-white;
 }
 
 .gradient-circle {

@@ -76,7 +76,9 @@ export default function Portfolio({ workRef, collabs }: PortfolioProps) {
   if (loading) {
     return (
       <div className="mt-10 laptop:mt-30 p-2 laptop:p-0" ref={workRef}>
-        <div className="py-20 text-center">Loading portfolio...</div>
+        <div className="py-20 text-center text-gray-600 dark:text-gray-400">
+          Loading portfolio...
+        </div>
       </div>
     );
   }
@@ -89,14 +91,13 @@ export default function Portfolio({ workRef, collabs }: PortfolioProps) {
     >
       {/* Section Heading */}
       <div className="flex flex-col laptop:flex-row laptop:items-center laptop:justify-between mb-16 laptop:mb-24">
-        <h1 className="text-4xl laptop:text-6xl laptopl:text-7xl font-light leading-tight">
+        <h1 className="text-4xl laptop:text-6xl laptopl:text-7xl font-light leading-tight text-gray-900 dark:text-white">
           Stories through light & lens
         </h1>
-        <Link
-          href="/portfolio"
-          className="text-lg laptop:text-xl font-light underline hover:no-underline transition-all duration-300 self-start laptop:self-center"
-        >
-          See all
+        <Link href="/portfolio">
+          <a className="text-lg laptop:text-xl font-light underline hover:no-underline transition-all duration-300 self-start laptop:self-center text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+            See all
+          </a>
         </Link>
       </div>
 
@@ -119,7 +120,7 @@ export default function Portfolio({ workRef, collabs }: PortfolioProps) {
           ))}
         </div>
       ) : (
-        <div className="py-20 text-center text-gray-500">
+        <div className="py-20 text-center text-gray-500 dark:text-gray-400">
           No portfolio items available
         </div>
       )}

@@ -4,6 +4,7 @@ import Head from "next/head";
 import PortfolioCard from "../../components/PortfolioCard";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import { Text, Button, Badge } from "../../components/atoms";
 
 interface PortfolioItem {
   id: string;
@@ -49,87 +50,93 @@ export default function PortfolioPage() {
     <>
       <Head>
         <title>Portfolio - Nisa Aulia</title>
-        <meta name="description" content="View all portfolio works by Nisa Aulia" />
+        <meta
+          name="description"
+          content="View all portfolio works by Nisa Aulia"
+        />
       </Head>
-      <Header />
-      <div className="min-h-screen bg-white dark:bg-gray-900">
-        <div className="w-full px-4 laptop:px-0 max-w-7xl mx-auto py-20">
-          {/* Page Header */}
-          <div className="mb-16 laptop:mb-24">
-            <Link href="/">
-              <a className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-8 transition-colors">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                  />
-                </svg>
-                Back to Home
-              </a>
-            </Link>
-            <h1 className="text-4xl laptop:text-6xl laptopl:text-7xl font-light leading-tight mb-4">
-              All Portfolio
-            </h1>
-            <p className="text-lg laptop:text-xl text-gray-600 dark:text-gray-400">
-              Explore all my work and projects
-            </p>
-          </div>
-
-          {/* Portfolio Grid */}
-          {loading ? (
-            <div className="py-20 text-center">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white"></div>
-              <p className="mt-4 text-gray-600 dark:text-gray-400">
-                Loading portfolio...
-              </p>
-            </div>
-          ) : portfolioItems.length > 0 ? (
-            <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 gap-8 laptop:gap-12">
-              {portfolioItems.map((item) => (
-                <div key={item.id} className="relative">
-                  {item.featured && (
-                    <div className="absolute top-4 right-4 z-10">
-                      <span className="bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-lg">
-                        <span>⭐</span>
-                        Featured
-                      </span>
-                    </div>
-                  )}
-                  <PortfolioCard
-                    id={item.id}
-                    title={item.title}
-                    slug={item.slug}
-                    summary={item.summary}
-                    images={item.images}
-                    techStack={item.techStack}
-                    contributions={item.contributions}
-                    features={item.features}
-                    onClick={() => handleCardClick(item.slug)}
-                  />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="py-20 text-center text-gray-500 dark:text-gray-400">
-              <p className="text-lg">No portfolio items available</p>
+      <div className="min-h-screen bg-white dark:bg-black transition-colors duration-200">
+        <div className="container mx-auto">
+          <Header />
+          <div
+            className="w-full px-4 laptop:px-0"
+            style={{ paddingBlock: "50px" }}
+          >
+            {/* Page Header */}
+            <div className="mb-16 laptop:mb-24">
               <Link href="/">
-                <a className="mt-4 inline-block text-blue-600 dark:text-blue-400 hover:underline">
-                  Go back to home
+                <a className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-8 transition-colors">
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                    />
+                  </svg>
+                  Back to Home
                 </a>
               </Link>
+              <Text variant="h1" className="mb-4">
+                All Portfolio
+              </Text>
+              <Text variant="body" className="text-lg laptop:text-xl">
+                Explore all my work and projects
+              </Text>
             </div>
-          )}
+
+            {/* Portfolio Grid */}
+            {loading ? (
+              <div className="py-20 text-center">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white"></div>
+                <p className="mt-4 text-gray-600 dark:text-gray-400">
+                  Loading portfolio...
+                </p>
+              </div>
+            ) : portfolioItems.length > 0 ? (
+              <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 gap-8 laptop:gap-12">
+                {portfolioItems.map((item) => (
+                  <div key={item.id} className="relative">
+                    {item.featured && (
+                      <div className="absolute top-4 right-4 z-10">
+                        <Badge variant="warning" size="md">
+                          <span>⭐</span> Featured
+                        </Badge>
+                      </div>
+                    )}
+                    <PortfolioCard
+                      id={item.id}
+                      title={item.title}
+                      slug={item.slug}
+                      summary={item.summary}
+                      images={item.images}
+                      techStack={item.techStack}
+                      contributions={item.contributions}
+                      features={item.features}
+                      onClick={() => handleCardClick(item.slug)}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-20 text-center">
+                <Text variant="body" className="text-lg mb-4">
+                  No portfolio items available
+                </Text>
+                <Button href="/" variant="primary" size="md">
+                  Go back to home
+                </Button>
+              </div>
+            )}
+          </div>
+          <Footer />
         </div>
       </div>
-      <Footer />
     </>
   );
 }
-
