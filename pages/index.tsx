@@ -20,6 +20,7 @@ import Portfolio from "./sections/portfolio";
 
 import GlassRadioGroup from "../components/Button/GlassRadioGroup";
 import Collaboration from "./sections/collaboration";
+import AnimatedBackground from "../components/AnimatedBackground";
 
 // Declare MorphSVGPlugin type
 declare global {
@@ -39,6 +40,7 @@ export default function Home() {
   const tabsRef = useRef<HTMLDivElement>(null);
   const servicesRef = useRef<HTMLDivElement>(null);
   const socialsRef = useRef<HTMLDivElement>(null);
+  const aboutBackgroundRef = useRef<HTMLDivElement>(null);
 
   const [currentTabIndex, setCurrentTabIndex] = useState<number>(0);
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
@@ -335,19 +337,58 @@ export default function Home() {
         }
       }
 
-      // About section - no pinning since it's the last section
+      // About section - with parallax effect
       if (aboutSlideRef.current) {
         const aboutContent =
           aboutSlideRef.current.querySelector(".slide-content");
-        if (aboutContent) {
-          // Just add scroll animation without pinning for last section
-          const cleanup = scrollAnimation(aboutContent as HTMLElement, {
-            from: { opacity: 0.8, y: 20 },
+        const aboutBackground = aboutBackgroundRef.current;
+
+        if (aboutContent && typeof window !== "undefined") {
+          const { ScrollTrigger } = require("gsap/ScrollTrigger");
+
+          // Parallax effect for content
+          const contentCleanup = scrollAnimation(aboutContent as HTMLElement, {
+            from: { opacity: 0.8, y: 50 },
             to: { opacity: 1, y: 0 },
-            duration: 0.8,
+            duration: 1,
             delay: 0,
           });
-          if (cleanup) cleanupFunctions.push(cleanup);
+          if (contentCleanup) cleanupFunctions.push(contentCleanup);
+
+          // Parallax effect for background (moves slower than content)
+          if (aboutBackground) {
+            gsap.set(aboutBackground, {
+              y: 0,
+              opacity: 0.4,
+            });
+
+            // Create parallax animation for background
+            const parallaxScrollTrigger = ScrollTrigger.create({
+              trigger: aboutSlideRef.current,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: true,
+              onUpdate: (self: any) => {
+                const progress = self.progress;
+                // Background moves slower (parallax effect)
+                const yOffset = progress * 150; // Move 150px total
+                const opacity = 0.4 + progress * 0.4; // Fade in as scrolling
+
+                gsap.set(aboutBackground, {
+                  y: yOffset,
+                  opacity: opacity,
+                });
+              },
+            });
+
+            // Cleanup function for parallax
+            const bgCleanup = () => {
+              if (parallaxScrollTrigger) {
+                parallaxScrollTrigger.kill();
+              }
+            };
+            cleanupFunctions.push(bgCleanup);
+          }
         }
       }
 
@@ -551,15 +592,30 @@ export default function Home() {
           </div>
         )}
         {/* About Slide - Full Page */}
-        <div className="full-page-slide" ref={aboutSlideRef}>
+        <div className="full-page-slide about-section" ref={aboutSlideRef}>
+          {/* Animated Background */}
           <div
-            className="slide-content min-h-screen flex flex-col justify-center laptop:p-0"
+            ref={aboutBackgroundRef}
+            className="absolute inset-0 w-full h-full overflow-hidden"
+          >
+            <AnimatedBackground />
+            {/* Gradient overlay for better text readability */}
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/40 dark:from-transparent dark:via-black/40 dark:to-black/60" />
+          </div>
+
+          {/* Content with parallax */}
+          <div
+            className="slide-content min-h-screen flex flex-col justify-center relative z-10 w-full px-8 tablet:px-8 laptop:px-10 desktop:px-20"
             ref={aboutRef}
           >
-            <h1 className="tablet:m-10 text-2xl text-bold">About.</h1>
-            <p className="tablet:m-10 text-xl laptop:text-3xl w-full laptop:w-3/5">
-              {data.aboutpara}
-            </p>
+            <div className="w-full tablet:m-10">
+              <h1 className="text-2xl laptop:text-4xl text-bold mb-6 laptop:mb-10">
+                About.
+              </h1>
+              <p className="text-xl laptop:text-3xl w-full laptop:w-3/5 leading-relaxed">
+                {data.aboutpara}
+              </p>
+            </div>
           </div>
         </div>
         <Footer />
