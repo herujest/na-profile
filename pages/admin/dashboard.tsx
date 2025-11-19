@@ -16,11 +16,19 @@ const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== "development") {
-      router.push("/");
-      return;
-    }
-    fetchData();
+    // Check authentication
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.authenticated) {
+          router.push("/admin/login");
+          return;
+        }
+        fetchData();
+      })
+      .catch(() => {
+        router.push("/admin/login");
+      });
   }, [router]);
 
   const fetchData = async () => {
@@ -36,10 +44,6 @@ const DashboardPage: React.FC = () => {
       setLoading(false);
     }
   };
-
-  if (process.env.NODE_ENV !== "development") {
-    return null;
-  }
 
   if (loading) {
     return (

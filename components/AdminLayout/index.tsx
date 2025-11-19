@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+
+const handleLogout = async () => {
+  await fetch("/api/auth/logout", { method: "POST" });
+  window.location.href = "/admin/login";
+};
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -9,6 +14,42 @@ interface AdminLayoutProps {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    // Check authentication
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated) {
+          setAuthenticated(true);
+        } else {
+          router.replace("/admin/login");
+        }
+      })
+      .catch(() => {
+        router.replace("/admin/login");
+      })
+      .finally(() => {
+        setChecking(false);
+      });
+  }, [router]);
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!authenticated) {
+    return null;
+  }
 
   const menuItems = [
     {
@@ -125,13 +166,20 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0 space-y-2">
           <Link href="/">
             <a className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
               <span className="text-xl">🏠</span>
               {sidebarOpen && <span className="font-medium">View Site</span>}
             </a>
           </Link>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+          >
+            <span className="text-xl">🚪</span>
+            {sidebarOpen && <span className="font-medium">Logout</span>}
+          </button>
         </div>
       </aside>
 
