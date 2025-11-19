@@ -288,6 +288,24 @@ html {
   }
 }
 
+/* Morphing Transition Styles */
+.morphin-wrap {
+  position: fixed;
+  pointer-events: none;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  z-index: -100;
+  opacity: 0;
+}
+
+.morphin-svg {
+  width: 100%;
+  height: 100vh;
+  preserveAspectRatio: none;
+}
+
 /* Page Loader - Hide content initially */
 body.loading .page-content {
   opacity: 0 !important;

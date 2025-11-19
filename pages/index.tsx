@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Script from "next/script";
 import Link from "next/link";
 import { useRef, useState, useEffect } from "react";
 import { stagger, scrollAnimation, createStickySlide } from "../animations";
@@ -20,6 +21,13 @@ import Portfolio from "./sections/portfolio";
 import GlassRadioGroup from "../components/Button/GlassRadioGroup";
 import Collaboration from "./sections/collaboration";
 
+// Declare MorphSVGPlugin type
+declare global {
+  interface Window {
+    MorphSVGPlugin: any;
+  }
+}
+
 export default function Home() {
   // Ref
   const workRef = useRef<HTMLDivElement>(null);
@@ -33,6 +41,8 @@ export default function Home() {
   const socialsRef = useRef<HTMLDivElement>(null);
 
   const [currentTabIndex, setCurrentTabIndex] = useState<number>(0);
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
+  const [pendingTabIndex, setPendingTabIndex] = useState<number | null>(null);
 
   // Refs for slide containers
   const heroSlideRef = useRef<HTMLDivElement>(null);
@@ -40,7 +50,107 @@ export default function Home() {
   const servicesSlideRef = useRef<HTMLDivElement>(null);
   const aboutSlideRef = useRef<HTMLDivElement>(null);
 
+  // Refs for morphing transition
+  const morphinWrapRef = useRef<HTMLDivElement>(null);
+  const morphinSvgRef = useRef<SVGSVGElement>(null);
+  const morphinPathRef = useRef<SVGPathElement>(null);
+  const tabContentRef = useRef<HTMLDivElement>(null);
+
+  // Morphing transition functions
+  const morphinShow = (onComplete?: () => void) => {
+    if (!morphinPathRef.current) {
+      // Fallback: if plugin not loaded, just call onComplete immediately
+      if (onComplete) onComplete();
+      return;
+    }
+
+    if (!window.MorphSVGPlugin) {
+      // Fallback: simple fade transition if plugin not available
+      if (morphinWrapRef.current) {
+        morphinWrapRef.current.style.zIndex = "10000";
+        gsap.to(morphinWrapRef.current, {
+          opacity: 1,
+          duration: 0.3,
+          ease: "power2.inOut",
+          onComplete: () => {
+            if (onComplete) onComplete();
+          },
+        });
+      } else if (onComplete) {
+        onComplete();
+      }
+      return;
+    }
+
+    const end_path =
+      "M0,1270.2c0,0,45.2,65.9,148.8,59.8s188.6-143.3,288.2-177.1c99.5-33.9,186.4-29.8,294.4,35.9 c108,65.7,194.8,95.4,315.5,65.7c120.7-29.6,186.4-29.6,285.9,8.5c99.5,38.1,166.8,126.5,271.1,108c95.3-16.9,121-90.5,192.7-194.8 c47.5-69.1,123.5-74.1,123.5-74.1V0H0V1270.2z";
+
+    if (morphinWrapRef.current) {
+      morphinWrapRef.current.style.zIndex = "10000";
+      gsap.set(morphinWrapRef.current, { opacity: 1 });
+    }
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        if (onComplete) onComplete();
+      },
+    });
+
+    tl.to(morphinPathRef.current, {
+      morphSVG: end_path,
+      duration: 1,
+      ease: "power3.inOut",
+    });
+  };
+
+  const morphinHide = () => {
+    if (!morphinPathRef.current) {
+      setIsTransitioning(false);
+      return;
+    }
+
+    if (!window.MorphSVGPlugin) {
+      // Fallback: simple fade transition if plugin not available
+      if (morphinWrapRef.current) {
+        gsap.to(morphinWrapRef.current, {
+          opacity: 0,
+          duration: 0.3,
+          ease: "power2.out",
+          onComplete: () => {
+            if (morphinWrapRef.current) {
+              morphinWrapRef.current.style.zIndex = "-100";
+            }
+            setIsTransitioning(false);
+          },
+        });
+      } else {
+        setIsTransitioning(false);
+      }
+      return;
+    }
+
+    const end_path =
+      "M0-18.1c0,0,117.3,6.1,221,0s190.7,3.5,264.3,0c53.4-2.6,145-0.1,271.4,0c59.3,0.1,208.2,0,332.5,0 c76.2,0,120.1-3,226.6,0c74.1,2.1,150.4,0,243.5,0c96.8,0,175.8,8.5,230.8,0c55.7-8.6,129.8,0,129.8,0V0H0V-18.1z";
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        if (morphinWrapRef.current) {
+          morphinWrapRef.current.style.zIndex = "-100";
+        }
+        setIsTransitioning(false);
+      },
+    });
+
+    tl.to(morphinPathRef.current, {
+      morphSVG: end_path,
+      duration: 1,
+      ease: "power2.out",
+    });
+  };
+
   function onChangeActiveTab(index: number) {
+    if (index === currentTabIndex || isTransitioning) return;
+
     if (typeof window !== "undefined") {
       const { ScrollTrigger } = require("gsap/ScrollTrigger");
 
@@ -72,8 +182,23 @@ export default function Home() {
         });
       }
 
-      // Change tab
-      setCurrentTabIndex(index);
+      // Set pending tab and start transition
+      setPendingTabIndex(index);
+      setIsTransitioning(true);
+
+      // Wait for GlassRadioGroup animation to finish (0.5s) then start morphing
+      setTimeout(() => {
+        morphinShow(() => {
+          // Change tab after morphing show completes
+          setCurrentTabIndex(index);
+          setPendingTabIndex(null);
+
+          // Hide morphing after content changes
+          setTimeout(() => {
+            morphinHide();
+          }, 100);
+        });
+      }, 500); // Wait for GlassRadioGroup transition (0.5s)
 
       // Restore scroll position after a brief delay
       requestAnimationFrame(() => {
@@ -262,6 +387,13 @@ export default function Home() {
     };
   }, []);
 
+  // Register MorphSVGPlugin when it loads
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.MorphSVGPlugin) {
+      gsap.registerPlugin(window.MorphSVGPlugin);
+    }
+  }, []);
+
   // Refresh ScrollTrigger when tab changes (for conditional content)
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -291,6 +423,15 @@ export default function Home() {
       <Head>
         <title>{data.name}</title>
       </Head>
+      <Script
+        src="https://assets.codepen.io/16327/MorphSVGPlugin3.min.js"
+        strategy="lazyOnload"
+        onLoad={() => {
+          if (typeof window !== "undefined" && window.MorphSVGPlugin) {
+            gsap.registerPlugin(window.MorphSVGPlugin);
+          }
+        }}
+      />
 
       <div className="gradient-circle"></div>
       <div className="gradient-circle-bottom"></div>
@@ -352,11 +493,14 @@ export default function Home() {
                   { id: "tab-gallery", label: "Gallery", value: 0 },
                   { id: "tab-collaboration", label: "Collaboration", value: 1 },
                 ]}
-                selectedValue={currentTabIndex}
+                selectedValue={
+                  pendingTabIndex !== null ? pendingTabIndex : currentTabIndex
+                }
                 onChange={onChangeActiveTab}
               />
             </div>
             <div
+              ref={tabContentRef}
               className="w-full flex-1 flex flex-col"
               key={`tab-content-${currentTabIndex}`}
             >
@@ -433,6 +577,36 @@ export default function Home() {
           { ref: aboutSlideRef as React.RefObject<HTMLElement>, id: "about" },
         ]}
       />
+
+      {/* Morphing Transition SVG */}
+      <div ref={morphinWrapRef} className="morphin-wrap">
+        <svg
+          ref={morphinSvgRef}
+          className="morphin-svg"
+          width="100%"
+          height="100vh"
+          preserveAspectRatio="none"
+          viewBox="0 0 1920 1080"
+        >
+          <path
+            ref={morphinPathRef}
+            fill="url(#morphin-gradient)"
+            d="M0-18.1c0,0,117.3,6.1,221,0s190.7,3.5,264.3,0c53.4-2.6,145-0.1,271.4,0c59.3,0.1,208.2,0,332.5,0 c76.2,0,120.1-3,226.6,0c74.1,2.1,150.4,0,243.5,0c96.8,0,175.8,8.5,230.8,0c55.7-8.6,129.8,0,129.8,0V0H0V-18.1z"
+          />
+          <defs>
+            <linearGradient
+              id="morphin-gradient"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="100%"
+            >
+              <stop offset="0%" stopColor="#F86BDF" stopOpacity="0.95" />
+              <stop offset="100%" stopColor="#6B6BF8" stopOpacity="0.95" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
     </div>
   );
 }
