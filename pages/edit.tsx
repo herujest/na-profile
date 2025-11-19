@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Link from "next/link";
 import Button from "../components/Button";
 import Header from "../components/Header";
 import { v4 as uuidv4 } from "uuid";
@@ -255,6 +256,18 @@ const Edit: React.FC = () => {
             >
               Resume
             </Button>
+          </div>
+          <div className="mt-4 flex gap-4">
+            <Link href="/admin">
+              <Button type="primary">
+                🎛️ Admin Dashboard
+              </Button>
+            </Link>
+            <Link href="/admin/partners">
+              <Button type="primary">
+                🤝 Manage Partners
+              </Button>
+            </Link>
           </div>
         </div>
         {/* HEADER */}

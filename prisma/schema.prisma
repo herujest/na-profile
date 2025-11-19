@@ -1,0 +1,38 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Partner {
+  id                 String    @id @default(uuid())
+  name               String
+  category           String      // MUA, Photographer, Videographer, Stylist, Wardrobe, etc.
+  description        String?
+  location           String?
+  
+  whatsapp           String?
+  instagram          String?
+  email              String?
+
+  priceRange         String?     // ex: "1.5jt – 3jt"
+  portfolioUrl       String?
+  avatarUrl          String?
+
+  tags               String[]    @default([])  // PostgreSQL array
+  notes              String?     // Internal notes
+
+  collaborationCount Int         @default(0)
+  internalRank       Float       @default(0)   // for sorting (not displayed)
+  manualScore        Float       @default(0)   // Manual score 0-5 for rank calculation
+
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+}

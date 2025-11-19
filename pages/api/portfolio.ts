@@ -11,6 +11,7 @@ interface PortfolioItem {
   techStack?: string[];
   contributions?: string[];
   features?: string[];
+  featured?: boolean;
 }
 
 interface PortfolioData {
@@ -24,7 +25,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
     try {
       const fileContents = fs.readFileSync(portfolioData, "utf-8");
-      const data: PortfolioData = JSON.parse(fileContents);
+      const data: any = JSON.parse(fileContents);
 
       // Check if portfolioItems exists, otherwise convert from collaborations
       let items: PortfolioItem[] = [];
@@ -33,7 +34,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         items = data.portfolioItems;
       } else if (data.collaborations && data.collaborations.length > 0) {
         // Convert collaborations to portfolioItems format
-        items = data.collaborations.map((collab) => ({
+        items = data.collaborations.map((collab: any) => ({
           id: collab.id || `collab-${Math.random()}`,
           title: collab.title || "",
           slug: collab.slug || collab.id || `collab-${Math.random()}`,
@@ -50,7 +51,21 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         }));
       }
 
-      res.status(200).json({ items });
+      // Return all data for admin, or just items for frontend
+      const { admin, featured } = req.query;
+      if (admin === "true") {
+        res.status(200).json(data);
+      } else {
+        // Filter by featured if requested
+        if (featured === "true") {
+          const featuredItems = items.filter(
+            (item: PortfolioItem & { featured?: boolean }) => item.featured === true
+          );
+          res.status(200).json({ items: featuredItems });
+        } else {
+          res.status(200).json({ items });
+        }
+      }
     } catch (error) {
       console.error("Error reading portfolio data:", error);
       res.status(500).json({ error: "Failed to read portfolio data" });
@@ -59,7 +74,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     if (process.env.NODE_ENV === "development") {
       fs.writeFileSync(
         portfolioData,
-        JSON.stringify(req.body),
+        JSON.stringify(req.body, null, 2),
         "utf-8"
       );
       res.status(200).json({ status: "OK" });

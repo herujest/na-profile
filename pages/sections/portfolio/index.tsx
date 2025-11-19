@@ -11,6 +11,7 @@ interface PortfolioItem {
   techStack?: string[];
   contributions?: string[];
   features?: string[];
+  featured?: boolean;
 }
 
 interface PortfolioProps {
@@ -44,7 +45,8 @@ export default function Portfolio({ workRef, collabs }: PortfolioProps) {
   useEffect(() => {
     const fetchPortfolio = async () => {
       try {
-        const res = await fetch("/api/portfolio");
+        // Only fetch featured items for home page
+        const res = await fetch("/api/portfolio?featured=true");
         if (res.ok) {
           const data = await res.json();
           setPortfolioItems(data.items || []);

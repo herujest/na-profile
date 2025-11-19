@@ -1,5 +1,5 @@
 {
-  "name": "Nisa",
+  "name": "Nisa Aulia",
   "headerTaglineOne": "Hello 👋",
   "headerTaglineTwo": "I'm Nisa Aulia - Model",
   "headerTaglineThree": "Muse and Makeup Aficionado",
@@ -24,8 +24,16 @@
       "title": "Affiliated Products",
       "link": ""
     },
-    { "id": "4", "title": "Blog", "link": "" },
-    { "id": "5", "title": "Email", "link": "mailto:contact@nisaaulia.com" }
+    {
+      "id": "4",
+      "title": "Blog",
+      "link": ""
+    },
+    {
+      "id": "5",
+      "title": "Email",
+      "link": "mailto:contact@nisaaulia.com"
+    }
   ],
   "projects": [
     {
@@ -94,12 +102,25 @@
       "images": [
         "/images/1000474136.jpg",
         "/images/1000474441.jpg",
-        "/images/1000480317.jpg",
-        "/images/1000481663.jpg"
+        "/images/1000481663.jpg",
+        "/images/1000480317.jpg"
       ],
-      "techStack": ["Commercial Photography", "Beauty Direction", "Makeup Artistry"],
-      "contributions": ["Modeling", "Creative Direction", "Styling"],
-      "features": ["Editorial Style", "High-End Beauty", "Brand Collaboration"]
+      "techStack": [
+        "Commercial Photography",
+        "Beauty Direction",
+        "Makeup Artistry"
+      ],
+      "contributions": [
+        "Modeling",
+        "Creative Direction",
+        "Styling"
+      ],
+      "features": [
+        "Editorial Style",
+        "High-End Beauty",
+        "Brand Collaboration"
+      ],
+      "featured": true
     },
     {
       "id": "portfolio-02",
@@ -112,9 +133,22 @@
         "/images/1000481663.jpg",
         "/images/1000484089.jpg"
       ],
-      "techStack": ["Makeup Artistry", "Photography", "Visual Design"],
-      "contributions": ["Modeling", "Concept Development", "Art Direction"],
-      "features": ["Creative Makeup", "Editorial Photography", "Brand Partnership"]
+      "techStack": [
+        "Makeup Artistry",
+        "Photography",
+        "Visual Design"
+      ],
+      "contributions": [
+        "Modeling",
+        "Concept Development",
+        "Art Direction"
+      ],
+      "features": [
+        "Creative Makeup",
+        "Editorial Photography",
+        "Brand Partnership"
+      ],
+      "featured": true
     },
     {
       "id": "portfolio-03",
@@ -127,9 +161,21 @@
         "/images/1000484089.jpg",
         "/images/1000484090.jpg"
       ],
-      "techStack": ["Beauty Photography", "Makeup Design", "Brand Aesthetics"],
-      "contributions": ["Modeling", "Visual Concept", "Styling Coordination"],
-      "features": ["Professional Beauty", "Commercial Campaign", "Brand Alignment"]
+      "techStack": [
+        "Beauty Photography",
+        "Makeup Design",
+        "Brand Aesthetics"
+      ],
+      "contributions": [
+        "Modeling",
+        "Visual Concept",
+        "Styling Coordination"
+      ],
+      "features": [
+        "Professional Beauty",
+        "Commercial Campaign",
+        "Brand Alignment"
+      ]
     },
     {
       "id": "portfolio-04",
@@ -142,9 +188,22 @@
         "/images/1000484090.jpg",
         "/images/1000484132.jpg"
       ],
-      "techStack": ["Editorial Photography", "Fashion Styling", "Makeup Artistry"],
-      "contributions": ["Modeling", "Creative Input", "Visual Storytelling"],
-      "features": ["Editorial Style", "Fashion Forward", "Artistic Vision"]
+      "techStack": [
+        "Editorial Photography",
+        "Fashion Styling",
+        "Makeup Artistry"
+      ],
+      "contributions": [
+        "Modeling",
+        "Creative Input",
+        "Visual Storytelling"
+      ],
+      "features": [
+        "Editorial Style",
+        "Fashion Forward",
+        "Artistic Vision"
+      ],
+      "featured": true
     },
     {
       "id": "portfolio-05",
@@ -157,9 +216,21 @@
         "/images/1000484132.jpg",
         "/images/1000484134.jpg"
       ],
-      "techStack": ["Beauty Photography", "Makeup Design", "Visual Aesthetics"],
-      "contributions": ["Modeling", "Concept Development", "Brand Representation"],
-      "features": ["Elegant Beauty", "Professional Quality", "Brand Collaboration"]
+      "techStack": [
+        "Beauty Photography",
+        "Makeup Design",
+        "Visual Aesthetics"
+      ],
+      "contributions": [
+        "Modeling",
+        "Concept Development",
+        "Brand Representation"
+      ],
+      "features": [
+        "Elegant Beauty",
+        "Professional Quality",
+        "Brand Collaboration"
+      ]
     },
     {
       "id": "portfolio-06",
@@ -172,9 +243,22 @@
         "/images/1000484134.jpg",
         "/images/1000474136.jpg"
       ],
-      "techStack": ["Studio Photography", "Beauty Direction", "Makeup Artistry"],
-      "contributions": ["Modeling", "Art Direction", "Visual Coordination"],
-      "features": ["Studio Quality", "Professional Beauty", "Brand Partnership"]
+      "techStack": [
+        "Studio Photography",
+        "Beauty Direction",
+        "Makeup Artistry"
+      ],
+      "contributions": [
+        "Modeling",
+        "Art Direction",
+        "Visual Coordination"
+      ],
+      "features": [
+        "Studio Quality",
+        "Professional Beauty",
+        "Brand Partnership"
+      ],
+      "featured": true
     },
     {
       "id": "portfolio-07",
@@ -187,9 +271,21 @@
         "/images/1000474136.jpg",
         "/images/1000474441.jpg"
       ],
-      "techStack": ["Creative Photography", "Makeup Design", "Visual Storytelling"],
-      "contributions": ["Modeling", "Creative Direction", "Concept Development"],
-      "features": ["Creative Vision", "Innovative Beauty", "Artistic Collaboration"]
+      "techStack": [
+        "Creative Photography",
+        "Makeup Design",
+        "Visual Storytelling"
+      ],
+      "contributions": [
+        "Modeling",
+        "Creative Direction",
+        "Concept Development"
+      ],
+      "features": [
+        "Creative Vision",
+        "Innovative Beauty",
+        "Artistic Collaboration"
+      ]
     },
     {
       "id": "portfolio-08",
@@ -202,9 +298,21 @@
         "/images/1000474441.jpg",
         "/images/1000480317.jpg"
       ],
-      "techStack": ["Portrait Photography", "Beauty Photography", "Visual Design"],
-      "contributions": ["Modeling", "Visual Concept", "Styling"],
-      "features": ["Professional Portraiture", "Beauty Aesthetics", "Creative Partnership"]
+      "techStack": [
+        "Portrait Photography",
+        "Beauty Photography",
+        "Visual Design"
+      ],
+      "contributions": [
+        "Modeling",
+        "Visual Concept",
+        "Styling"
+      ],
+      "features": [
+        "Professional Portraiture",
+        "Beauty Aesthetics",
+        "Creative Partnership"
+      ]
     }
   ],
   "collaborations": [
@@ -213,9 +321,15 @@
       "title": "@uwind_bulet17",
       "description": "",
       "media": [
-        { "imageSrc": "/images/1000474136.jpg" },
-        { "imageSrc": "/images/1000474136.jpg" },
-        { "imageSrc": "/images/1000474136.jpg" }
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        },
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        },
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        }
       ]
     },
     {
@@ -223,9 +337,15 @@
       "title": "@koalamakeupart",
       "description": "",
       "media": [
-        { "imageSrc": "/images/1000474136.jpg" },
-        { "imageSrc": "/images/1000474136.jpg" },
-        { "imageSrc": "/images/1000474136.jpg" }
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        },
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        },
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        }
       ]
     },
     {
@@ -233,9 +353,15 @@
       "title": "@makeupaliyahbasa",
       "description": "",
       "media": [
-        { "imageSrc": "/images/1000474136.jpg" },
-        { "imageSrc": "/images/1000474136.jpg" },
-        { "imageSrc": "/images/1000474136.jpg" }
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        },
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        },
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        }
       ]
     },
     {
@@ -243,9 +369,15 @@
       "title": "@ernylimmakeup_br",
       "description": "",
       "media": [
-        { "imageSrc": "/images/1000474136.jpg" },
-        { "imageSrc": "/images/1000474136.jpg" },
-        { "imageSrc": "/images/1000474136.jpg" }
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        },
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        },
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        }
       ]
     },
     {
@@ -253,9 +385,15 @@
       "title": "@nazwa_make_up",
       "description": "",
       "media": [
-        { "imageSrc": "/images/1000474136.jpg" },
-        { "imageSrc": "/images/1000474136.jpg" },
-        { "imageSrc": "/images/1000474136.jpg" }
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        },
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        },
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        }
       ]
     },
     {
@@ -263,9 +401,15 @@
       "title": "@anastasiaichibeautystudio",
       "description": "",
       "media": [
-        { "imageSrc": "/images/1000474136.jpg" },
-        { "imageSrc": "/images/1000474136.jpg" },
-        { "imageSrc": "/images/1000474136.jpg" }
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        },
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        },
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        }
       ]
     },
     {
@@ -273,9 +417,15 @@
       "title": "@abil.beauty",
       "description": "",
       "media": [
-        { "imageSrc": "/images/1000474136.jpg" },
-        { "imageSrc": "/images/1000474136.jpg" },
-        { "imageSrc": "/images/1000474136.jpg" }
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        },
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        },
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        }
       ]
     },
     {
@@ -283,9 +433,15 @@
       "title": "@ebiiiephotograph",
       "description": "",
       "media": [
-        { "imageSrc": "/images/1000474136.jpg" },
-        { "imageSrc": "/images/1000474136.jpg" },
-        { "imageSrc": "/images/1000474136.jpg" }
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        },
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        },
+        {
+          "imageSrc": "/images/1000474136.jpg"
+        }
       ]
     }
   ],
