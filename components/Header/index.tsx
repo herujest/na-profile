@@ -9,10 +9,16 @@ import data from "../../data/portfolio.json";
 interface HeaderProps {
   handleWorkScroll?: () => void;
   handleAboutScroll?: () => void;
+  handleContactScroll?: () => void;
   isBlog?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ handleWorkScroll, handleAboutScroll, isBlog }) => {
+const Header: React.FC<HeaderProps> = ({
+  handleWorkScroll,
+  handleAboutScroll,
+  handleContactScroll,
+  isBlog,
+}) => {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState<boolean>(false);
@@ -22,6 +28,17 @@ const Header: React.FC<HeaderProps> = ({ handleWorkScroll, handleAboutScroll, is
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Handle contact scroll - if on home page, scroll directly, otherwise navigate to home with hash
+  const handleContactClick = () => {
+    if (handleContactScroll) {
+      // On home page, scroll directly
+      handleContactScroll();
+    } else {
+      // On other pages, navigate to home with hash
+      router.push("/#contact");
+    }
+  };
 
   return (
     <>
@@ -73,31 +90,21 @@ const Header: React.FC<HeaderProps> = ({ handleWorkScroll, handleAboutScroll, is
               </div>
             </div>
             {/* @ts-ignore */}
-            <Popover.Panel
-              className="absolute right-0 z-10 w-11/12 p-4 bg-white/95 dark:bg-black/95 backdrop-blur-md shadow-md rounded-md border border-gray-200/50 dark:border-gray-800/50"
-            >
+            <Popover.Panel className="absolute right-0 z-10 w-11/12 p-4 bg-white/95 dark:bg-black/95 backdrop-blur-md shadow-md rounded-md border border-gray-200/50 dark:border-gray-800/50">
               {!isBlog ? (
                 <div className="grid grid-cols-1">
-                  <Button onClick={handleWorkScroll}>Work</Button>
-                  <Button onClick={handleAboutScroll}>About</Button>
+                  <Button onClick={() => handleWorkScroll?.()}>Work</Button>
+                  <Button onClick={() => handleAboutScroll?.()}>About</Button>
                   {showBlog && (
                     <Button onClick={() => router.push("/blog")}>Blog</Button>
                   )}
                   {showResume && (
-                    <Button
-                      onClick={() =>
-                        window.open("mailto:hello@chetanverma.com")
-                      }
-                    >
+                    <Button onClick={() => router.push("/resume")}>
                       Resume
                     </Button>
                   )}
 
-                  <Button
-                    onClick={() => window.open("mailto:hello@chetanverma.com")}
-                  >
-                    Contact
-                  </Button>
+                  <Button onClick={handleContactClick}>Contact</Button>
                 </div>
               ) : (
                 <div className="grid grid-cols-1">
@@ -116,11 +123,7 @@ const Header: React.FC<HeaderProps> = ({ handleWorkScroll, handleAboutScroll, is
                     </Button>
                   )}
 
-                  <Button
-                    onClick={() => window.open("mailto:hello@chetanverma.com")}
-                  >
-                    Contact
-                  </Button>
+                  <Button onClick={handleContactClick}>Contact</Button>
                 </div>
               )}
             </Popover.Panel>
@@ -139,8 +142,8 @@ const Header: React.FC<HeaderProps> = ({ handleWorkScroll, handleAboutScroll, is
         </h1>
         {!isBlog ? (
           <div className="flex">
-            <Button onClick={handleWorkScroll}>Work</Button>
-            <Button onClick={handleAboutScroll}>About</Button>
+            <Button onClick={() => handleWorkScroll?.()}>Work</Button>
+            <Button onClick={() => handleAboutScroll?.()}>About</Button>
             {showBlog && (
               <Button onClick={() => router.push("/blog")}>Blog</Button>
             )}
@@ -153,9 +156,7 @@ const Header: React.FC<HeaderProps> = ({ handleWorkScroll, handleAboutScroll, is
               </Button>
             )}
 
-            <Button onClick={() => window.open("mailto:hello@chetanverma.com")}>
-              Contact
-            </Button>
+            <Button onClick={handleContactClick}>Contact</Button>
             {mounted && theme && data.darkMode && (
               <Button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -183,9 +184,7 @@ const Header: React.FC<HeaderProps> = ({ handleWorkScroll, handleAboutScroll, is
               </Button>
             )}
 
-            <Button onClick={() => window.open("mailto:hello@chetanverma.com")}>
-              Contact
-            </Button>
+            <Button onClick={handleContactClick}>Contact</Button>
 
             {mounted && theme && data.darkMode && (
               <Button
@@ -206,4 +205,3 @@ const Header: React.FC<HeaderProps> = ({ handleWorkScroll, handleAboutScroll, is
 };
 
 export default Header;
-

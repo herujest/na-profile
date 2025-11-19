@@ -1,6 +1,7 @@
 import Head from "next/head";
 import Script from "next/script";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useRef, useState, useEffect } from "react";
 import { stagger, scrollAnimation, createStickySlide } from "../animations";
 import gsap, { Power3 } from "gsap";
@@ -30,9 +31,11 @@ declare global {
 }
 
 export default function Home() {
+  const router = useRouter();
   // Ref
   const workRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
+  const contactRef = useRef<HTMLDivElement>(null);
   const textOne = useRef<HTMLHeadingElement>(null);
   const textTwo = useRef<HTMLHeadingElement>(null);
   const textThree = useRef<HTMLHeadingElement>(null);
@@ -216,9 +219,9 @@ export default function Home() {
 
   // Handling Scroll
   const handleWorkScroll = () => {
-    if (workRef.current) {
+    if (workSlideRef.current) {
       window.scrollTo({
-        top: workRef.current.offsetTop,
+        top: workSlideRef.current.offsetTop,
         left: 0,
         behavior: "smooth",
       });
@@ -226,9 +229,19 @@ export default function Home() {
   };
 
   const handleAboutScroll = () => {
-    if (aboutRef.current) {
+    if (aboutSlideRef.current) {
       window.scrollTo({
-        top: aboutRef.current.offsetTop,
+        top: aboutSlideRef.current.offsetTop,
+        left: 0,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  const handleContactScroll = () => {
+    if (contactRef.current) {
+      window.scrollTo({
+        top: contactRef.current.offsetTop,
         left: 0,
         behavior: "smooth",
       });
@@ -435,6 +448,37 @@ export default function Home() {
     }
   }, []);
 
+  // Handle hash navigation (for contact from other pages)
+  useEffect(() => {
+    const handleHash = () => {
+      if (typeof window !== "undefined") {
+        const hash = window.location.hash;
+        if (hash === "#contact" && contactRef.current) {
+          // Small delay to ensure page is fully loaded
+          setTimeout(() => {
+            window.scrollTo({
+              top: contactRef.current?.offsetTop || 0,
+              left: 0,
+              behavior: "smooth",
+            });
+            // Remove hash from URL after scrolling
+            window.history.replaceState(null, "", window.location.pathname);
+          }, 500);
+        }
+      }
+    };
+
+    // Handle hash on initial load
+    handleHash();
+
+    // Handle hash when route changes (e.g., navigating from another page)
+    router.events.on("hashChangeComplete", handleHash);
+
+    return () => {
+      router.events.off("hashChangeComplete", handleHash);
+    };
+  }, [router]);
+
   // Refresh ScrollTrigger when tab changes (for conditional content)
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -481,6 +525,7 @@ export default function Home() {
         <Header
           handleWorkScroll={handleWorkScroll}
           handleAboutScroll={handleAboutScroll}
+          handleContactScroll={handleContactScroll}
         />
 
         {/* Hero Slide - Full Page */}
@@ -618,7 +663,9 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <Footer />
+        <div ref={contactRef}>
+          <Footer />
+        </div>
       </div>
 
       {/* Floating Scroll Button */}
