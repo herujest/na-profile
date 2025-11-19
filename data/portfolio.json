@@ -85,6 +85,128 @@
       "url": ""
     }
   ],
+  "portfolioItems": [
+    {
+      "id": "portfolio-01",
+      "title": "@uwind_bulet17",
+      "slug": "uwind-bulet17",
+      "summary": "Beauty collaboration showcasing elegant makeup artistry and commercial photography",
+      "images": [
+        "/images/1000474136.jpg",
+        "/images/1000474441.jpg",
+        "/images/1000480317.jpg",
+        "/images/1000481663.jpg"
+      ],
+      "techStack": ["Commercial Photography", "Beauty Direction", "Makeup Artistry"],
+      "contributions": ["Modeling", "Creative Direction", "Styling"],
+      "features": ["Editorial Style", "High-End Beauty", "Brand Collaboration"]
+    },
+    {
+      "id": "portfolio-02",
+      "title": "@koalamakeupart",
+      "slug": "koalamakeupart",
+      "summary": "Collaborative project featuring innovative makeup techniques and visual storytelling",
+      "images": [
+        "/images/1000474441.jpg",
+        "/images/1000480317.jpg",
+        "/images/1000481663.jpg",
+        "/images/1000484089.jpg"
+      ],
+      "techStack": ["Makeup Artistry", "Photography", "Visual Design"],
+      "contributions": ["Modeling", "Concept Development", "Art Direction"],
+      "features": ["Creative Makeup", "Editorial Photography", "Brand Partnership"]
+    },
+    {
+      "id": "portfolio-03",
+      "title": "@makeupaliyahbasa",
+      "slug": "makeupaliyahbasa",
+      "summary": "Beauty campaign highlighting sophisticated makeup looks and professional photography",
+      "images": [
+        "/images/1000480317.jpg",
+        "/images/1000481663.jpg",
+        "/images/1000484089.jpg",
+        "/images/1000484090.jpg"
+      ],
+      "techStack": ["Beauty Photography", "Makeup Design", "Brand Aesthetics"],
+      "contributions": ["Modeling", "Visual Concept", "Styling Coordination"],
+      "features": ["Professional Beauty", "Commercial Campaign", "Brand Alignment"]
+    },
+    {
+      "id": "portfolio-04",
+      "title": "@ernylimmakeup_br",
+      "slug": "ernylimmakeup-br",
+      "summary": "Editorial shoot combining artistic makeup with contemporary fashion photography",
+      "images": [
+        "/images/1000481663.jpg",
+        "/images/1000484089.jpg",
+        "/images/1000484090.jpg",
+        "/images/1000484132.jpg"
+      ],
+      "techStack": ["Editorial Photography", "Fashion Styling", "Makeup Artistry"],
+      "contributions": ["Modeling", "Creative Input", "Visual Storytelling"],
+      "features": ["Editorial Style", "Fashion Forward", "Artistic Vision"]
+    },
+    {
+      "id": "portfolio-05",
+      "title": "@nazwa_make_up",
+      "slug": "nazwa-make-up",
+      "summary": "Beauty collaboration featuring elegant and refined makeup artistry",
+      "images": [
+        "/images/1000484089.jpg",
+        "/images/1000484090.jpg",
+        "/images/1000484132.jpg",
+        "/images/1000484134.jpg"
+      ],
+      "techStack": ["Beauty Photography", "Makeup Design", "Visual Aesthetics"],
+      "contributions": ["Modeling", "Concept Development", "Brand Representation"],
+      "features": ["Elegant Beauty", "Professional Quality", "Brand Collaboration"]
+    },
+    {
+      "id": "portfolio-06",
+      "title": "@anastasiaichibeautystudio",
+      "slug": "anastasiaichibeautystudio",
+      "summary": "Studio collaboration showcasing professional beauty photography and makeup artistry",
+      "images": [
+        "/images/1000484090.jpg",
+        "/images/1000484132.jpg",
+        "/images/1000484134.jpg",
+        "/images/1000474136.jpg"
+      ],
+      "techStack": ["Studio Photography", "Beauty Direction", "Makeup Artistry"],
+      "contributions": ["Modeling", "Art Direction", "Visual Coordination"],
+      "features": ["Studio Quality", "Professional Beauty", "Brand Partnership"]
+    },
+    {
+      "id": "portfolio-07",
+      "title": "@abil.beauty",
+      "slug": "abil-beauty",
+      "summary": "Creative beauty project featuring innovative makeup looks and visual design",
+      "images": [
+        "/images/1000484132.jpg",
+        "/images/1000484134.jpg",
+        "/images/1000474136.jpg",
+        "/images/1000474441.jpg"
+      ],
+      "techStack": ["Creative Photography", "Makeup Design", "Visual Storytelling"],
+      "contributions": ["Modeling", "Creative Direction", "Concept Development"],
+      "features": ["Creative Vision", "Innovative Beauty", "Artistic Collaboration"]
+    },
+    {
+      "id": "portfolio-08",
+      "title": "@ebiiiephotograph",
+      "slug": "ebiiiephotograph",
+      "summary": "Photography collaboration highlighting professional portraiture and beauty aesthetics",
+      "images": [
+        "/images/1000484134.jpg",
+        "/images/1000474136.jpg",
+        "/images/1000474441.jpg",
+        "/images/1000480317.jpg"
+      ],
+      "techStack": ["Portrait Photography", "Beauty Photography", "Visual Design"],
+      "contributions": ["Modeling", "Visual Concept", "Styling"],
+      "features": ["Professional Portraiture", "Beauty Aesthetics", "Creative Partnership"]
+    }
+  ],
   "collaborations": [
     {
       "id": "collab-01",

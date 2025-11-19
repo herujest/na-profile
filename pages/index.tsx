@@ -40,15 +40,50 @@ export default function Home() {
   const aboutSlideRef = useRef<HTMLDivElement>(null);
 
   function onChangeActiveTab(index: number) {
-    // Clear any GSAP transforms before changing tab to prevent glitches
-    if (typeof window !== "undefined" && workSlideRef.current) {
-      const workContent = workSlideRef.current.querySelector(".slide-content");
-      if (workContent) {
-        gsap.set(workContent, { clearProps: "transform" });
-      }
-    }
+    if (typeof window !== "undefined") {
+      const { ScrollTrigger } = require("gsap/ScrollTrigger");
 
-    setCurrentTabIndex(index);
+      // Save current scroll position
+      const currentScroll = window.scrollY;
+
+      // Kill existing ScrollTriggers for work section before changing tab
+      if (workSlideRef.current) {
+        ScrollTrigger.getAll().forEach((trigger: any) => {
+          if (trigger.vars.trigger === workSlideRef.current) {
+            trigger.kill(false); // Kill without animation
+          }
+        });
+
+        // Clear any GSAP transforms and unpin
+        const workContent =
+          workSlideRef.current.querySelector(".slide-content");
+        if (workContent) {
+          gsap.set(workContent, {
+            clearProps: "all",
+            transform: "none",
+          });
+        }
+
+        // Remove pinning styles
+        gsap.set(workSlideRef.current, {
+          position: "relative",
+          clearProps: "all",
+        });
+      }
+
+      // Change tab
+      setCurrentTabIndex(index);
+
+      // Restore scroll position after a brief delay
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: currentScroll,
+          behavior: "auto", // Instant scroll to prevent glitches
+        });
+      });
+    } else {
+      setCurrentTabIndex(index);
+    }
   }
 
   // Handling Scroll
@@ -114,51 +149,16 @@ export default function Home() {
         }
       }
 
+      // Work section - no pinning since content is dynamic
+      // Just ensure content is visible
       if (workSlideRef.current) {
         const workContent =
           workSlideRef.current.querySelector(".slide-content");
         if (workContent) {
-          // Ensure content is visible initially
           gsap.set(workContent, {
             opacity: 1,
-            clearProps: "transform", // Clear any transform that might cause glitches
+            clearProps: "all",
           });
-
-          const cleanup = createStickySlide(
-            workSlideRef.current,
-            workContent as HTMLElement,
-            {
-              start: "top top+=80",
-              end: "+=100%",
-              scrub: 1,
-              pin: false, // Disable pinning to prevent glitches with dynamic content
-              pinSpacing: false,
-              animation: {
-                opacity: 1,
-                ease: "power2.out",
-              },
-              onEnter: () => {
-                gsap.to(workContent, {
-                  opacity: 1,
-                  duration: 0.3,
-                  ease: Power3.easeOut,
-                  clearProps: "transform",
-                });
-              },
-              onLeave: () => {
-                // No animation on leave to prevent zoom effect
-              },
-              onEnterBack: () => {
-                gsap.to(workContent, {
-                  opacity: 1,
-                  duration: 0.3,
-                  ease: Power3.easeOut,
-                  clearProps: "transform",
-                });
-              },
-            }
-          );
-          if (cleanup) cleanupFunctions.push(cleanup);
         }
       }
 
@@ -166,12 +166,21 @@ export default function Home() {
         const servicesContent =
           servicesSlideRef.current.querySelector(".slide-content");
         if (servicesContent) {
+          // Ensure content is visible initially
+          gsap.set(servicesContent, { opacity: 1 });
+
+          // Calculate end point based on viewport height
+          const endPoint = Math.max(
+            window.innerHeight,
+            servicesSlideRef.current.offsetHeight || window.innerHeight
+          );
+
           const cleanup = createStickySlide(
             servicesSlideRef.current,
             servicesContent as HTMLElement,
             {
               start: "top top+=80",
-              end: "+=100%",
+              end: `+=${endPoint}`,
               scrub: 1,
               animation: {
                 opacity: 1,
@@ -200,40 +209,18 @@ export default function Home() {
         }
       }
 
+      // About section - no pinning since it's the last section
       if (aboutSlideRef.current) {
         const aboutContent =
           aboutSlideRef.current.querySelector(".slide-content");
         if (aboutContent) {
-          const cleanup = createStickySlide(
-            aboutSlideRef.current,
-            aboutContent as HTMLElement,
-            {
-              start: "top top+=80",
-              end: "+=100%",
-              scrub: 1,
-              animation: {
-                opacity: 1,
-                ease: "power2.out",
-              },
-              onEnter: () => {
-                gsap.to(aboutContent, {
-                  opacity: 1,
-                  duration: 0.3,
-                  ease: Power3.easeOut,
-                });
-              },
-              onLeave: () => {
-                // No animation on leave to prevent zoom effect
-              },
-              onEnterBack: () => {
-                gsap.to(aboutContent, {
-                  opacity: 1,
-                  duration: 0.3,
-                  ease: Power3.easeOut,
-                });
-              },
-            }
-          );
+          // Just add scroll animation without pinning for last section
+          const cleanup = scrollAnimation(aboutContent as HTMLElement, {
+            from: { opacity: 0.8, y: 20 },
+            to: { opacity: 1, y: 0 },
+            duration: 0.8,
+            delay: 0,
+          });
           if (cleanup) cleanupFunctions.push(cleanup);
         }
       }
@@ -275,21 +262,18 @@ export default function Home() {
   }, []);
 
   // Refresh ScrollTrigger when tab changes (for conditional content)
-  // Use debounce to prevent too frequent refreshes
   useEffect(() => {
     if (typeof window !== "undefined") {
       const { ScrollTrigger } = require("gsap/ScrollTrigger");
+      const workSlideElement = workSlideRef.current;
 
-      // Disable ScrollTrigger temporarily to prevent glitches
-      ScrollTrigger.refresh(false);
-
-      // Small delay to ensure DOM is updated, then refresh
+      // Small delay to ensure DOM is updated
       const timer = setTimeout(() => {
-        // Batch refresh to prevent multiple recalculations
+        // Just refresh ScrollTrigger, no need to re-setup pinning for dynamic content
         requestAnimationFrame(() => {
           ScrollTrigger.refresh();
         });
-      }, 200);
+      }, 100);
 
       return () => {
         clearTimeout(timer);
@@ -318,7 +302,7 @@ export default function Home() {
           className="full-page-slide hero-section h-screen"
           ref={heroSlideRef}
         >
-          <div className="slide-content h-full flex flex-col justify-between items-start px-4 laptop:px-0 pb-8 laptop:pb-10">
+          <div className="slide-content h-full flex flex-col justify-between items-start px-2 laptop:px-0 pb-2 laptop:pb-1">
             <div className="w-full flex-grow flex flex-col justify-center">
               <h1
                 ref={textOne}
@@ -344,20 +328,20 @@ export default function Home() {
               >
                 {data.headerTaglineFour}
               </h1>
-            </div>
 
-            <div ref={socialsRef} className="w-full">
-              <Socials className="mt-2 laptop:mt-5" />
+              <div ref={socialsRef} className="w-full">
+                <Socials className="mt-2 laptop:mt-5" />
+              </div>
             </div>
           </div>
         </div>
         {/* WORK Collaborations Slide - Full Page */}
         <div className="full-page-slide" ref={workSlideRef}>
           <div
-            className="slide-content min-h-screen flex flex-col pt-20 laptop:pt-24"
+            className="slide-content min-h-screen flex flex-col "
             style={{ opacity: 1, visibility: "visible" }}
           >
-            <div className="w-full flex justify-center mb-8" ref={tabsRef}>
+            <div className="w-full flex justify-center" ref={tabsRef}>
               <GlassRadioGroup
                 name="portfolio-tabs"
                 options={[
@@ -390,11 +374,11 @@ export default function Home() {
         {/* Services Slide - Full Page */}
         <div className="full-page-slide" ref={servicesSlideRef}>
           <div
-            className="slide-content min-h-screen flex flex-col justify-center p-2 laptop:p-0 pt-20 laptop:pt-24"
+            className="slide-content min-h-screen flex flex-col justify-center p-2 laptop:p-0"
             ref={servicesRef}
           >
-            <h1 className="tablet:m-10 text-2xl text-bold">Services.</h1>
-            <div className="mt-5 tablet:m-10 grid grid-cols-1 laptop:grid-cols-2 gap-6">
+            <h1 className="text-2xl text-bold">Services.</h1>
+            <div className="tablet:m-10 grid grid-cols-1 laptop:grid-cols-2 gap-6">
               {data.services.map(
                 (
                   service: { title: string; description: string },
@@ -421,11 +405,11 @@ export default function Home() {
         {/* About Slide - Full Page */}
         <div className="full-page-slide" ref={aboutSlideRef}>
           <div
-            className="slide-content min-h-screen flex flex-col justify-center p-2 laptop:p-0 pt-20 laptop:pt-24"
+            className="slide-content min-h-screen flex flex-col justify-center laptop:p-0"
             ref={aboutRef}
           >
             <h1 className="tablet:m-10 text-2xl text-bold">About.</h1>
-            <p className="tablet:m-10 mt-2 text-xl laptop:text-3xl w-full laptop:w-3/5">
+            <p className="tablet:m-10 text-xl laptop:text-3xl w-full laptop:w-3/5">
               {data.aboutpara}
             </p>
           </div>

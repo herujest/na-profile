@@ -136,12 +136,17 @@ const FloatingScrollButton: React.FC<FloatingScrollButtonProps> = ({
     ) {
       const targetElement = validSections[nextIndex].ref.current;
       
-      // Get element position using getBoundingClientRect for accurate position
+      // Get element position - try multiple methods for accuracy
       const rect = targetElement.getBoundingClientRect();
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
       
       // Calculate target position: current scroll + element's top position relative to viewport
       let targetPosition = rect.top + scrollTop;
+      
+      // If rect.top is negative or very small, element might be pinned, use offsetTop instead
+      if (rect.top < 0 || (rect.top < 100 && targetElement.offsetTop > scrollTop)) {
+        targetPosition = targetElement.offsetTop;
+      }
       
       // Account for header offset (sticky header + padding)
       const headerOffset = 80;
@@ -151,7 +156,8 @@ const FloatingScrollButton: React.FC<FloatingScrollButtonProps> = ({
         rectTop: rect.top,
         scrollTop,
         offsetTop: targetElement.offsetTop,
-        calculated: targetPosition
+        calculated: targetPosition,
+        elementId: validSections[nextIndex].id
       });
 
       // Scroll to the target position with smooth behavior
