@@ -345,7 +345,7 @@ export default function Home() {
               <GlassRadioGroup
                 name="portfolio-tabs"
                 options={[
-                  { id: "tab-portfolio", label: "Portfolio", value: 0 },
+                  { id: "tab-gallery", label: "Gallery", value: 0 },
                   { id: "tab-collaboration", label: "Collaboration", value: 1 },
                 ]}
                 selectedValue={currentTabIndex}

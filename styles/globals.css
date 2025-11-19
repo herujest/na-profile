@@ -251,12 +251,12 @@ html {
 }
 
 /* Portfolio (Silver) - First option */
-#tab-portfolio:checked ~ .glass-glider {
+#tab-gallery:checked ~ .glass-glider {
   transform: translateX(0%);
-  background: linear-gradient(135deg, #c0c0c055, #e0e0e0);
-  box-shadow:
-    0 0 18px rgba(192, 192, 192, 0.5),
-    0 0 10px rgba(255, 255, 255, 0.4) inset;
+  background: linear-gradient(135deg, #ffd70055, #ffcc00);
+    box-shadow:
+      0 0 18px rgba(255, 215, 0, 0.5),
+      0 0 10px rgba(255, 235, 150, 0.4) inset;
 }
 
 /* Collaboration (Gold) - Second option */
