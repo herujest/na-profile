@@ -4,6 +4,14 @@
 @tailwind utilities;
 @import "./markdown.css";
 
+/* Page Loader CSS Variables */
+:root {
+  --loader-major: #EF836E;
+  --loader-minor: #eaeaea;
+  --loader-dur: 1.25s;
+  --loader-pi2: 6.28; /* 3.14 * 2 */
+}
+
 * {
   font-family: "Hind";
 }
@@ -278,4 +286,32 @@ html {
     --bg: rgba(0, 0, 0, 0.3);
     --text: #e5e5e5;
   }
+}
+
+/* Page Loader - Hide content initially */
+body.loading .page-content {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.loaded:not(.new-page) .page-content {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.new-page .page-content,
+body.new-page.loaded .page-content {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transition: opacity 0.5s ease-in-out, visibility 0s linear;
+}
+
+/* Default: show content if no loader classes (fallback) */
+.page-content {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }

@@ -10,6 +10,7 @@ import Header from "../components/Header";
 import ServiceCard from "../components/ServiceCard";
 import Socials from "../components/Socials";
 import FloatingScrollButton from "../components/FloatingScrollButton";
+import PageLoader from "../components/PageLoader";
 import { useIsomorphicLayoutEffect } from "../utils";
 
 // Local Data
@@ -282,8 +283,11 @@ export default function Home() {
   }, [currentTabIndex]);
 
   return (
-    <div className={`relative ${data.showCursor && "cursor-none"}`}>
+    <div
+      className={`relative page-content ${data.showCursor && "cursor-none"}`}
+    >
       {data.showCursor && <Cursor />}
+      <PageLoader />
       <Head>
         <title>{data.name}</title>
       </Head>
