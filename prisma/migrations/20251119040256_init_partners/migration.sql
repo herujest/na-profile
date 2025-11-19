@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "Partner" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "category" TEXT NOT NULL,
     "description" TEXT,
@@ -11,11 +11,13 @@ CREATE TABLE "Partner" (
     "priceRange" TEXT,
     "portfolioUrl" TEXT,
     "avatarUrl" TEXT,
-    "tags" TEXT NOT NULL DEFAULT '[]',
+    "tags" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "notes" TEXT,
     "collaborationCount" INTEGER NOT NULL DEFAULT 0,
-    "internalRank" REAL NOT NULL DEFAULT 0,
-    "manualScore" REAL NOT NULL DEFAULT 0,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "internalRank" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "manualScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Partner_pkey" PRIMARY KEY ("id")
 );

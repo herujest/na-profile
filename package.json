@@ -3,10 +3,14 @@
   "version": "3.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "docker:build": "./scripts/docker-build.sh latest --local",
+    "docker:build:local": "./scripts/docker-build.sh latest --local",
+    "docker:build:push": "./scripts/docker-build.sh latest --push",
+    "docker:build:push:amd": "./scripts/docker-build.sh latest --push-amd"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.808.0",

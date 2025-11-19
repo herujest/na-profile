@@ -7,10 +7,11 @@ import Socials from "../components/Socials";
 import Button from "../components/Button";
 import { useTheme } from "next-themes";
 // Data
-import { name, showResume } from "../data/portfolio.json";
-import { resume } from "../data/portfolio.json";
 import data from "../data/portfolio.json";
 import Head from "next/head";
+
+// Extract data from default import
+const { name, showResume, resume } = data;
 
 const Resume: React.FC = () => {
   const router = useRouter();

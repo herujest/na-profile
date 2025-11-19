@@ -1,9 +1,31 @@
 import gsap, { Power3, Power4 } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// Register ScrollTrigger plugin
+// ScrollTrigger will be loaded dynamically on client-side only
+// For server-side, we'll use a mock implementation
+let ScrollTrigger: any = {
+  create: () => ({ kill: () => {} }),
+  refresh: () => {},
+  getAll: () => [],
+  clearScrollMemory: () => {},
+  killAll: () => {},
+};
+
+// Only load ScrollTrigger on client-side
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
+  try {
+    // Use dynamic require to avoid SSR issues
+    const scrollTriggerModule = require("gsap/ScrollTrigger");
+    ScrollTrigger =
+      scrollTriggerModule.ScrollTrigger ||
+      scrollTriggerModule.default ||
+      scrollTriggerModule;
+    if (ScrollTrigger && gsap) {
+      gsap.registerPlugin(ScrollTrigger);
+    }
+  } catch (e) {
+    // Fallback to mock if import fails
+    console.warn("Failed to load ScrollTrigger, using mock:", e);
+  }
 }
 
 export const stagger = (
@@ -195,56 +217,52 @@ export const createFullPageSlides = (
     });
 
     // Create sticky slide
-    const cleanup = createStickySlide(
-      slide,
-      content,
-      {
-        start: index === 0 ? "top top" : "top top",
-        end: "+=100%",
-        scrub: true,
-        animation: {
+    const cleanup = createStickySlide(slide, content, {
+      start: index === 0 ? "top top" : "top top",
+      end: "+=100%",
+      scrub: true,
+      animation: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: duration,
+        ease: ease,
+      },
+      onEnter: () => {
+        gsap.to(content, {
           opacity: 1,
           y: 0,
           scale: 1,
-          duration: duration,
-          ease: ease,
-        },
-        onEnter: () => {
-          gsap.to(content, {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.8,
-            ease: Power4.easeOut,
-          });
-        },
-        onLeave: () => {
-          gsap.to(content, {
-            opacity: 0.7,
-            scale: 0.95,
-            duration: 0.5,
-            ease: Power3.easeIn,
-          });
-        },
-        onEnterBack: () => {
-          gsap.to(content, {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.8,
-            ease: Power4.easeOut,
-          });
-        },
-        onLeaveBack: () => {
-          gsap.to(content, {
-            opacity: 0.7,
-            scale: 0.95,
-            duration: 0.5,
-            ease: Power3.easeIn,
-          });
-        },
-      }
-    );
+          duration: 0.8,
+          ease: Power4.easeOut,
+        });
+      },
+      onLeave: () => {
+        gsap.to(content, {
+          opacity: 0.7,
+          scale: 0.95,
+          duration: 0.5,
+          ease: Power3.easeIn,
+        });
+      },
+      onEnterBack: () => {
+        gsap.to(content, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.8,
+          ease: Power4.easeOut,
+        });
+      },
+      onLeaveBack: () => {
+        gsap.to(content, {
+          opacity: 0.7,
+          scale: 0.95,
+          duration: 0.5,
+          ease: Power3.easeIn,
+        });
+      },
+    });
 
     if (cleanup) cleanupFunctions.push(cleanup);
   });
@@ -259,4 +277,3 @@ export const createFullPageSlides = (
     });
   };
 };
-
