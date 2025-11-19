@@ -372,42 +372,30 @@ const Collaboration: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="w-full mt-10 laptop:mt-30 p-2 laptop:p-0">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Portfolio Templates
-              </h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-1">
-                Choose the perfect layout for your collaboration showcase
-              </p>
-            </div>
-
-            {/* Template Selector */}
-            <div className="flex space-x-2 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
-              {Object.entries(templates).map(([key, name]) => (
-                <button
-                  key={key}
-                  onClick={() => setActiveTemplate(key)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                    activeTemplate === key
-                      ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
-                      : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                  }`}
-                >
-                  {name}
-                </button>
-              ))}
-            </div>
-          </div>
+      <div className="mb-8">
+        <h1 className="text-2xl text-bold mb-4">Gallery.</h1>
+        {/* Template Selector */}
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(templates).map(([key, name]) => (
+            <button
+              key={key}
+              onClick={() => setActiveTemplate(key)}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                activeTemplate === key
+                  ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
+                  : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+              }`}
+            >
+              {name}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full">
         {renderGrid()}
       </div>
 

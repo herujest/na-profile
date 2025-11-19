@@ -130,9 +130,8 @@ const Header: React.FC<HeaderProps> = ({ handleWorkScroll, handleAboutScroll, is
         )}
       </Popover>
       <div
-        className={`mt-10 hidden flex-row items-center justify-between sticky ${
-          theme === "light" && "bg-white"
-        } dark:text-white top-0 z-10 tablet:flex`}
+        className="mt-10 hidden flex-row items-center justify-between sticky bg-white dark:bg-transparent dark:text-white top-0 z-10 tablet:flex"
+        suppressHydrationWarning
       >
         <h1
           onClick={() => router.push("/")}

@@ -24,105 +24,224 @@ const FloatingScrollButton: React.FC<FloatingScrollButtonProps> = ({
   // Animation is handled via CSS classes
 
   useEffect(() => {
-    const handleScroll = () => {
-      // Filter out sections that don't have a ref or are not in DOM
-      const validSections = sections.filter((section) => section.ref.current);
+    // Filter out sections that don't have a ref or are not in DOM
+    const validSections = sections.filter((section) => section.ref.current);
 
-      if (validSections.length === 0) {
-        setIsVisible(false);
-        return;
+    if (validSections.length === 0) {
+      setIsVisible(false);
+      return;
+    }
+
+    // Use IntersectionObserver to detect which section is most visible
+    const observers: IntersectionObserver[] = [];
+    const sectionVisibility: Map<number, number> = new Map();
+
+    validSections.forEach((section, index) => {
+      if (section.ref.current) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              // Calculate intersection ratio (how much of the section is visible)
+              const ratio = entry.intersectionRatio;
+              sectionVisibility.set(index, ratio);
+
+              // Find the section with the highest visibility
+              let maxRatio = 0;
+              let activeIndex = 0;
+
+              sectionVisibility.forEach((visibility, idx) => {
+                if (visibility > maxRatio) {
+                  maxRatio = visibility;
+                  activeIndex = idx;
+                }
+              });
+
+              // If no section has significant visibility, find the one closest to viewport
+              if (maxRatio < 0.1) {
+                const scrollPosition = window.scrollY + window.innerHeight / 2;
+                let minDistance = Infinity;
+
+                validSections.forEach((sec, idx) => {
+                  if (sec.ref.current) {
+                    const rect = sec.ref.current.getBoundingClientRect();
+                    const elementCenter = rect.top + rect.height / 2 + window.scrollY;
+                    const distance = Math.abs(scrollPosition - elementCenter);
+                    if (distance < minDistance) {
+                      minDistance = distance;
+                      activeIndex = idx;
+                    }
+                  }
+                });
+              }
+
+              setCurrentSectionIndex(activeIndex);
+
+              // Hide button only if we're at the last section
+              const isLastSection = activeIndex >= validSections.length - 1;
+              setIsVisible(!isLastSection);
+            });
+          },
+          {
+            threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+            rootMargin: "-20% 0px -20% 0px", // Focus on center 60% of viewport
+          }
+        );
+
+        observer.observe(section.ref.current);
+        observers.push(observer);
       }
+    });
 
-      // Find which section is currently in view
+    // Initial check
+    const handleInitialCheck = () => {
       const scrollPosition = window.scrollY + window.innerHeight / 2;
-
-      let activeIndex = 0;
       let minDistance = Infinity;
+      let activeIndex = 0;
 
       validSections.forEach((section, index) => {
         if (section.ref.current) {
-          const elementTop = section.ref.current.offsetTop;
-          const elementBottom = elementTop + section.ref.current.offsetHeight;
-          const elementCenter =
-            elementTop + section.ref.current.offsetHeight / 2;
-
-          // Check if scroll position is within this section
-          if (scrollPosition >= elementTop && scrollPosition <= elementBottom) {
-            const distance = Math.abs(scrollPosition - elementCenter);
-            if (distance < minDistance) {
-              minDistance = distance;
-              activeIndex = index;
-            }
+          const rect = section.ref.current.getBoundingClientRect();
+          const elementCenter = rect.top + rect.height / 2 + window.scrollY;
+          const distance = Math.abs(scrollPosition - elementCenter);
+          if (distance < minDistance) {
+            minDistance = distance;
+            activeIndex = index;
           }
         }
       });
 
-      // If no section is found, find the closest one
-      if (minDistance === Infinity) {
-        validSections.forEach((section, index) => {
-          if (section.ref.current) {
-            const elementTop = section.ref.current.offsetTop;
-            const distance = Math.abs(scrollPosition - elementTop);
-            if (distance < minDistance) {
-              minDistance = distance;
-              activeIndex = index;
-            }
-          }
-        });
-      }
-
       setCurrentSectionIndex(activeIndex);
-
-      // Hide button if we're at the last section or near bottom
-      const isLastSection = activeIndex >= validSections.length - 1;
-      const isNearBottom =
-        window.innerHeight + window.scrollY >=
-        document.documentElement.scrollHeight - 100;
-      setIsVisible(!isLastSection && !isNearBottom);
     };
 
-    window.addEventListener("scroll", handleScroll);
-    handleScroll(); // Initial check
+    handleInitialCheck();
 
-    // Also check on resize
-    window.addEventListener("resize", handleScroll);
-
+    // Cleanup
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
+      observers.forEach((observer) => observer.disconnect());
     };
   }, [sections]);
 
   const scrollToNextSection = () => {
+    console.log('scrollToNextSection called', { currentSectionIndex });
+    
     // Filter valid sections
     const validSections = sections.filter((section) => section.ref.current);
     const nextIndex = currentSectionIndex + 1;
+
+    console.log('Valid sections:', validSections.length, 'Next index:', nextIndex);
 
     if (
       nextIndex < validSections.length &&
       validSections[nextIndex].ref.current
     ) {
-      validSections[nextIndex].ref.current.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
+      const targetElement = validSections[nextIndex].ref.current;
+      
+      // Get element position using getBoundingClientRect for accurate position
+      const rect = targetElement.getBoundingClientRect();
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      
+      // Calculate target position: current scroll + element's top position relative to viewport
+      let targetPosition = rect.top + scrollTop;
+      
+      // Account for header offset (sticky header + padding)
+      const headerOffset = 80;
+      targetPosition = Math.max(0, targetPosition - headerOffset);
+
+      console.log('Scrolling to position:', targetPosition, {
+        rectTop: rect.top,
+        scrollTop,
+        offsetTop: targetElement.offsetTop,
+        calculated: targetPosition
       });
+
+      // Scroll to the target position with smooth behavior
+      window.scrollTo({
+        top: targetPosition,
+        behavior: "smooth",
+      });
+    } else {
+      console.log('Cannot scroll - invalid next section');
     }
   };
 
-  if (!mounted || !isVisible) return null;
+  // Add event listener directly to button element as backup
+  useEffect(() => {
+    if (buttonRef.current) {
+      const handleClick = (e: MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Button clicked via addEventListener');
+        
+        // Filter valid sections
+        const validSections = sections.filter((section) => section.ref.current);
+        const nextIndex = currentSectionIndex + 1;
+
+        if (
+          nextIndex < validSections.length &&
+          validSections[nextIndex].ref.current
+        ) {
+          const targetElement = validSections[nextIndex].ref.current;
+          const rect = targetElement.getBoundingClientRect();
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          let targetPosition = rect.top + scrollTop;
+          const headerOffset = 80;
+          targetPosition = Math.max(0, targetPosition - headerOffset);
+
+          window.scrollTo({
+            top: targetPosition,
+            behavior: "smooth",
+          });
+        }
+      };
+
+      buttonRef.current.addEventListener('click', handleClick, true); // Use capture phase
+      
+      return () => {
+        if (buttonRef.current) {
+          buttonRef.current.removeEventListener('click', handleClick, true);
+        }
+      };
+    }
+  }, [currentSectionIndex, sections]);
+
+  if (!mounted) return null;
+  
+  // Only hide if we're at the last section
+  if (isVisible === false && currentSectionIndex >= sections.length - 1) {
+    return null;
+  }
+
+  console.log('Rendering button', { mounted, isVisible, currentSectionIndex });
 
   return (
     <button
       ref={buttonRef}
-      onClick={scrollToNextSection}
-      className="fixed left-1/2 bottom-[5%] z-50 
+      onClick={(e) => {
+        console.log('Button onClick handler called');
+        e.preventDefault();
+        e.stopPropagation();
+        scrollToNextSection();
+      }}
+      onMouseDown={(e) => {
+        console.log('Button onMouseDown');
+        e.preventDefault();
+      }}
+      className="fixed left-1/2 bottom-[5%] z-[9999] 
                  w-14 h-14 rounded-full flex items-center justify-center
                  bg-black dark:bg-white text-white dark:text-black
                  shadow-lg hover:shadow-xl transition-all duration-300
                  hover:scale-110 active:scale-95
                  opacity-80 hover:opacity-100
-                 group floating-scroll-button"
+                 group floating-scroll-button
+                 pointer-events-auto cursor-pointer"
+      style={{ 
+        pointerEvents: 'auto', 
+        zIndex: 9999,
+        position: 'fixed',
+        transform: 'translateX(-50%)'
+      }}
       aria-label="Scroll to next section"
+      type="button"
     >
       <svg
         className="w-6 h-6 group-hover:translate-y-1 transition-transform duration-300"

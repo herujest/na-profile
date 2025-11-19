@@ -24,16 +24,16 @@ export default function Portfolio({ workRef, collabs }: PortfolioProps) {
 
   const ProjectWrapper = () => {
     if (!collabs?.length) return null;
-    console.log("collabs", collabs);
 
     return (
       <div className="mt-5 laptop:mt-10 grid grid-cols-2 tablet:grid-cols-2 gap-4">
-        {collabs.map((project) => {
-          console.log("collabsss", collabs);
+        {collabs.map((project, index) => {
+          // Ensure unique key by combining id with index to handle duplicates
+          const uniqueKey = `${project.id || 'collab'}-${index}`;
 
           return (
             <WorkCard
-              key={project.id}
+              key={uniqueKey}
               imgs={project.media}
               name={project.title}
               description={project.description}
@@ -50,20 +50,13 @@ export default function Portfolio({ workRef, collabs }: PortfolioProps) {
       const res = await fetch("/api/portfolio/list-files");
       const data = await res.json();
 
-      if (res.ok) {
-        // setFiles(data.files);
-        console.log("data.files", data.files);
-      } else {
+      if (!res.ok) {
         console.error("Failed to fetch files:", data.error);
       }
     };
 
     fetchFiles();
   }, []);
-
-  useEffect(() => {
-    console.log("collabs", collabs);
-  }, [collabs]);
 
   return (
     <div className="mt-10 laptop:mt-30 p-2 laptop:p-0" ref={workRef}>
