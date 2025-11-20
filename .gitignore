@@ -14,10 +14,13 @@
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
 *.pem
+.vscode/
+.idea/
 
 # debug
 npm-debug.log*
@@ -27,10 +30,26 @@ yarn-error.log*
 
 # local env files
 .env*.local
-*.env
+.env
+!.env.example
 
 # vercel
 .vercel
 
-
+# prisma
 /generated/prisma
+prisma/dev.db
+prisma/dev.db-journal
+*.db
+*.db-journal
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# empty folders (will be regenerated if needed)
+components/HomeViews/
+components/sections/gallery/
+
+# turbo
+.turbo

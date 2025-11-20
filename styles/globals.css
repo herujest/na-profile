@@ -25,12 +25,14 @@ body {
 }
 
 .gradient-circle {
-  position: absolute;
+  position: fixed;
   pointer-events: none;
   z-index: 100;
-  top: -30px;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 40px;
-  width: 100vw;
+  width: 100%;
   opacity: 0.5;
   filter: blur(40px);
   background: radial-gradient(
@@ -40,12 +42,14 @@ body {
   );
 }
 .gradient-circle-bottom {
-  position: absolute;
+  position: fixed;
   pointer-events: none;
   z-index: 100;
-  bottom: -20px;
+  bottom: 0;
+  left: 0;
+  right: 0;
   height: 30px;
-  width: 100vw;
+  width: 100%;
   opacity: 0.5;
   filter: blur(40px);
   background: radial-gradient(
@@ -91,7 +95,28 @@ body {
 .heading {
   font-weight: 700;
   z-index: 200;
+}
 
+/* Custom Cursor Styles - Position Fix */
+/* Override library styles for proper centering */
+.custom-cursor {
+  pointer-events: none !important;
+  position: fixed !important;
+  z-index: 9999 !important;
+  will-change: transform;
+}
+
+/* Ensure cursor is centered on pointer */
+.custom-cursor svg {
+  will-change: transform;
+  transform: translate(-50%, -50%);
+}
+
+/* Optimize cursor performance */
+.custom-cursor * {
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 @keyframes floatBounce {
@@ -247,33 +272,32 @@ html {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: calc(100% / 2);
+  left: 0;
+  width: 50%;
   border-radius: 1rem;
   z-index: 1;
   transition:
     transform 0.5s cubic-bezier(0.37, 1.95, 0.66, 0.56),
+    width 0.5s cubic-bezier(0.37, 1.95, 0.66, 0.56),
     background 0.4s ease-in-out,
     box-shadow 0.4s ease-in-out;
-  /* Default position for first option */
-  transform: translateX(0%);
-  background: linear-gradient(135deg, #c0c0c055, #e0e0e0);
-  box-shadow:
-    0 0 18px rgba(192, 192, 192, 0.5),
-    0 0 10px rgba(255, 255, 255, 0.4) inset;
-}
-
-/* Portfolio (Silver) - First option */
-#tab-gallery:checked ~ .glass-glider {
+  /* Default position for first option - will be overridden by JS */
   transform: translateX(0%);
   background: linear-gradient(135deg, #ffd70055, #ffcc00);
-    box-shadow:
-      0 0 18px rgba(255, 215, 0, 0.5),
-      0 0 10px rgba(255, 235, 150, 0.4) inset;
+  box-shadow:
+    0 0 18px rgba(255, 215, 0, 0.5),
+    0 0 10px rgba(255, 235, 150, 0.4) inset;
 }
 
-/* Collaboration (Gold) - Second option */
+/* Legacy CSS selectors (kept for fallback, but JS controls the position) */
+#tab-gallery:checked ~ .glass-glider {
+  background: linear-gradient(135deg, #ffd70055, #ffcc00);
+  box-shadow:
+    0 0 18px rgba(255, 215, 0, 0.5),
+    0 0 10px rgba(255, 235, 150, 0.4) inset;
+}
+
 #tab-collaboration:checked ~ .glass-glider {
-  transform: translateX(100%);
   background: linear-gradient(135deg, #ffd70055, #ffcc00);
   box-shadow:
     0 0 18px rgba(255, 215, 0, 0.5),
@@ -351,6 +375,42 @@ body.new-page.loaded .page-content {
   position: relative;
   z-index: 10;
   backdrop-filter: blur(0.5px);
+  padding-left: 3rem !important; /* Increased padding */
+  padding-right: 3rem !important; /* Increased padding */
+  box-sizing: border-box !important; /* Ensure padding is included in width */
+  max-width: 60% !important; /* Limit content width to 60% */
+  margin-left: 0 !important; /* Left align the content */
+  margin-right: auto !important; /* Let content align to left */
+}
+
+@media (min-width: 768px) {
+  .about-section .slide-content {
+    padding-left: 4rem !important; /* Increased tablet padding */
+    padding-right: 4rem !important; /* Increased tablet padding */
+    max-width: 60% !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .about-section .slide-content {
+    padding-left: 6rem !important; /* Increased laptop padding */
+    padding-right: 6rem !important; /* Increased laptop padding */
+    max-width: 60% !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .about-section .slide-content {
+    padding-left: 8rem !important; /* Increased desktop padding */
+    padding-right: 8rem !important; /* Increased desktop padding */
+    max-width: 60% !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+  }
 }
 
 /* Ensure background stays behind content */
@@ -362,4 +422,43 @@ body.new-page.loaded .page-content {
   bottom: 0;
   z-index: 0;
   pointer-events: none;
+}
+
+/* Animated Background for About Section */
+.animated-background {
+  background: linear-gradient(
+    135deg,
+    rgba(107, 107, 248, 0.15) 0%,
+    rgba(248, 107, 223, 0.15) 50%,
+    rgba(107, 107, 248, 0.15) 100%
+  );
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease infinite;
+  will-change: background-position;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Resume Page Dark Mode Background Fix */
+.resume-page-wrapper {
+  background-color: #ffffff !important;
+}
+
+html.dark .resume-page-wrapper,
+.dark .resume-page-wrapper {
+  background-color: #000000 !important;
+}
+
+html:not(.dark) .resume-page-wrapper {
+  background-color: #ffffff !important;
 }

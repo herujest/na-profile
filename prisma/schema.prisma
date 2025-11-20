@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
-  output   = "../node_modules/.prisma/client"
+  provider = "prisma-client-js"
+  previewFeatures = []
 }
 
 datasource db {
@@ -35,4 +35,23 @@ model Partner {
 
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
+}
+
+model Portfolio {
+  id            String    @id @default(uuid())
+  title         String
+  slug          String    @unique
+  summary       String?
+  images        String[]  @default([])  // Array of image URLs from R2
+  tags          String[]  @default([])  // Tags/Keywords: price friendly, easy location, best recommendation mua, etc.
+  categories    String[]  @default([])  // Project categories: Fashion, Beauty, Commercial, Editorial, etc.
+  brands        String[]  @default([])  // Brands/Clients involved in this project
+  featured      Boolean   @default(false)
+  order         Int       @default(0)   // For custom ordering
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([featured])
 }

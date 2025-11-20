@@ -77,7 +77,7 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
             <Image
               src={partner.avatarUrl}
               alt={partner.name}
-              layout="fill"
+              fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 800px"
             />

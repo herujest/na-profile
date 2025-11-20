@@ -1,0 +1,29 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build outputs
+.next
+out
+build
+dist
+
+# Prisma
+generated
+*.db
+*.db-journal
+
+# Misc
+.DS_Store
+*.pem
+.yarn
+.turbo
+
+# Logs
+*.log
+
+# Environment variables
+.env*.local
+.env
+

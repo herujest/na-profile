@@ -1,6 +1,8 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useRouter, usePathname } from "next/navigation";
 
 const handleLogout = async () => {
   await fetch("/api/auth/logout", { method: "POST" });
@@ -13,6 +15,7 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -105,9 +108,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   const isActive = (path: string, exact?: boolean) => {
     if (exact) {
-      return router.pathname === path;
+      return pathname === path;
     }
-    return router.pathname.startsWith(path);
+    return pathname?.startsWith(path) || false;
   };
 
   return (
@@ -148,30 +151,29 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {menuItems.map((item) => (
-            <Link key={item.id} href={item.path}>
-              <a
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive(item.path, item.exact)
-                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
-                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
-              >
-                <span className="text-xl">{item.icon}</span>
-                {sidebarOpen && (
-                  <span className="font-medium">{item.label}</span>
-                )}
-              </a>
+            <Link
+              key={item.id}
+              href={item.path}
+              className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive(item.path, item.exact)
+                  ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              }`}
+            >
+              <span className="text-xl">{item.icon}</span>
+              {sidebarOpen && <span className="font-medium">{item.label}</span>}
             </Link>
           ))}
         </nav>
 
         {/* Sidebar Footer */}
         <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0 space-y-2">
-          <Link href="/">
-            <a className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-              <span className="text-xl">🏠</span>
-              {sidebarOpen && <span className="font-medium">View Site</span>}
-            </a>
+          <Link
+            href="/"
+            className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            <span className="text-xl">🏠</span>
+            {sidebarOpen && <span className="font-medium">View Site</span>}
           </Link>
           <button
             onClick={handleLogout}

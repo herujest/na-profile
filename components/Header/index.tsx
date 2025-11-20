@@ -1,10 +1,12 @@
+"use client";
+
 import { Popover } from "@headlessui/react";
 import { useTheme } from "next-themes";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import Button from "../Button";
+import Button from "@/components/Button";
 // Local Data
-import data from "../../data/portfolio.json";
+import data from "@/lib/data/portfolio.json";
 
 interface HeaderProps {
   handleWorkScroll?: () => void;
@@ -43,7 +45,7 @@ const Header: React.FC<HeaderProps> = ({
   return (
     <>
       {/* @ts-ignore - @headlessui/react Popover has type issues with React 18 */}
-      <Popover className="block tablet:hidden mt-5">
+      <Popover className="block tablet:hidden mt-5 relative z-50">
         {({ open }: { open: boolean }): React.ReactNode => (
           <>
             <div className="flex items-center justify-between p-2 laptop:p-0">
@@ -55,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({
               </h1>
 
               <div className="flex items-center">
-                {data.darkMode && (
+                {mounted && (
                   <Button
                     onClick={() =>
                       setTheme(theme === "dark" ? "light" : "dark")
@@ -90,10 +92,13 @@ const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
             {/* @ts-ignore */}
-            <Popover.Panel className="absolute right-0 z-10 w-11/12 p-4 bg-white/95 dark:bg-black/95 backdrop-blur-md shadow-md rounded-md border border-gray-200/50 dark:border-gray-800/50">
+            <Popover.Panel className="absolute right-0 z-50 w-11/12 p-4 bg-white/95 dark:bg-black/95 backdrop-blur-md shadow-md rounded-md border border-gray-200/50 dark:border-gray-800/50">
               {!isBlog ? (
                 <div className="grid grid-cols-1">
-                  <Button onClick={() => handleWorkScroll?.()}>Work</Button>
+                  <Button onClick={() => {
+                    console.log("[Header] Work button clicked", { handleWorkScroll });
+                    handleWorkScroll?.();
+                  }}>Work</Button>
                   <Button onClick={() => handleAboutScroll?.()}>About</Button>
                   {showBlog && (
                     <Button onClick={() => router.push("/blog")}>Blog</Button>
@@ -131,7 +136,7 @@ const Header: React.FC<HeaderProps> = ({
         )}
       </Popover>
       <div
-        className="mt-10 hidden flex-row items-center justify-between sticky top-0 z-10 tablet:flex py-3 px-4"
+        className="mt-10 hidden flex-row items-center justify-between sticky top-0 z-50 tablet:flex py-3 px-4"
         suppressHydrationWarning
       >
         <h1
@@ -142,7 +147,10 @@ const Header: React.FC<HeaderProps> = ({
         </h1>
         {!isBlog ? (
           <div className="flex">
-            <Button onClick={() => handleWorkScroll?.()}>Work</Button>
+            <Button onClick={() => {
+              console.log("[Header] Work button clicked (desktop)", { handleWorkScroll });
+              handleWorkScroll?.();
+            }}>Work</Button>
             <Button onClick={() => handleAboutScroll?.()}>About</Button>
             {showBlog && (
               <Button onClick={() => router.push("/blog")}>Blog</Button>
@@ -157,7 +165,7 @@ const Header: React.FC<HeaderProps> = ({
             )}
 
             <Button onClick={handleContactClick}>Contact</Button>
-            {mounted && theme && data.darkMode && (
+            {mounted && (
               <Button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               >
@@ -186,7 +194,7 @@ const Header: React.FC<HeaderProps> = ({
 
             <Button onClick={handleContactClick}>Contact</Button>
 
-            {mounted && theme && data.darkMode && (
+            {mounted && (
               <Button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               >

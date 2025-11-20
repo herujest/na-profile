@@ -1,0 +1,68 @@
+{
+  "name": "Nisa Aulia",
+  "headerTaglineOne": "Hello 👋",
+  "headerTaglineTwo": "I'm Nisa Aulia - Model",
+  "headerTaglineThree": "Muse and Makeup Aficionado",
+  "headerTaglineFour": " based in Jakarta, Indonesia.",
+  "showCursor": true,
+  "showBlog": true,
+  "darkMode": false,
+  "showResume": true,
+  "socials": [],
+  "services": [
+    {
+      "id": "1",
+      "title": "Beauty Direction",
+      "description": "I offer creative direction tailored to beauty and commercial shoots—curating concepts, styling, and visual mood that elevate your campaign's essence. From soft elegance to bold editorial, I help shape visuals that speak."
+    },
+    {
+      "id": "2",
+      "title": "Commercial Modeling",
+      "description": "With a strong background in commercial work, I bring brand stories to life through movement, poise, and polished presence. I model for beauty brands, lifestyle labels, and campaigns that seek both authenticity and allure."
+    },
+    {
+      "id": "3",
+      "title": "Makeup Artistry Collaboration",
+      "description": "Specializing in the harmony between face and frame, I collaborate with top makeup artists or offer guided looks to create visually cohesive, stunning results for photo and film."
+    },
+    {
+      "id": "4",
+      "title": "Brand Aesthetics Consulting",
+      "description": "I assist brands in defining their visual identity within beauty, fashion, and lifestyle. Whether it's selecting the right palette, textures, or atmosphere, I help ensure every image aligns with your brand's refined voice."
+    }
+  ],
+  "aboutpara": "Modeling, for me, is more than a profession—it is an intimate dialogue between soul and surface, a dance between light, emotion, and the silent language of expression. My name is Nisa Aulia, and I specialize in makeup artistry and commercial shoots, where every detail is curated, every glance intentional. \nMy journey began not in the spotlight, but in the quiet moments of transformation—watching colors bloom on skin, seeing faces light up under the right contour or the perfect shade. Makeup became my medium, the lens through which I understood beauty: nuanced, evolving, powerful.\nI used to believe modeling was simply about standing before a camera. Now I know it's about embodying a story. It’s about how you move, what you wear, the textures that touch your skin, and the brand of self you choose to reflect. Each shoot is a canvas. Each look, a mood. Each campaign, a memory in motion.\nElegance, to me, is not just style—it is intention. It is the ability to communicate grace without words, to hold space with presence alone.\nI don’t just model—I become the Muse. For brands. For beauty. For the story waiting to be seen.\n",
+  "resume": {
+    "tagline": "🌸 Muse. Model. Beauty Enthusiast.",
+    "description": "I’m a muse and commercial model specializing in makeup-centered campaigns, brand visuals, and collaborative photo productions. From product launches to editorial shoots, I bring poise, personality, and a polished aesthetic to every frame.",
+    "experiences": [
+      {
+        "id": "1",
+        "dates": "April 2025 - Present",
+        "type": "Full Time",
+        "position": "Becoming the Muse",
+        "bullets": "Collaborated with beauty and lifestyle creatives on small-scale campaigns, Modeled for conceptual shoots celebrating makeup mood and light, Learned the art of posing, presence, and visual rhythm in front of the camera, Built relationships with photographers stylists and fellow artists"
+      }
+    ],
+    "education": {
+      "universityName": "University X",
+      "universityDate": "2016-2020",
+      "universityPara": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&apos;s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book"
+    },
+    "languages": [
+      "Commercial & Beauty Modeling",
+      "Runway Readiness & Pose Coaching",
+      "Expression & Movement for Camera"
+    ],
+    "frameworks": [
+      "Makeup Artistry Understanding",
+      "Moodboard Development",
+      "Styling & Visual Coordination"
+    ],
+    "others": [
+      "Adobe Lightroom (Retouching Basics)",
+      "Social Media Branding",
+      "On-Set Adaptability"
+    ]
+  }
+}

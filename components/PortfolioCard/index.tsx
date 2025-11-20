@@ -8,9 +8,9 @@ interface PortfolioCardProps {
   slug: string;
   summary?: string;
   images: string[];
-  techStack?: string[];
-  contributions?: string[];
-  features?: string[];
+  tags?: string[];
+  categories?: string[];
+  brands?: string[];
   onClick?: () => void;
 }
 
@@ -18,7 +18,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
   title,
   summary,
   images,
-  techStack = [],
+  categories = [],
   onClick,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -103,7 +103,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
                 <Image
                   src={finalSrc}
                   alt={`${title} - Image ${index + 1}`}
-                  layout="fill"
+                  fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   priority={index === 0}
@@ -135,19 +135,19 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
               {summary}
             </p>
           )}
-          {techStack && techStack.length > 0 && (
+          {categories && categories.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-3">
-              {techStack.slice(0, 3).map((tech, idx) => (
+              {categories.slice(0, 3).map((category, idx) => (
                 <span
                   key={idx}
                   className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded"
                 >
-                  {tech}
+                  {category}
                 </span>
               ))}
-              {techStack.length > 3 && (
+              {categories.length > 3 && (
                 <span className="text-xs px-2 py-1 text-gray-500 dark:text-gray-400">
-                  +{techStack.length - 3}
+                  +{categories.length - 3}
                 </span>
               )}
             </div>

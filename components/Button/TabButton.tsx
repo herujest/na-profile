@@ -1,5 +1,7 @@
+"use client";
+
 import { useTheme } from "next-themes";
-import data from "../../data/portfolio.json";
+import data from "@/lib/data/portfolio.json";
 import React, { useEffect, useState } from "react";
 
 interface TabButtonProps {
@@ -25,7 +27,7 @@ function TabButton({ children, type, onClick, classes }: TabButtonProps) {
         mounted && theme === "dark"
           ? "hover:bg-slate-600 text-white"
           : "hover:bg-slate-100"
-      } tablet:first:ml-0  ${data.showCursor && "cursor-none"} ${classes || ""} link`}
+      } tablet:first:ml-0 ${classes || ""} link`}
     >
       {children}
     </button>

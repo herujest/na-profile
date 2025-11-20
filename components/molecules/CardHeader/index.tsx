@@ -1,38 +1,37 @@
 import React from "react";
-import { Text } from "../../atoms/Text";
-import { cn } from "../../../utils/cn";
+import { Text } from "@/components/atoms/Text";
+import { cn } from "@/lib/cn";
 
 interface CardHeaderProps {
   title: string;
-  icon?: string;
-  description?: string;
+  subtitle?: string;
   className?: string;
-  gradient?: boolean;
+  variant?: "default" | "primary" | "secondary";
 }
+
+const variantStyles = {
+  default: "",
+  primary: "text-blue-600 dark:text-blue-400",
+  secondary: "text-gray-600 dark:text-gray-400",
+};
 
 export const CardHeader: React.FC<CardHeaderProps> = ({
   title,
-  icon,
-  description,
+  subtitle,
   className,
-  gradient = false,
+  variant = "default",
 }) => {
   return (
-    <div
-      className={cn(
-        "px-6 py-4 border-b border-gray-200 dark:border-gray-700",
-        gradient &&
-          "bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20",
-        className
-      )}
-    >
-      <div className="flex items-center gap-2">
-        {icon && <span className="text-2xl">{icon}</span>}
-        <Text variant="h4">{title}</Text>
-      </div>
-      {description && (
-        <Text variant="small" className="mt-1">
-          {description}
+    <div className={cn("mb-4", className)}>
+      <Text
+        variant="h2"
+        className={cn(variantStyles[variant])}
+      >
+        {title}
+      </Text>
+      {subtitle && (
+        <Text variant="body" className="mt-2 text-gray-600 dark:text-gray-400">
+          {subtitle}
         </Text>
       )}
     </div>
@@ -40,4 +39,3 @@ export const CardHeader: React.FC<CardHeaderProps> = ({
 };
 
 export default CardHeader;
-

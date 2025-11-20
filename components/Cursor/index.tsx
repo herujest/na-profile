@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import CustomCursor from "custom-cursor-react";
 import "custom-cursor-react/dist/index.css";
@@ -19,24 +21,23 @@ const Cursor: React.FC = () => {
   useEffect(() => {
     setMount(true);
   }, []);
+
+  if (!mount) return null;
+
   return (
-    <>
-      {mount && (
-        <CustomCursor
-          targets={[".link"]}
-          customClass="custom-cursor"
-          dimensions={30}
-          fill={getCusomColor()}
-          smoothness={{
-            movement: 0.2,
-            scale: 0.1,
-            opacity: 0.2,
-          }}
-          targetOpacity={0.5}
-          targetScale={2}
-        />
-      )}
-    </>
+    <CustomCursor
+      targets={[".link"]}
+      customClass="custom-cursor"
+      dimensions={30}
+      fill={getCusomColor()}
+      smoothness={{
+        movement: 0.15,
+        scale: 0.08,
+        opacity: 0.15,
+      }}
+      targetOpacity={0.6}
+      targetScale={1.8}
+    />
   );
 };
 

@@ -40,7 +40,7 @@ const PartnerCard: React.FC<PartnerCardProps> = ({ partner, onClick }) => {
           <Image
             src={partner.avatarUrl}
             alt={partner.name}
-            layout="fill"
+            fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />

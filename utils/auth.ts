@@ -1,3 +1,4 @@
+// utils / auth.ts;
 import { NextApiRequest } from "next";
 
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "nisaaulia";
@@ -19,14 +20,12 @@ export function isAuthenticated(req: NextApiRequest): boolean {
   }
 }
 
-export function requireAuth(
-  req: NextApiRequest,
-  res: any
-): { authenticated: boolean } | null {
+export function requireAuth(req: NextApiRequest, res: any): boolean {
   if (!isAuthenticated(req)) {
-    res.status(401).json({ error: "Unauthorized" });
-    return null;
+    if (!res.headersSent) {
+      res.status(401).json({ error: "Unauthorized" });
+    }
+    return false;
   }
-  return { authenticated: true };
+  return true;
 }
-

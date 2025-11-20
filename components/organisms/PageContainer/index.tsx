@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "../../../utils/cn";
+import { cn } from "@/lib/cn";
 
 interface PageContainerProps {
   children: React.ReactNode;
@@ -35,4 +35,3 @@ export const PageContainer: React.FC<PageContainerProps> = ({
 };
 
 export default PageContainer;
-

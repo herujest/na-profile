@@ -1,40 +1,64 @@
 import React from "react";
-import { Input } from "../../atoms/Input";
-import { Textarea } from "../../atoms/Textarea";
-import { Text } from "../../atoms/Text";
+import { Input } from "@/components/atoms/Input";
+import { Textarea } from "@/components/atoms/Textarea";
+import { Text } from "@/components/atoms/Text";
 
 interface FormFieldProps {
-  label?: string;
-  error?: string;
-  helperText?: string;
+  label: string;
+  name: string;
+  type?: "text" | "email" | "password" | "textarea";
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  placeholder?: string;
   required?: boolean;
-  children: React.ReactNode;
+  error?: string;
+  className?: string;
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
   label,
+  name,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+  required = false,
   error,
-  helperText,
-  required,
-  children,
+  className = "",
 }) => {
   return (
-    <div className="w-full">
-      {label && (
-        <Text variant="label" className="mb-2 block">
+    <div className={`mb-4 ${className}`}>
+      <label htmlFor={name} className="block mb-2">
+        <Text variant="body" className="font-medium">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </Text>
+      </label>
+      {type === "textarea" ? (
+        <Textarea
+          id={name}
+          name={name}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          error={!!error}
+        />
+      ) : (
+        <Input
+          id={name}
+          name={name}
+          type={type}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          error={!!error}
+        />
       )}
-      {children}
       {error && (
-        <Text variant="caption" className="text-red-600 dark:text-red-400 mt-1">
+        <Text variant="small" className="text-red-500 mt-1">
           {error}
-        </Text>
-      )}
-      {helperText && !error && (
-        <Text variant="caption" className="mt-1">
-          {helperText}
         </Text>
       )}
     </div>
@@ -42,4 +66,3 @@ export const FormField: React.FC<FormFieldProps> = ({
 };
 
 export default FormField;
-
