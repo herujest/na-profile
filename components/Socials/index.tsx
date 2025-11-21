@@ -19,7 +19,7 @@ const Socials: React.FC<SocialsProps> = ({ className }) => {
     {
       id: "2",
       title: "TikTok",
-      link: "https://tiktok.com/@racunnyacacaa",
+      link: "https://www.tiktok.com/@racunnyacacaaa",
     },
     {
       id: "3",
