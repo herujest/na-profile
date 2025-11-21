@@ -359,10 +359,46 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
         const workContent =
           workSlideRef.current.querySelector(".slide-content");
         if (workContent) {
-          gsap.set(workContent, {
-            opacity: 1,
-            y: 0,
+          gsap.set(workSlideRef.current, {
+            height: "auto",
+            minHeight: "100vh",
           });
+
+          // Use createStickySlide for work section with pinning
+          const cleanup = createStickySlide(
+            workSlideRef.current,
+            workContent as HTMLElement,
+            {
+              start: "top top",
+              end: `+=${Math.max(
+                window.innerHeight,
+                workSlideRef.current.offsetHeight || window.innerHeight
+              )}`,
+              scrub: 1,
+              animation: {
+                opacity: 1,
+                ease: "power2.out",
+              },
+              onEnter: () => {
+                gsap.to(workContent, {
+                  opacity: 1,
+                  duration: 0.3,
+                  ease: Power3.easeOut,
+                });
+              },
+              onLeave: () => {
+                // No animation on leave
+              },
+              onEnterBack: () => {
+                gsap.to(workContent, {
+                  opacity: 1,
+                  duration: 0.3,
+                  ease: Power3.easeOut,
+                });
+              },
+            }
+          );
+          if (cleanup) cleanupFunctions.push(cleanup);
         }
       }
 
