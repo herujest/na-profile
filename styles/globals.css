@@ -351,6 +351,19 @@ body.new-page.loaded .page-content {
   transition: opacity 0.5s ease-in-out, visibility 0s linear;
 }
 
+/* Hide hero h1 elements during loading */
+body.loading .hero-section h1,
+body.loaded:not(.new-page) .hero-section h1 {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Show hero h1 elements after page load */
+body.new-page .hero-section h1,
+body.new-page.loaded .hero-section h1 {
+  visibility: visible !important;
+}
+
 /* Default: show content if no loader classes (fallback) */
 .page-content {
   opacity: 1;

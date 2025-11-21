@@ -240,17 +240,98 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
   }
 
   useIsomorphicLayoutEffect(() => {
+    // Set initial state for h1 elements before animation - hide them immediately
+    let checkInterval: NodeJS.Timeout | null = null;
+
     if (
       textOne.current &&
       textTwo.current &&
       textThree.current &&
       textFour.current
     ) {
-      stagger(
+      // Set initial state (hidden/animated from state)
+      gsap.set(
         [textOne.current, textTwo.current, textThree.current, textFour.current],
-        { y: 40, x: -10, transform: "scale(0.95) skew(10deg)" },
-        { y: 0, x: 0, transform: "scale(1)" }
+        {
+          opacity: 0,
+          visibility: "hidden",
+          y: 40,
+          x: -10,
+          scale: 0.95,
+          skewX: 10,
+        }
       );
+
+      // Wait for PageLoader to finish (body has "new-page" class) before starting animation
+      let maxChecks = 50; // Max 5 seconds (50 * 100ms)
+      let checkCount = 0;
+      let hasAnimated = false;
+
+      const checkAndAnimate = () => {
+        if (hasAnimated) return; // Prevent multiple animations
+
+        checkCount++;
+        const body = document.body;
+        const hasNewPage = body.classList.contains("new-page");
+
+        if (hasNewPage || checkCount >= maxChecks) {
+          hasAnimated = true;
+
+          // Clear interval if found or max checks reached
+          if (checkInterval) {
+            clearInterval(checkInterval);
+            checkInterval = null;
+          }
+
+          // PageLoader finished (or timeout), now start stagger animation
+          if (
+            textOne.current &&
+            textTwo.current &&
+            textThree.current &&
+            textFour.current
+          ) {
+            // Make elements visible first
+            gsap.set(
+              [
+                textOne.current,
+                textTwo.current,
+                textThree.current,
+                textFour.current,
+              ],
+              {
+                visibility: "visible",
+              }
+            );
+
+            // Small delay before animation starts
+            requestAnimationFrame(() => {
+              setTimeout(() => {
+                if (
+                  textOne.current &&
+                  textTwo.current &&
+                  textThree.current &&
+                  textFour.current
+                ) {
+                  stagger(
+                    [
+                      textOne.current,
+                      textTwo.current,
+                      textThree.current,
+                      textFour.current,
+                    ],
+                    { y: 40, x: -10, scale: 0.95, skewX: 10 },
+                    { y: 0, x: 0, scale: 1, skewX: 0, duration: 0.8 }
+                  );
+                }
+              }, 200);
+            });
+          }
+        }
+      };
+
+      // Start checking immediately, then check every 100ms
+      checkAndAnimate();
+      checkInterval = setInterval(checkAndAnimate, 100);
     }
 
     const cleanupFunctions: (() => void)[] = [];
@@ -420,6 +501,11 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
     return () => {
       clearTimeout(timer);
       cleanupFunctions.forEach((cleanup) => cleanup());
+      // Cleanup interval if still running
+      if (checkInterval) {
+        clearInterval(checkInterval);
+        checkInterval = null;
+      }
     };
   }, []);
 
