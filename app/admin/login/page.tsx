@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import AnimatedBackground from "@/components/AnimatedBackground";
 // Metadata is handled by layout.tsx in App Router for client components
 
 export default function AdminLoginPage() {
@@ -55,77 +56,101 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <>
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div>
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-              Admin Login
-            </h2>
-            <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-              Sign in to access the admin panel
-            </p>
+    <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden bg-gray-100 dark:bg-gray-900">
+      <AnimatedBackground />
+      <div className="w-full max-w-2xl relative z-10">
+        <div className="bg-[#353857] rounded-3xl shadow-[0_15px_40px_rgba(0,0,0,0.35)] p-12">
+          {/* Logo */}
+          <div className="text-center mb-10">
+            <div className="flex justify-center mb-4">
+              <img
+                src="/images/logo.svg"
+                alt="nisaaulia.com logo"
+                className="h-12 w-auto"
+              />
+            </div>
+            <h1 className="text-white text-2xl font-semibold">nisaaulia.com</h1>
+            <p className="text-gray-300 text-sm mt-1">Admin Panel</p>
           </div>
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
-                <div className="flex">
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
-                      {error}
-                    </h3>
-                  </div>
-                </div>
-              </div>
-            )}
-            <div className="rounded-md shadow-sm -space-y-px">
-              <div>
-                <label htmlFor="username" className="sr-only">
-                  Username
-                </label>
+
+          {/* Welcome */}
+          <h2 className="text-center text-white text-xl font-medium mb-8">
+            Welcome Back!
+          </h2>
+
+          {/* FORM */}
+          <form onSubmit={handleSubmit} className="space-y-8 max-w-md mx-auto">
+            {/* Email */}
+            <div>
+              <label className="block text-gray-300 text-sm mb-1">Email</label>
+              <div className="relative">
                 <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                />
-              </div>
-              <div>
-                <label htmlFor="password" className="sr-only">
-                  Password
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
+                  className="w-full bg-transparent border-b border-gray-500 focus:border-cyan-400 text-white py-2 outline-none transition"
+                  type="text"
+                  placeholder="yourname@mail.com"
                   required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
             </div>
 
+            {/* Password */}
             <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? "Signing in..." : "Sign in"}
-              </button>
+              <label className="block text-gray-300 text-sm mb-1">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-transparent border-b border-gray-500 focus:border-cyan-400 text-white py-2 outline-none transition"
+                  type="password"
+                  required
+                />
+              </div>
             </div>
+
+            {/* Error */}
+            {error && (
+              <div className="text-red-300 bg-red-900/30 border border-red-700 text-sm p-3 rounded-md text-center">
+                {error}
+              </div>
+            )}
+
+            {/* Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-cyan-400 hover:bg-cyan-500 text-gray-900 font-medium py-3 rounded-lg transition mt-4 disabled:opacity-50"
+            >
+              {loading ? "Signing In..." : "Sign In"}
+            </button>
+
+            {/* <div className="text-center mt-3">
+              <button
+                type="button"
+                className="text-gray-300 text-sm hover:text-white"
+              >
+                Forgot My Password
+              </button>
+            </div> */}
           </form>
+
+          {/* Footer */}
+          <div className="text-center text-gray-400 text-xs mt-10">
+            <a href="#" className="hover:text-white">
+              Made With ❤ by{" "}
+            </a>{" "}
+            ·{" "}
+            <a href="#" className="hover:text-white">
+              heruu.js
+            </a>
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
 // Metadata is handled by layout.tsx in App Router for client components
-
