@@ -4,14 +4,6 @@
 @tailwind utilities;
 @import "./markdown.css";
 
-/* Page Loader CSS Variables */
-:root {
-  --loader-major: #EF836E;
-  --loader-minor: #eaeaea;
-  --loader-dur: 1.25s;
-  --loader-pi2: 6.28; /* 3.14 * 2 */
-}
-
 * {
   font-family: "Hind";
 }
@@ -474,4 +466,32 @@ html.dark .resume-page-wrapper,
 
 html:not(.dark) .resume-page-wrapper {
   background-color: #ffffff !important;
+}
+
+/* Spinner Animation - Reusable for all spinners */
+@keyframes spinner-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  will-change: transform;
+}
+
+/* Backward compatibility - Keep old class name */
+@keyframes page-loader-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.page-loader-spinner {
+  will-change: transform;
 }

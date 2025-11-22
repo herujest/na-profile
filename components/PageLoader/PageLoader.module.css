@@ -13,11 +13,10 @@
   justify-content: center;
   overflow: hidden;
   z-index: 99999;
-  pointer-events: none;
-  background: #eaeaea;
+  pointer-events: auto;
+  background: #ffffff;
   opacity: 1;
   visibility: visible;
-  transition: opacity 0.5s ease-in-out 1.95s, visibility 0s linear 2.45s, display 0s linear 2.45s;
 }
 
 .container.loaded {
@@ -28,18 +27,18 @@
   display: none !important;
 }
 
-/* Also hide when body has new-page class */
-:global(body.new-page) .container {
+/* Also hide when body has new-page class - DISABLED FOR DEBUG */
+/* :global(body.new-page) .container {
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
   z-index: -1 !important;
   display: none !important;
-}
+} */
 
 /* Dark mode support - use class-based dark mode */
 :global(.dark) .container {
-  background: #000000;
+  background: #ffffff;
 }
 
 :global(.dark) .spinner > .path {
@@ -60,7 +59,7 @@
 /* Also support system preference */
 @media (prefers-color-scheme: dark) {
   :global(body:not(.light)) .container {
-    background: #000000;
+    background: #ffffff;
   }
   
   :global(body:not(.light)) .spinner > .path {

@@ -147,10 +147,7 @@ const Header: React.FC<HeaderProps> = ({
         </h1>
         {!isBlog ? (
           <div className="flex">
-            <Button onClick={() => {
-              console.log("[Header] Work button clicked (desktop)", { handleWorkScroll });
-              handleWorkScroll?.();
-            }}>Work</Button>
+            <Button onClick={() => handleWorkScroll?.()}>Work</Button>
             <Button onClick={() => handleAboutScroll?.()}>About</Button>
             {showBlog && (
               <Button onClick={() => router.push("/blog")}>Blog</Button>

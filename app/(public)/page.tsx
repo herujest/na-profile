@@ -1,16 +1,15 @@
+// homepage
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Script from "next/script";
-import Link from "next/link";
 import { stagger, scrollAnimation, createStickySlide } from "@/animations";
 import gsap, { Power3 } from "gsap";
 import Button from "@/components/Button";
 import ServiceCard from "@/components/ServiceCard";
 import Socials from "@/components/Socials";
 import FloatingScrollButton from "@/components/FloatingScrollButton";
-import PageLoader from "@/components/PageLoader";
 import { useIsomorphicLayoutEffect } from "@/lib";
 import data from "@/lib/data/portfolio.json";
 import Portfolio from "@/components/sections/portfolio";
@@ -216,7 +215,6 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
       setPendingTabIndex(index);
       setIsTransitioning(true);
 
-      // Original logic: call morphinShow directly with setTimeout
       setTimeout(() => {
         morphinShow(() => {
           setCurrentTabIndex(index);
@@ -262,7 +260,7 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
         }
       );
 
-      // Wait for PageLoader to finish (body has "new-page" class) before starting animation
+      // Wait for page loader to finish (body has "new-page" class) before starting animation
       let maxChecks = 50; // Max 5 seconds (50 * 100ms)
       let checkCount = 0;
       let hasAnimated = false;
@@ -283,7 +281,7 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
             checkInterval = null;
           }
 
-          // PageLoader finished (or timeout), now start stagger animation
+          // Page loader finished (or timeout), now start stagger animation
           if (
             textOne.current &&
             textTwo.current &&
@@ -614,7 +612,6 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
   return (
     <>
       <div className="relative page-content">
-        <PageLoader />
         <Script
           src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"
           strategy="lazyOnload"
@@ -817,51 +814,22 @@ function HomeWithProvider() {
   const aboutSlideRef = useRef<HTMLDivElement>(null);
 
   const handleWorkScroll = useCallback(() => {
-    console.log("[handleWorkScroll] Called", {
-      refExists: !!workSlideRef.current,
-      ref: workSlideRef.current,
-    });
+    if (typeof window === "undefined") return;
 
-    if (typeof window === "undefined") {
-      console.log("[handleWorkScroll] Window undefined, returning");
-      return;
-    }
-
-    // Use setTimeout to ensure ref is available after render
     let retryCount = 0;
     const maxRetries = 5;
 
     const scrollToWork = () => {
       if (workSlideRef.current) {
-        const element = workSlideRef.current;
-        // Use offsetTop for more reliable positioning
-        const offsetTop = element.offsetTop;
-
-        console.log("[handleWorkScroll] Scrolling to:", {
-          offsetTop,
-          element,
-          scrollY: window.scrollY,
-        });
-
+        const offsetTop = workSlideRef.current.offsetTop;
         window.scrollTo({
           top: offsetTop,
           left: 0,
           behavior: "smooth",
         });
-      } else {
-        console.log(
-          "[handleWorkScroll] Ref not available, retrying...",
-          retryCount
-        );
-        // Retry if ref not available yet (max 5 retries)
-        if (retryCount < maxRetries) {
-          retryCount++;
-          setTimeout(scrollToWork, 100);
-        } else {
-          console.error(
-            "[handleWorkScroll] Max retries reached, ref still not available"
-          );
-        }
+      } else if (retryCount < maxRetries) {
+        retryCount++;
+        setTimeout(scrollToWork, 100);
       }
     };
 
@@ -903,32 +871,11 @@ function HomeWithProvider() {
     }
   }, []);
 
-  // Store handlers in ref to avoid stale closures
-  const handlersRef = useRef({
-    handleWorkScroll,
-    handleAboutScroll,
-    handleContactScroll,
-  });
-
-  // Update ref when handlers change
-  useEffect(() => {
-    handlersRef.current = {
-      handleWorkScroll,
-      handleAboutScroll,
-      handleContactScroll,
-    };
-  }, [handleWorkScroll, handleAboutScroll, handleContactScroll]);
-
   const setHandlers = useSetScrollHandlers();
 
   // Set handlers in context when they're created
   useEffect(() => {
     if (setHandlers) {
-      console.log("[HomeWithProvider] Setting handlers in context:", {
-        hasHandleWorkScroll: !!handleWorkScroll,
-        hasHandleAboutScroll: !!handleAboutScroll,
-        hasHandleContactScroll: !!handleContactScroll,
-      });
       setHandlers({
         handleWorkScroll,
         handleAboutScroll,
