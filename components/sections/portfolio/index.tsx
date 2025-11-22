@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, RefObject } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import PortfolioCard from "@/components/PortfolioCard";
 
@@ -42,7 +43,13 @@ const convertCollabsToPortfolioItems = (collabs: any[]): PortfolioItem[] => {
   }));
 };
 
-export default function Portfolio({ workRef, collabs, featured, limit }: PortfolioProps) {
+export default function Portfolio({
+  workRef,
+  collabs,
+  featured,
+  limit,
+}: PortfolioProps) {
+  const router = useRouter();
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -50,12 +57,12 @@ export default function Portfolio({ workRef, collabs, featured, limit }: Portfol
     const fetchPortfolio = async () => {
       try {
         // Fetch featured items if featured prop is true, otherwise fetch all
-        const url = featured 
+        const url = featured
           ? "/api/portfolio?featured=true"
           : collabs && collabs.length > 0
           ? "/api/portfolio"
           : "/api/portfolio";
-        
+
         const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();
@@ -63,7 +70,9 @@ export default function Portfolio({ workRef, collabs, featured, limit }: Portfol
 
           // If featured prop is true, filter to only featured items
           if (featured) {
-            items = items.filter((item: PortfolioItem) => item.featured === true);
+            items = items.filter(
+              (item: PortfolioItem) => item.featured === true
+            );
           }
 
           // Add collaborations if provided
@@ -90,7 +99,7 @@ export default function Portfolio({ workRef, collabs, featured, limit }: Portfol
   }, [featured, collabs, limit]);
 
   const handleCardClick = (slug: string) => {
-    window.location.href = `/portfolio/${slug}`;
+    router.push(`/portfolio/${slug}`);
   };
 
   if (loading) {
@@ -98,7 +107,9 @@ export default function Portfolio({ workRef, collabs, featured, limit }: Portfol
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading portfolio...</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            Loading portfolio...
+          </p>
         </div>
       </div>
     );
