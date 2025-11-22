@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import AdminLayout from "@/components/AdminLayout";
 
 const AboutPage: React.FC = () => {
   const router = useRouter();
@@ -64,51 +63,45 @@ const AboutPage: React.FC = () => {
   }
 
   if (loading) {
-    return (
-      <AdminLayout>
-        <div className="text-center py-20">Loading...</div>
-      </AdminLayout>
-    );
+    return <div className="text-center py-20">Loading...</div>;
   }
 
   return (
-    <AdminLayout>
-      <div>
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              About Section
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Edit the about paragraph displayed on the home page
-            </p>
-          </div>
-          <button
-            onClick={saveData}
-            disabled={saving}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-          >
-            {saving ? "Saving..." : "💾 Save Changes"}
-          </button>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            About Paragraph
-          </label>
-          <textarea
-            value={aboutPara}
-            onChange={(e) => setAboutPara(e.target.value)}
-            rows={20}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-mono text-sm"
-            placeholder="Enter your about paragraph here..."
-          />
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            {aboutPara.length} characters
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            About Section
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Edit the about paragraph displayed on the home page
           </p>
         </div>
+        <button
+          onClick={saveData}
+          disabled={saving}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        >
+          {saving ? "Saving..." : "💾 Save Changes"}
+        </button>
       </div>
-    </AdminLayout>
+
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          About Paragraph
+        </label>
+        <textarea
+          value={aboutPara}
+          onChange={(e) => setAboutPara(e.target.value)}
+          rows={20}
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-mono text-sm"
+          placeholder="Enter your about paragraph here..."
+        />
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          {aboutPara.length} characters
+        </p>
+      </div>
+    </div>
   );
 };
 

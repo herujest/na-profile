@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { stagger } from "@/animations";
 import Button from "@/components/Button";
 import data from "@/lib/data/portfolio.json";
-import { ISOToDate, useIsomorphicLayoutEffect } from "@/lib";
+import { ISOToDate } from "@/lib";
+import { useIsomorphicLayoutEffect } from "@/lib/hooks";
 
 interface BlogPost {
   slug: string;

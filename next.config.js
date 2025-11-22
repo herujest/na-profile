@@ -18,6 +18,22 @@ const nextConfig = {
     // Optimize for Next.js 14
     optimizePackageImports: ["@headlessui/react", "framer-motion"],
   },
+  images: {
+    // Allow images from external domains (R2/CDN)
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+      {
+        protocol: "http",
+        hostname: "**",
+      },
+    ],
+    // Optimize images
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 60,
+  },
   webpack: (config, { isServer }) => {
     // Exclude GSAP from server-side bundle (GSAP is client-side only)
     if (isServer) {

@@ -3,6 +3,63 @@ import { prisma } from "@/lib/prisma";
 import { isAuthenticated } from "@/lib/auth";
 import { v4 as uuidv4 } from "uuid";
 
+// Helper function to transform image URLs to use NEXT_PUBLIC_R2_PUBLIC_BASE
+function transformImageUrls(images: string[]): string[] {
+  const r2BaseUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_BASE || process.env.R2_PUBLIC_URL || "";
+  
+  if (!r2BaseUrl) {
+    return images;
+  }
+
+  const baseUrl = r2BaseUrl.replace(/\/$/, "");
+
+  return images.map((imageUrl: string) => {
+    // If URL is empty or invalid, return as is
+    if (!imageUrl || typeof imageUrl !== "string") {
+      return imageUrl;
+    }
+
+    // If URL already starts with the correct base URL, return as is
+    if (imageUrl.startsWith(baseUrl)) {
+      return imageUrl;
+    }
+
+    // If URL contains "aulia-bucket" or bucket name, extract the key and rebuild
+    const bucketName = process.env.R2_BUCKET_NAME || "";
+    if (imageUrl.includes("aulia-bucket") || (bucketName && imageUrl.includes(bucketName))) {
+      // Extract the key path (everything after portfolio/)
+      const portfolioMatch = imageUrl.match(/portfolio\/.+/);
+      if (portfolioMatch) {
+        const key = portfolioMatch[0];
+        return `${baseUrl}/${key}`;
+      }
+    }
+
+    // If URL is relative (doesn't start with http/https), prepend base URL
+    if (!imageUrl.startsWith("http://") && !imageUrl.startsWith("https://")) {
+      // Remove leading slash if present
+      const cleanUrl = imageUrl.replace(/^\//, "");
+      return `${baseUrl}/${cleanUrl}`;
+    }
+
+    // If URL starts with http/https but doesn't match our base, try to extract key
+    // For URLs like https://aulia-bucket/portfolio/...
+    try {
+      const url = new URL(imageUrl);
+      const pathParts = url.pathname.split("/");
+      const portfolioIndex = pathParts.indexOf("portfolio");
+      if (portfolioIndex !== -1) {
+        const key = pathParts.slice(portfolioIndex).join("/");
+        return `${baseUrl}/${key}`;
+      }
+    } catch {
+      // Invalid URL, return as is
+    }
+
+    return imageUrl;
+  });
+}
+
 // Generate secure slug from UUID
 function generateSecureSlug(): string {
   try {
@@ -78,7 +135,13 @@ export async function GET(req: NextRequest) {
         orderBy: [{ order: "asc" }, { createdAt: "desc" }],
       });
 
-      return NextResponse.json({ portfolioItems }, { status: 200 });
+      // Transform image URLs to use NEXT_PUBLIC_R2_PUBLIC_BASE
+      const transformedItems = portfolioItems.map((item) => ({
+        ...item,
+        images: transformImageUrls(item.images),
+      }));
+
+      return NextResponse.json({ portfolioItems: transformedItems }, { status: 200 });
     } catch (dbError: any) {
       console.error("[PORTFOLIO API] Database error:", dbError);
       // Return empty array if database error (e.g., table doesn't exist)
@@ -194,7 +257,13 @@ export async function POST(req: NextRequest) {
       title: portfolioItem.title,
     });
 
-    return NextResponse.json(portfolioItem, { status: 201 });
+    // Transform image URLs to use NEXT_PUBLIC_R2_PUBLIC_BASE
+    const transformedItem = {
+      ...portfolioItem,
+      images: transformImageUrls(portfolioItem.images),
+    };
+
+    return NextResponse.json(transformedItem, { status: 201 });
   } catch (error: any) {
     console.error("[PORTFOLIO API] POST Error:", error);
     return NextResponse.json(

@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import AdminLayout from "@/components/AdminLayout";
 
 interface Partner {
   id: string;
@@ -24,7 +23,7 @@ interface Partner {
   manualScore?: number;
 }
 
-const AdminPartners: React.FC = () => {
+export default function AdminPartners() {
   const router = useRouter();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
@@ -181,35 +180,34 @@ const AdminPartners: React.FC = () => {
   }
 
   return (
-    <AdminLayout>
-      <div>
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Partner Management
-          </h1>
-          <div className="flex gap-4">
-            <Link href="/admin/dashboard">
-              <button className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-                Back to Dashboard
-              </button>
-            </Link>
-            <button
-              onClick={() => {
-                resetForm();
-                setShowForm(true);
-              }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Add New Partner
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          Partner Management
+        </h1>
+        <div className="flex gap-4">
+          <Link href="/admin/dashboard">
+            <button className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+              Back to Dashboard
             </button>
-          </div>
+          </Link>
+          <button
+            onClick={() => {
+              resetForm();
+              setShowForm(true);
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Add New Partner
+          </button>
         </div>
+      </div>
 
-        {/* Form Modal */}
-        {showForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
-              <div className="flex justify-between items-center mb-4">
+      {/* Form Modal */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {editingPartner ? "Edit Partner" : "Add New Partner"}
                 </h2>
@@ -485,20 +483,20 @@ const AdminPartners: React.FC = () => {
                   </button>
                 </div>
               </form>
-            </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Partners List */}
-        {loading ? (
-          <div className="text-center py-20">Loading partners...</div>
-        ) : partners.length === 0 ? (
-          <div className="text-center py-20 text-gray-500">
-            No partners found. Click "Add New Partner" to get started.
-          </div>
-        ) : (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+      {/* Partners List */}
+      {loading ? (
+        <div className="text-center py-20">Loading partners...</div>
+      ) : partners.length === 0 ? (
+        <div className="text-center py-20 text-gray-500">
+          No partners found. Click "Add New Partner" to get started.
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -571,13 +569,10 @@ const AdminPartners: React.FC = () => {
                   );
                 })}
               </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </AdminLayout>
+          </table>
+        </div>
+      )}
+    </div>
   );
-};
-
-export default AdminPartners;
+}
 

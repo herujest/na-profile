@@ -14,6 +14,28 @@ interface PortfolioCardProps {
   onClick?: () => void;
 }
 
+// Loading Skeleton Component
+const ImageSkeleton = () => (
+  <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 animate-pulse">
+    <div className="absolute inset-0 flex items-center justify-center">
+      <svg
+        className="w-12 h-12 text-gray-400 dark:text-gray-500"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+        />
+      </svg>
+    </div>
+  </div>
+);
+
 const PortfolioCard: React.FC<PortfolioCardProps> = ({
   title,
   summary,
@@ -24,6 +46,9 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState<{ [key: number]: boolean }>(
+    {}
+  );
 
   // Autoplay carousel with fade transition
   useEffect(() => {
@@ -69,7 +94,25 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
   if (!images || images.length === 0) return null;
 
   const getImageSrc = (src: string) => {
-    return src.startsWith("/") ? src : `/images/${src}`;
+    // If it's already a full URL (http/https), use it directly
+    if (src.startsWith("http://") || src.startsWith("https://")) {
+      return src;
+    }
+    // If it's a relative path starting with /, use it directly
+    if (src.startsWith("/")) {
+      return src;
+    }
+    // Otherwise, treat it as a relative path and prepend /images/
+    return `/images/${src}`;
+  };
+
+  const handleImageLoad = (index: number) => {
+    setImageLoaded((prev) => ({ ...prev, [index]: true }));
+  };
+
+  const handleImageError = (index: number) => {
+    // Still mark as loaded to hide skeleton even on error
+    setImageLoaded((prev) => ({ ...prev, [index]: true }));
   };
 
   return (
@@ -92,6 +135,9 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
           {images.map((imageSrc, index) => {
             const isActive = index === currentIndex;
             const finalSrc = getImageSrc(imageSrc);
+            const isLoaded = imageLoaded[index] || false;
+            const isExternal =
+              finalSrc.startsWith("http://") || finalSrc.startsWith("https://");
 
             return (
               <div
@@ -100,14 +146,42 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
                   isActive ? "opacity-100" : "opacity-0"
                 }`}
               >
-                <Image
-                  src={finalSrc}
-                  alt={`${title} - Image ${index + 1}`}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  priority={index === 0}
-                />
+                {/* Loading Skeleton - show when image is loading and is active */}
+                {!isLoaded && isActive && <ImageSkeleton />}
+
+                {/* Image */}
+                {isExternal ? (
+                  // Use Next.js Image with unoptimized for external URLs
+                  <Image
+                    src={finalSrc}
+                    alt={`${title} - Image ${index + 1}`}
+                    fill
+                    className={`object-cover group-hover:scale-105 transition-all duration-700 ease-out ${
+                      isLoaded ? "opacity-100" : "opacity-0"
+                    }`}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    loading={index === 0 || index === 1 ? "eager" : "lazy"}
+                    unoptimized={true}
+                    onLoad={() => handleImageLoad(index)}
+                    onError={() => handleImageError(index)}
+                    quality={85}
+                  />
+                ) : (
+                  // Use Next.js Image for local/relative paths
+                  <Image
+                    src={finalSrc}
+                    alt={`${title} - Image ${index + 1}`}
+                    fill
+                    className={`object-cover group-hover:scale-105 transition-all duration-700 ease-out ${
+                      isLoaded ? "opacity-100" : "opacity-0"
+                    }`}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    priority={index === 0 || index === 1}
+                    onLoad={() => handleImageLoad(index)}
+                    onError={() => handleImageError(index)}
+                    quality={85}
+                  />
+                )}
               </div>
             );
           })}
@@ -159,4 +233,3 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
 };
 
 export default PortfolioCard;
-

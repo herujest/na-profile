@@ -11,7 +11,7 @@ import ServiceCard from "@/components/ServiceCard";
 import Socials from "@/components/Socials";
 import FloatingScrollButton from "@/components/FloatingScrollButton";
 import PageLoader from "@/components/PageLoader";
-import { useIsomorphicLayoutEffect } from "@/lib";
+import { useIsomorphicLayoutEffect } from "@/lib/hooks";
 import data from "@/lib/data/portfolio.json";
 import Portfolio from "@/components/sections/portfolio";
 import GlassRadioGroup from "@/components/Button/GlassRadioGroup";
@@ -54,7 +54,7 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
   const socialsRef = useRef<HTMLDivElement>(null);
   const aboutBackgroundRef = useRef<HTMLDivElement>(null);
 
-  const [currentTabIndex, setCurrentTabIndex] = useState<number>(1); // Start with Featured (value 1)
+  const [currentTabIndex, setCurrentTabIndex] = useState<number>(0); // Start with Featured (value 1)
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const [pendingTabIndex, setPendingTabIndex] = useState<number | null>(null);
 
@@ -240,17 +240,98 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
   }
 
   useIsomorphicLayoutEffect(() => {
+    // Set initial state for h1 elements before animation - hide them immediately
+    let checkInterval: NodeJS.Timeout | null = null;
+
     if (
       textOne.current &&
       textTwo.current &&
       textThree.current &&
       textFour.current
     ) {
-      stagger(
+      // Set initial state (hidden/animated from state)
+      gsap.set(
         [textOne.current, textTwo.current, textThree.current, textFour.current],
-        { y: 40, x: -10, transform: "scale(0.95) skew(10deg)" },
-        { y: 0, x: 0, transform: "scale(1)" }
+        {
+          opacity: 0,
+          visibility: "hidden",
+          y: 40,
+          x: -10,
+          scale: 0.95,
+          skewX: 10,
+        }
       );
+
+      // Wait for PageLoader to finish (body has "new-page" class) before starting animation
+      let maxChecks = 50; // Max 5 seconds (50 * 100ms)
+      let checkCount = 0;
+      let hasAnimated = false;
+
+      const checkAndAnimate = () => {
+        if (hasAnimated) return; // Prevent multiple animations
+
+        checkCount++;
+        const body = document.body;
+        const hasNewPage = body.classList.contains("new-page");
+
+        if (hasNewPage || checkCount >= maxChecks) {
+          hasAnimated = true;
+
+          // Clear interval if found or max checks reached
+          if (checkInterval) {
+            clearInterval(checkInterval);
+            checkInterval = null;
+          }
+
+          // PageLoader finished (or timeout), now start stagger animation
+          if (
+            textOne.current &&
+            textTwo.current &&
+            textThree.current &&
+            textFour.current
+          ) {
+            // Make elements visible first
+            gsap.set(
+              [
+                textOne.current,
+                textTwo.current,
+                textThree.current,
+                textFour.current,
+              ],
+              {
+                visibility: "visible",
+              }
+            );
+
+            // Small delay before animation starts
+            requestAnimationFrame(() => {
+              setTimeout(() => {
+                if (
+                  textOne.current &&
+                  textTwo.current &&
+                  textThree.current &&
+                  textFour.current
+                ) {
+                  stagger(
+                    [
+                      textOne.current,
+                      textTwo.current,
+                      textThree.current,
+                      textFour.current,
+                    ],
+                    { y: 40, x: -10, scale: 0.95, skewX: 10 },
+                    { y: 0, x: 0, scale: 1, skewX: 0, duration: 0.8 }
+                  );
+                }
+              }, 200);
+            });
+          }
+        }
+      };
+
+      // Start checking immediately, then check every 100ms
+      checkAndAnimate();
+      checkInterval = setInterval(checkAndAnimate, 100);
     }
 
     const cleanupFunctions: (() => void)[] = [];
@@ -278,10 +359,46 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
         const workContent =
           workSlideRef.current.querySelector(".slide-content");
         if (workContent) {
-          gsap.set(workContent, {
-            opacity: 1,
-            y: 0,
+          gsap.set(workSlideRef.current, {
+            height: "auto",
+            minHeight: "100vh",
           });
+
+          // Use createStickySlide for work section with pinning
+          const cleanup = createStickySlide(
+            workSlideRef.current,
+            workContent as HTMLElement,
+            {
+              start: "top top",
+              end: `+=${Math.max(
+                window.innerHeight,
+                workSlideRef.current.offsetHeight || window.innerHeight
+              )}`,
+              scrub: 1,
+              animation: {
+                opacity: 1,
+                ease: "power2.out",
+              },
+              onEnter: () => {
+                gsap.to(workContent, {
+                  opacity: 1,
+                  duration: 0.3,
+                  ease: Power3.easeOut,
+                });
+              },
+              onLeave: () => {
+                // No animation on leave
+              },
+              onEnterBack: () => {
+                gsap.to(workContent, {
+                  opacity: 1,
+                  duration: 0.3,
+                  ease: Power3.easeOut,
+                });
+              },
+            }
+          );
+          if (cleanup) cleanupFunctions.push(cleanup);
         }
       }
 
@@ -420,6 +537,11 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
     return () => {
       clearTimeout(timer);
       cleanupFunctions.forEach((cleanup) => cleanup());
+      // Cleanup interval if still running
+      if (checkInterval) {
+        clearInterval(checkInterval);
+        checkInterval = null;
+      }
     };
   }, []);
 
@@ -491,8 +613,8 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
 
   return (
     <>
+      <PageLoader />
       <div className="relative page-content">
-        <PageLoader />
         <Script
           src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"
           strategy="lazyOnload"
@@ -552,11 +674,11 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
                 <GlassRadioGroup
                   name="portfolio-tabs"
                   options={[
-                    { id: "tab-featured", label: "Featured", value: 1 },
+                    { id: "tab-featured", label: "Featured", value: 0 },
                     {
                       id: "tab-collaboration",
                       label: "Collaboration",
-                      value: 2,
+                      value: 1,
                     },
                   ]}
                   selectedValue={currentTabIndex}
@@ -575,20 +697,12 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
                   <Portfolio
                     workRef={workRef}
                     collabs={[]}
+                    featured={true}
+                    limit={6}
                     key={`portfolio-all-${pendingTabIndex ?? currentTabIndex}`}
                   />
                 )}
                 {currentTabIndex === 1 && (
-                  <Portfolio
-                    workRef={workRef}
-                    featured={true}
-                    collabs={[]}
-                    key={`portfolio-featured-${
-                      pendingTabIndex ?? currentTabIndex
-                    }`}
-                  />
-                )}
-                {currentTabIndex === 2 && (
                   <Collaboration
                     key={`collaboration-${pendingTabIndex ?? currentTabIndex}`}
                   />
