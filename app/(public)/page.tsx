@@ -683,7 +683,7 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
         </div>
 
         <div ref={servicesSlideRef}>
-          <div className="slide-content min-h-screen flex flex-col justify-start pt-20 tablet:pt-24 laptop:pt-32 desktop:pt-40 relative z-10 w-full px-8 tablet:px-8 laptop:px-10 desktop:px-20">
+          <div className="slide-content min-h-screen flex flex-col justify-start relative z-10 w-full px-8 tablet:px-8 laptop:px-10 desktop:px-20">
             <div className="w-full tablet:m-10 max-w-[70%] ml-0 mr-auto">
               <h1
                 ref={servicesRef}
