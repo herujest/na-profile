@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import AdminLayout from "@/components/AdminLayout";
 
 const AboutPage: React.FC = () => {
   const router = useRouter();

@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import AdminLayout from "@/components/AdminLayout";
 import { v4 as uuidv4 } from "uuid";
 import { uploadImage } from "@/lib/upload";
 

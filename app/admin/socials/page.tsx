@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import AdminLayout from "@/components/AdminLayout";
 import { v4 as uuidv4 } from "uuid";
 
 interface Social {

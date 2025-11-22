@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import AdminLayout from "@/components/AdminLayout";
 
 interface PortfolioItem {
   id: string;
@@ -98,8 +97,7 @@ export default function PortfolioListPage() {
   const featuredCount = portfolioItems.filter((item) => item.featured).length;
 
   return (
-    <AdminLayout>
-      <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
@@ -389,7 +387,7 @@ export default function PortfolioListPage() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </div>
   );
 }
 
