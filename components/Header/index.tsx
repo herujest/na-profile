@@ -42,6 +42,28 @@ const Header: React.FC<HeaderProps> = ({
     }
   };
 
+  // Handle work scroll - if on home page, scroll directly, otherwise navigate to home with hash
+  const handleWorkClick = () => {
+    if (handleWorkScroll) {
+      // On home page, scroll directly
+      handleWorkScroll();
+    } else {
+      // On other pages, navigate to home with hash
+      router.push("/#work");
+    }
+  };
+
+  // Handle about scroll - if on home page, scroll directly, otherwise navigate to home with hash
+  const handleAboutClick = () => {
+    if (handleAboutScroll) {
+      // On home page, scroll directly
+      handleAboutScroll();
+    } else {
+      // On other pages, navigate to home with hash
+      router.push("/#about");
+    }
+  };
+
   return (
     <>
       {/* @ts-ignore - @headlessui/react Popover has type issues with React 18 */}
@@ -95,11 +117,8 @@ const Header: React.FC<HeaderProps> = ({
             <Popover.Panel className="absolute right-0 z-50 w-11/12 p-4 bg-white/95 dark:bg-black/95 backdrop-blur-md shadow-md rounded-md border border-gray-200/50 dark:border-gray-800/50">
               {!isBlog ? (
                 <div className="grid grid-cols-1">
-                  <Button onClick={() => {
-                    console.log("[Header] Work button clicked", { handleWorkScroll });
-                    handleWorkScroll?.();
-                  }}>Work</Button>
-                  <Button onClick={() => handleAboutScroll?.()}>About</Button>
+                  <Button onClick={handleWorkClick}>Work</Button>
+                  <Button onClick={handleAboutClick}>About</Button>
                   {showBlog && (
                     <Button onClick={() => router.push("/blog")}>Blog</Button>
                   )}
@@ -147,11 +166,8 @@ const Header: React.FC<HeaderProps> = ({
         </h1>
         {!isBlog ? (
           <div className="flex">
-            <Button onClick={() => {
-              console.log("[Header] Work button clicked (desktop)", { handleWorkScroll });
-              handleWorkScroll?.();
-            }}>Work</Button>
-            <Button onClick={() => handleAboutScroll?.()}>About</Button>
+            <Button onClick={handleWorkClick}>Work</Button>
+            <Button onClick={handleAboutClick}>About</Button>
             {showBlog && (
               <Button onClick={() => router.push("/blog")}>Blog</Button>
             )}

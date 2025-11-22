@@ -341,8 +341,11 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
         const heroContent =
           heroSlideRef.current.querySelector(".slide-content");
         if (heroContent) {
+          // Ensure hero section has proper positioning and doesn't get affected by pinned sections
           gsap.set(heroSlideRef.current, {
             height: "100vh",
+            position: "relative",
+            zIndex: 1,
           });
 
           const cleanup = scrollAnimation(heroContent as HTMLElement, {
@@ -451,6 +454,12 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
 
       // About section - with parallax effect
       if (aboutSlideRef.current) {
+        // Ensure about section has proper positioning and doesn't get affected by pinned sections
+        gsap.set(aboutSlideRef.current, {
+          position: "relative",
+          zIndex: 1,
+        });
+
         const aboutContent =
           aboutSlideRef.current.querySelector(".slide-content");
         const aboutBackground = aboutBackgroundRef.current;
@@ -526,10 +535,29 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
         if (cleanup) cleanupFunctions.push(cleanup);
       }
 
-      // Refresh ScrollTrigger after setup
+      // Refresh ScrollTrigger after setup to ensure proper pin spacing
+      // This prevents sections from overlapping during scroll
       if (typeof window !== "undefined") {
         const { ScrollTrigger } = require("gsap/ScrollTrigger");
-        ScrollTrigger.refresh();
+
+        // Wait a bit more for DOM to be ready and all animations to settle
+        setTimeout(() => {
+          // Refresh all ScrollTriggers to recalculate positions and spacing
+          ScrollTrigger.refresh();
+
+          // Force recalculation of pin spacing for pinned sections
+          ScrollTrigger.getAll().forEach((trigger: any) => {
+            if (trigger.vars && trigger.vars.pin && trigger.vars.pinSpacing) {
+              // Ensure pin spacing is properly calculated
+              trigger.refresh();
+            }
+          });
+
+          // Additional refresh after a small delay to ensure everything is settled
+          setTimeout(() => {
+            ScrollTrigger.refresh();
+          }, 50);
+        }, 150);
       }
     }, 150);
 
@@ -552,37 +580,7 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
     }
   }, []);
 
-  // Handle hash navigation (for contact from other pages)
-  useEffect(() => {
-    const handleHash = () => {
-      if (typeof window !== "undefined") {
-        const hash = window.location.hash;
-        if (hash === "#contact") {
-          // Small delay to ensure page is fully loaded
-          setTimeout(() => {
-            // Scroll to footer (bottom of page)
-            window.scrollTo({
-              top: document.documentElement.scrollHeight,
-              left: 0,
-              behavior: "smooth",
-            });
-            // Remove hash from URL after scrolling
-            window.history.replaceState(null, "", window.location.pathname);
-          }, 500);
-        }
-      }
-    };
-
-    // Handle hash on initial load
-    handleHash();
-
-    // Listen for hash changes
-    window.addEventListener("hashchange", handleHash);
-
-    return () => {
-      window.removeEventListener("hashchange", handleHash);
-    };
-  }, [pathname]);
+  // Note: Hash navigation is now handled in HomeWithProvider to avoid conflicts with ScrollTrigger
 
   // Refresh ScrollTrigger when tab changes (for conditional content)
   useEffect(() => {
@@ -666,7 +664,7 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
 
         <div ref={workSlideRef}>
           <div
-            className="slide-content min-h-screen flex flex-col justify-start pt-20 tablet:pt-24 laptop:pt-32 desktop:pt-40 relative z-10 w-full px-8 tablet:px-8 laptop:px-10 desktop:px-20"
+            className="slide-content min-h-screen flex flex-col justify-start tablet:pt-24 relative z-10 w-full px-8 tablet:px-8 laptop:px-10 desktop:px-20"
             ref={workRef}
           >
             <div className="w-full tablet:m-10">
@@ -713,7 +711,7 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
         </div>
 
         <div ref={servicesSlideRef}>
-          <div className="slide-content min-h-screen flex flex-col justify-start pt-20 tablet:pt-24 laptop:pt-32 desktop:pt-40 relative z-10 w-full px-8 tablet:px-8 laptop:px-10 desktop:px-20">
+          <div className="slide-content min-h-screen flex flex-col justify-start relative z-10 w-full px-8 tablet:px-8 laptop:px-10 desktop:px-20">
             <div className="w-full tablet:m-10 max-w-[70%] ml-0 mr-auto">
               <h1
                 ref={servicesRef}
@@ -748,10 +746,10 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
             ref={aboutRef}
           >
             <div className="w-full tablet:m-10">
-              <h1 className="text-2xl laptop:text-4xl text-bold mb-6 laptop:mb-10">
+              <h1 className="text-2xl pt-10 laptop:text-4xl text-bold mb-6 laptop:mb-10">
                 About.
               </h1>
-              <p className="text-xl laptop:text-3xl w-full laptop:w-3/5 leading-relaxed">
+              <p className="text-xl laptop:text-3xl w-full laptop:w-4/5 leading-relaxed">
                 {portfolioData.aboutpara}
               </p>
             </div>
@@ -809,13 +807,7 @@ function HomeWithProvider() {
   const aboutSlideRef = useRef<HTMLDivElement>(null);
 
   const handleWorkScroll = useCallback(() => {
-    console.log("[handleWorkScroll] Called", {
-      refExists: !!workSlideRef.current,
-      ref: workSlideRef.current,
-    });
-
     if (typeof window === "undefined") {
-      console.log("[handleWorkScroll] Window undefined, returning");
       return;
     }
 
@@ -829,30 +821,16 @@ function HomeWithProvider() {
         // Use offsetTop for more reliable positioning
         const offsetTop = element.offsetTop;
 
-        console.log("[handleWorkScroll] Scrolling to:", {
-          offsetTop,
-          element,
-          scrollY: window.scrollY,
-        });
-
         window.scrollTo({
           top: offsetTop,
           left: 0,
           behavior: "smooth",
         });
       } else {
-        console.log(
-          "[handleWorkScroll] Ref not available, retrying...",
-          retryCount
-        );
         // Retry if ref not available yet (max 5 retries)
         if (retryCount < maxRetries) {
           retryCount++;
           setTimeout(scrollToWork, 100);
-        } else {
-          console.error(
-            "[handleWorkScroll] Max retries reached, ref still not available"
-          );
         }
       }
     };
@@ -916,11 +894,6 @@ function HomeWithProvider() {
   // Set handlers in context when they're created
   useEffect(() => {
     if (setHandlers) {
-      console.log("[HomeWithProvider] Setting handlers in context:", {
-        hasHandleWorkScroll: !!handleWorkScroll,
-        hasHandleAboutScroll: !!handleAboutScroll,
-        hasHandleContactScroll: !!handleContactScroll,
-      });
       setHandlers({
         handleWorkScroll,
         handleAboutScroll,
@@ -928,6 +901,79 @@ function HomeWithProvider() {
       });
     }
   }, [handleWorkScroll, handleAboutScroll, handleContactScroll, setHandlers]);
+
+  // Handle hash navigation when coming from other pages
+  // This runs after ScrollTrigger is initialized to avoid conflicts
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // Only handle hash if it exists (user came from another page)
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+
+    // Wait for ScrollTrigger to be fully initialized, then use scroll handlers
+    const handleHashNavigation = () => {
+      // Wait a bit for all ScrollTriggers to be set up, then use the scroll handlers
+      setTimeout(() => {
+        switch (hash) {
+          case "work":
+            if (workSlideRef.current) {
+              // Use the scroll handler which respects ScrollTrigger
+              handleWorkScroll();
+              // Clear hash after a delay
+              setTimeout(() => {
+                window.history.replaceState(null, "", window.location.pathname);
+              }, 1000);
+            } else {
+              // Retry if ref not ready
+              setTimeout(handleHashNavigation, 200);
+            }
+            break;
+          case "about":
+            if (aboutSlideRef.current) {
+              // Use the scroll handler which respects ScrollTrigger
+              handleAboutScroll();
+              // Clear hash after a delay
+              setTimeout(() => {
+                window.history.replaceState(null, "", window.location.pathname);
+              }, 1000);
+            } else {
+              // Retry if ref not ready
+              setTimeout(handleHashNavigation, 200);
+            }
+            break;
+          case "contact":
+            // Use the scroll handler which respects ScrollTrigger
+            handleContactScroll();
+            // Clear hash after a delay
+            setTimeout(() => {
+              window.history.replaceState(null, "", window.location.pathname);
+            }, 1000);
+            break;
+          default:
+            break;
+        }
+      }, 800); // Wait 800ms for ScrollTrigger to be initialized
+    };
+
+    // Start handling hash navigation after ScrollTrigger is initialized
+    setTimeout(handleHashNavigation, 1000);
+
+    // Handle hash changes (when navigating from other pages)
+    const handleHashChange = () => {
+      const newHash = window.location.hash.slice(1);
+      if (newHash) {
+        setTimeout(handleHashNavigation, 1000);
+      }
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps: refs don't change, only their .current property
 
   return <Home workSlideRef={workSlideRef} aboutSlideRef={aboutSlideRef} />;
 }

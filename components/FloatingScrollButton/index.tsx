@@ -125,35 +125,78 @@ const FloatingScrollButton: React.FC<FloatingScrollButtonProps> = ({
   }, [sections]);
 
   const scrollToNextSection = () => {
+    console.log("[FloatingButton] scrollToNextSection called", {
+      currentSectionIndex,
+      sectionsCount: sections.length,
+    });
+
     // Filter valid sections
     const validSections = sections.filter((section) => section.ref.current);
+    console.log("[FloatingButton] Valid sections:", {
+      validCount: validSections.length,
+      totalCount: sections.length,
+      validSections: validSections.map((s) => ({
+        id: s.id,
+        hasRef: !!s.ref.current,
+        offsetTop: s.ref.current?.offsetTop,
+      })),
+    });
+
     const nextIndex = currentSectionIndex + 1;
+    console.log("[FloatingButton] Next index:", {
+      nextIndex,
+      validSectionsLength: validSections.length,
+      canScroll: nextIndex < validSections.length,
+    });
 
     if (
       nextIndex < validSections.length &&
       validSections[nextIndex].ref.current
     ) {
       const targetElement = validSections[nextIndex].ref.current;
+      const sectionId = validSections[nextIndex].id;
 
-      // Get element position - try multiple methods for accuracy
+      console.log("[FloatingButton] Scrolling to section:", {
+        sectionId,
+        currentIndex: currentSectionIndex,
+        nextIndex,
+        element: targetElement,
+        offsetTop: targetElement.offsetTop,
+      });
+
+      // Calculate absolute scroll position from document top
+      // Use getBoundingClientRect() + scrollY for accurate position
       const rect = targetElement.getBoundingClientRect();
-      const scrollTop =
-        window.pageYOffset || document.documentElement.scrollTop;
-
-      // Calculate target position: current scroll + element's top position relative to viewport
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      
+      // Calculate absolute position: element's top position relative to viewport + current scroll
       let targetPosition = rect.top + scrollTop;
 
-      // If rect.top is negative or very small, element might be pinned, use offsetTop instead
-      if (
-        rect.top < 0 ||
-        (rect.top < 100 && targetElement.offsetTop > scrollTop)
-      ) {
-        targetPosition = targetElement.offsetTop;
+      console.log("[FloatingButton] Position calculation:", {
+        sectionId,
+        rectTop: rect.top,
+        scrollTop,
+        calculatedPosition: targetPosition,
+        offsetTop: targetElement.offsetTop,
+        getBoundingClientRect: rect.top + scrollTop,
+      });
+
+      // For pinned sections (work, services), ScrollTrigger pins them at their natural document position
+      // The rect.top + scrollTop gives us the correct position where the section starts in the document
+      if (sectionId === "work" || sectionId === "services") {
+        // For pinned sections, we want to scroll to where the section naturally starts
+        // getBoundingClientRect + scrollY gives us the absolute position from document top
+        // This is correct even when the element is pinned, because we're getting its natural position
+        
+        // If rect.top is negative (element is above viewport) or very close to 0,
+        // it means we're already past the section, so use the calculated position as is
+        console.log("[FloatingButton] Pinned section - using absolute position from getBoundingClientRect");
+      } else {
+        // For non-pinned sections, the same calculation applies
+        console.log("[FloatingButton] Non-pinned section - using absolute position from getBoundingClientRect");
       }
 
-      // Account for header offset (sticky header + padding)
-      const headerOffset = 80;
-      targetPosition = Math.max(0, targetPosition - headerOffset);
+      console.log("[FloatingButton] Final target position:", targetPosition);
 
       // Scroll to the target position with smooth behavior
       window.scrollTo({
@@ -161,49 +204,29 @@ const FloatingScrollButton: React.FC<FloatingScrollButtonProps> = ({
         behavior: "smooth",
       });
     } else {
-      console.log("Cannot scroll - invalid next section");
+      console.warn("[FloatingButton] Cannot scroll - invalid next section", {
+        nextIndex,
+        validSectionsLength: validSections.length,
+        hasRef: validSections[nextIndex]?.ref.current ? true : false,
+      });
     }
   };
 
-  // Add event listener directly to button element as backup
+  // Debug: Log section refs and button state
   useEffect(() => {
-    if (buttonRef.current) {
-      const handleClick = (e: MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        // Filter valid sections
-        const validSections = sections.filter((section) => section.ref.current);
-        const nextIndex = currentSectionIndex + 1;
-
-        if (
-          nextIndex < validSections.length &&
-          validSections[nextIndex].ref.current
-        ) {
-          const targetElement = validSections[nextIndex].ref.current;
-          const rect = targetElement.getBoundingClientRect();
-          const scrollTop =
-            window.pageYOffset || document.documentElement.scrollTop;
-          let targetPosition = rect.top + scrollTop;
-          const headerOffset = 80;
-          targetPosition = Math.max(0, targetPosition - headerOffset);
-
-          window.scrollTo({
-            top: targetPosition,
-            behavior: "smooth",
-          });
-        }
-      };
-
-      buttonRef.current.addEventListener("click", handleClick, true); // Use capture phase
-
-      return () => {
-        if (buttonRef.current) {
-          buttonRef.current.removeEventListener("click", handleClick, true);
-        }
-      };
-    }
-  }, [currentSectionIndex, sections]);
+    console.log("[FloatingButton] Component mounted/updated", {
+      sectionsCount: sections.length,
+      sections: sections.map((s) => ({
+        id: s.id,
+        hasRef: !!s.ref.current,
+        offsetTop: s.ref.current?.offsetTop,
+        element: s.ref.current,
+      })),
+      currentSectionIndex,
+      isVisible,
+      buttonRefExists: !!buttonRef.current,
+    });
+  }, [sections, currentSectionIndex, isVisible]);
 
   if (!mounted) return null;
 
@@ -218,10 +241,16 @@ const FloatingScrollButton: React.FC<FloatingScrollButtonProps> = ({
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
+        console.log("[FloatingButton] Button clicked!", {
+          currentSectionIndex,
+          sectionsCount: sections.length,
+          buttonRef: buttonRef.current,
+        });
         scrollToNextSection();
       }}
       onMouseDown={(e) => {
-        e.preventDefault();
+        // Don't prevent default - this might be blocking clicks
+        console.log("[FloatingButton] MouseDown event", e);
       }}
       className="fixed left-1/2 bottom-[5%] z-[9999] 
                  w-14 h-14 rounded-full flex items-center justify-center
