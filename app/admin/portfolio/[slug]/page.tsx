@@ -473,98 +473,93 @@ const PortfolioEditPage: React.FC<PortfolioEditPageProps> = ({ params }) => {
   };
 
   if (loading) {
-    return (
-      <AdminLayout>
-        <div className="text-center py-20">Loading...</div>
-      </AdminLayout>
-    );
+    return <div className="text-center py-20">Loading...</div>;
   }
 
   return (
-    <AdminLayout>
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
+    <div className="max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-4 mb-4">
+          <Link href="/admin/portfolio">
+            <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+              <svg
+                className="w-6 h-6 text-gray-600 dark:text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+            </button>
+          </Link>
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              {isNew ? "Create New Portfolio" : "Edit Portfolio"}
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              {isNew
+                ? "Add a new portfolio item to showcase your work"
+                : "Update portfolio item details and images"}
+            </p>
+          </div>
+          <div className="flex gap-3">
             <Link href="/admin/portfolio">
-              <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                <svg
-                  className="w-6 h-6 text-gray-600 dark:text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                  />
-                </svg>
+              <button className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                Cancel
               </button>
             </Link>
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                {isNew ? "Create New Portfolio" : "Edit Portfolio"}
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                {isNew
-                  ? "Add a new portfolio item to showcase your work"
-                  : "Update portfolio item details and images"}
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <Link href="/admin/portfolio">
-                <button className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
-                  Cancel
-                </button>
-              </Link>
-              <button
-                onClick={savePortfolio}
-                disabled={saving || uploading}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-              >
-                {saving || uploading ? (
-                  <span className="flex items-center gap-2">
-                    <svg
-                      className="animate-spin h-5 w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    {uploading ? "Uploading images..." : "Saving..."}
-                  </span>
-                ) : pendingImages.length > 0 ? (
-                  `💾 Save Portfolio (${pendingImages.length} image${
-                    pendingImages.length > 1 ? "s" : ""
-                  } to upload)`
-                ) : (
-                  "💾 Save Portfolio"
-                )}
-              </button>
-            </div>
+            <button
+              onClick={savePortfolio}
+              disabled={saving || uploading}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            >
+              {saving || uploading ? (
+                <span className="flex items-center gap-2">
+                  <svg
+                    className="animate-spin h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  {uploading ? "Uploading images..." : "Saving..."}
+                </span>
+              ) : pendingImages.length > 0 ? (
+                `💾 Save Portfolio (${pendingImages.length} image${
+                  pendingImages.length > 1 ? "s" : ""
+                } to upload)`
+              ) : (
+                "💾 Save Portfolio"
+              )}
+            </button>
           </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Main Form */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Basic Information Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Main Form */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Basic Information Card */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                   <span className="text-2xl">📝</span>
@@ -1278,7 +1273,6 @@ const PortfolioEditPage: React.FC<PortfolioEditPageProps> = ({ params }) => {
           </div>
         </div>
       </div>
-    </AdminLayout>
   );
 };
 

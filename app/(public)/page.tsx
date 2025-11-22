@@ -11,7 +11,7 @@ import ServiceCard from "@/components/ServiceCard";
 import Socials from "@/components/Socials";
 import FloatingScrollButton from "@/components/FloatingScrollButton";
 import PageLoader from "@/components/PageLoader";
-import { useIsomorphicLayoutEffect } from "@/lib";
+import { useIsomorphicLayoutEffect } from "@/lib/hooks";
 import data from "@/lib/data/portfolio.json";
 import Portfolio from "@/components/sections/portfolio";
 import GlassRadioGroup from "@/components/Button/GlassRadioGroup";

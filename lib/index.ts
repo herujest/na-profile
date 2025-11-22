@@ -1,8 +1,3 @@
-import { useLayoutEffect, useEffect } from "react";
-
-export const useIsomorphicLayoutEffect =
-  typeof window !== "undefined" ? useLayoutEffect : useEffect;
-
 export function ISOToDate(date: string | undefined): string | undefined {
   if (date) {
     const convertDate = new Date(date);
