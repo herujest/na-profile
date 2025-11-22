@@ -779,13 +779,7 @@ function HomeWithProvider() {
   const aboutSlideRef = useRef<HTMLDivElement>(null);
 
   const handleWorkScroll = useCallback(() => {
-    console.log("[handleWorkScroll] Called", {
-      refExists: !!workSlideRef.current,
-      ref: workSlideRef.current,
-    });
-
     if (typeof window === "undefined") {
-      console.log("[handleWorkScroll] Window undefined, returning");
       return;
     }
 
@@ -799,30 +793,16 @@ function HomeWithProvider() {
         // Use offsetTop for more reliable positioning
         const offsetTop = element.offsetTop;
 
-        console.log("[handleWorkScroll] Scrolling to:", {
-          offsetTop,
-          element,
-          scrollY: window.scrollY,
-        });
-
         window.scrollTo({
           top: offsetTop,
           left: 0,
           behavior: "smooth",
         });
       } else {
-        console.log(
-          "[handleWorkScroll] Ref not available, retrying...",
-          retryCount
-        );
         // Retry if ref not available yet (max 5 retries)
         if (retryCount < maxRetries) {
           retryCount++;
           setTimeout(scrollToWork, 100);
-        } else {
-          console.error(
-            "[handleWorkScroll] Max retries reached, ref still not available"
-          );
         }
       }
     };
@@ -886,11 +866,6 @@ function HomeWithProvider() {
   // Set handlers in context when they're created
   useEffect(() => {
     if (setHandlers) {
-      console.log("[HomeWithProvider] Setting handlers in context:", {
-        hasHandleWorkScroll: !!handleWorkScroll,
-        hasHandleAboutScroll: !!handleAboutScroll,
-        hasHandleContactScroll: !!handleContactScroll,
-      });
       setHandlers({
         handleWorkScroll,
         handleAboutScroll,
