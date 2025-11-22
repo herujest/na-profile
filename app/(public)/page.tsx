@@ -636,7 +636,7 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
 
         <div ref={workSlideRef}>
           <div
-            className="slide-content min-h-screen flex flex-col justify-start pt-20 tablet:pt-24 laptop:pt-32 desktop:pt-40 relative z-10 w-full px-8 tablet:px-8 laptop:px-10 desktop:px-20"
+            className="slide-content min-h-screen flex flex-col justify-start tablet:pt-24 relative z-10 w-full px-8 tablet:px-8 laptop:px-10 desktop:px-20"
             ref={workRef}
           >
             <div className="w-full tablet:m-10">
