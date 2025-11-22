@@ -69,7 +69,16 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
   if (!images || images.length === 0) return null;
 
   const getImageSrc = (src: string) => {
-    return src.startsWith("/") ? src : `/images/${src}`;
+    // If it's already a full URL (http/https), use it directly
+    if (src.startsWith("http://") || src.startsWith("https://")) {
+      return src;
+    }
+    // If it's a relative path starting with /, use it directly
+    if (src.startsWith("/")) {
+      return src;
+    }
+    // Otherwise, treat it as a relative path and prepend /images/
+    return `/images/${src}`;
   };
 
   return (
@@ -100,14 +109,26 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
                   isActive ? "opacity-100" : "opacity-0"
                 }`}
               >
-                <Image
-                  src={finalSrc}
-                  alt={`${title} - Image ${index + 1}`}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  priority={index === 0}
-                />
+                {finalSrc.startsWith("http://") ||
+                finalSrc.startsWith("https://") ? (
+                  // Use regular img tag for external URLs to avoid Next.js Image optimization issues
+                  <img
+                    src={finalSrc}
+                    alt={`${title} - Image ${index + 1}`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    loading={index === 0 ? "eager" : "lazy"}
+                  />
+                ) : (
+                  // Use Next.js Image for local/relative paths
+                  <Image
+                    src={finalSrc}
+                    alt={`${title} - Image ${index + 1}`}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    priority={index === 0}
+                  />
+                )}
               </div>
             );
           })}
@@ -159,4 +180,3 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
 };
 
 export default PortfolioCard;
-

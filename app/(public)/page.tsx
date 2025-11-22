@@ -54,7 +54,7 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
   const socialsRef = useRef<HTMLDivElement>(null);
   const aboutBackgroundRef = useRef<HTMLDivElement>(null);
 
-  const [currentTabIndex, setCurrentTabIndex] = useState<number>(1); // Start with Featured (value 1)
+  const [currentTabIndex, setCurrentTabIndex] = useState<number>(0); // Start with Featured (value 1)
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const [pendingTabIndex, setPendingTabIndex] = useState<number | null>(null);
 
@@ -674,11 +674,11 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
                 <GlassRadioGroup
                   name="portfolio-tabs"
                   options={[
-                    { id: "tab-featured", label: "Featured", value: 1 },
+                    { id: "tab-featured", label: "Featured", value: 0 },
                     {
                       id: "tab-collaboration",
                       label: "Collaboration",
-                      value: 2,
+                      value: 1,
                     },
                   ]}
                   selectedValue={currentTabIndex}
@@ -697,20 +697,12 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
                   <Portfolio
                     workRef={workRef}
                     collabs={[]}
+                    featured={true}
+                    limit={6}
                     key={`portfolio-all-${pendingTabIndex ?? currentTabIndex}`}
                   />
                 )}
                 {currentTabIndex === 1 && (
-                  <Portfolio
-                    workRef={workRef}
-                    featured={true}
-                    collabs={[]}
-                    key={`portfolio-featured-${
-                      pendingTabIndex ?? currentTabIndex
-                    }`}
-                  />
-                )}
-                {currentTabIndex === 2 && (
                   <Collaboration
                     key={`collaboration-${pendingTabIndex ?? currentTabIndex}`}
                   />

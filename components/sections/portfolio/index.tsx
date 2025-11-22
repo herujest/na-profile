@@ -20,6 +20,7 @@ interface PortfolioProps {
   workRef?: RefObject<HTMLDivElement>;
   collabs?: any[];
   featured?: boolean;
+  limit?: number;
 }
 
 // Helper function to convert collaborations to portfolio items
@@ -41,7 +42,7 @@ const convertCollabsToPortfolioItems = (collabs: any[]): PortfolioItem[] => {
   }));
 };
 
-export default function Portfolio({ workRef, collabs, featured }: PortfolioProps) {
+export default function Portfolio({ workRef, collabs, featured, limit }: PortfolioProps) {
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -62,13 +63,18 @@ export default function Portfolio({ workRef, collabs, featured }: PortfolioProps
 
           // If featured prop is true, filter to only featured items
           if (featured) {
-            items = items.filter((item: PortfolioItem) => item.featured);
+            items = items.filter((item: PortfolioItem) => item.featured === true);
           }
 
           // Add collaborations if provided
           if (collabs && collabs.length > 0) {
             const collabItems = convertCollabsToPortfolioItems(collabs);
             items = [...items, ...collabItems];
+          }
+
+          // Apply limit if specified
+          if (limit && limit > 0) {
+            items = items.slice(0, limit);
           }
 
           setPortfolioItems(items);
@@ -81,7 +87,7 @@ export default function Portfolio({ workRef, collabs, featured }: PortfolioProps
     };
 
     fetchPortfolio();
-  }, [featured, collabs]);
+  }, [featured, collabs, limit]);
 
   const handleCardClick = (slug: string) => {
     window.location.href = `/portfolio/${slug}`;

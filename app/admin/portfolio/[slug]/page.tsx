@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 import { uploadImage } from "@/lib/upload";
@@ -19,20 +19,32 @@ interface PortfolioItem {
 }
 
 interface PortfolioEditPageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string }> | { slug: string };
 }
 
 const PortfolioEditPage: React.FC<PortfolioEditPageProps> = ({ params }) => {
   const router = useRouter();
+  const routeParams = useParams();
   const [slug, setSlug] = useState<string>("");
   const isNew = slug === "new";
 
-  // Resolve params Promise
+  // Resolve params Promise or use directly
   useEffect(() => {
-    params.then((resolved) => {
-      setSlug(resolved.slug);
-    });
-  }, [params]);
+    const getSlug = async () => {
+      if (params && typeof params === 'object' && 'then' in params && typeof params.then === 'function') {
+        // params is a Promise
+        const resolved = await (params as Promise<{ slug: string }>);
+        setSlug(resolved.slug);
+      } else if (params && 'slug' in params) {
+        // params is already resolved
+        setSlug((params as { slug: string }).slug);
+      } else if (routeParams?.slug) {
+        // Fallback to useParams hook
+        setSlug(routeParams.slug as string);
+      }
+    };
+    getSlug();
+  }, [params, routeParams]);
 
   const [portfolioItem, setPortfolioItem] = useState<PortfolioItem>({
     id: "",
