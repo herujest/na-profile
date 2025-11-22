@@ -552,37 +552,7 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
     }
   }, []);
 
-  // Handle hash navigation (for contact from other pages)
-  useEffect(() => {
-    const handleHash = () => {
-      if (typeof window !== "undefined") {
-        const hash = window.location.hash;
-        if (hash === "#contact") {
-          // Small delay to ensure page is fully loaded
-          setTimeout(() => {
-            // Scroll to footer (bottom of page)
-            window.scrollTo({
-              top: document.documentElement.scrollHeight,
-              left: 0,
-              behavior: "smooth",
-            });
-            // Remove hash from URL after scrolling
-            window.history.replaceState(null, "", window.location.pathname);
-          }, 500);
-        }
-      }
-    };
-
-    // Handle hash on initial load
-    handleHash();
-
-    // Listen for hash changes
-    window.addEventListener("hashchange", handleHash);
-
-    return () => {
-      window.removeEventListener("hashchange", handleHash);
-    };
-  }, [pathname]);
+  // Note: Hash navigation is now handled in HomeWithProvider to avoid conflicts with ScrollTrigger
 
   // Refresh ScrollTrigger when tab changes (for conditional content)
   useEffect(() => {
@@ -748,10 +718,10 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
             ref={aboutRef}
           >
             <div className="w-full tablet:m-10">
-              <h1 className="text-2xl laptop:text-4xl text-bold mb-6 laptop:mb-10">
+              <h1 className="text-2xl pt-10 laptop:text-4xl text-bold mb-6 laptop:mb-10">
                 About.
               </h1>
-              <p className="text-xl laptop:text-3xl w-full laptop:w-3/5 leading-relaxed">
+              <p className="text-xl laptop:text-3xl w-full laptop:w-4/5 leading-relaxed">
                 {portfolioData.aboutpara}
               </p>
             </div>
@@ -928,6 +898,79 @@ function HomeWithProvider() {
       });
     }
   }, [handleWorkScroll, handleAboutScroll, handleContactScroll, setHandlers]);
+
+  // Handle hash navigation when coming from other pages
+  // This runs after ScrollTrigger is initialized to avoid conflicts
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // Only handle hash if it exists (user came from another page)
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+
+    // Wait for ScrollTrigger to be fully initialized, then use scroll handlers
+    const handleHashNavigation = () => {
+      // Wait a bit for all ScrollTriggers to be set up, then use the scroll handlers
+      setTimeout(() => {
+        switch (hash) {
+          case "work":
+            if (workSlideRef.current) {
+              // Use the scroll handler which respects ScrollTrigger
+              handleWorkScroll();
+              // Clear hash after a delay
+              setTimeout(() => {
+                window.history.replaceState(null, "", window.location.pathname);
+              }, 1000);
+            } else {
+              // Retry if ref not ready
+              setTimeout(handleHashNavigation, 200);
+            }
+            break;
+          case "about":
+            if (aboutSlideRef.current) {
+              // Use the scroll handler which respects ScrollTrigger
+              handleAboutScroll();
+              // Clear hash after a delay
+              setTimeout(() => {
+                window.history.replaceState(null, "", window.location.pathname);
+              }, 1000);
+            } else {
+              // Retry if ref not ready
+              setTimeout(handleHashNavigation, 200);
+            }
+            break;
+          case "contact":
+            // Use the scroll handler which respects ScrollTrigger
+            handleContactScroll();
+            // Clear hash after a delay
+            setTimeout(() => {
+              window.history.replaceState(null, "", window.location.pathname);
+            }, 1000);
+            break;
+          default:
+            break;
+        }
+      }, 800); // Wait 800ms for ScrollTrigger to be initialized
+    };
+
+    // Start handling hash navigation after ScrollTrigger is initialized
+    setTimeout(handleHashNavigation, 1000);
+
+    // Handle hash changes (when navigating from other pages)
+    const handleHashChange = () => {
+      const newHash = window.location.hash.slice(1);
+      if (newHash) {
+        setTimeout(handleHashNavigation, 1000);
+      }
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps: refs don't change, only their .current property
 
   return <Home workSlideRef={workSlideRef} aboutSlideRef={aboutSlideRef} />;
 }
