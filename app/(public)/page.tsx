@@ -341,8 +341,11 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
         const heroContent =
           heroSlideRef.current.querySelector(".slide-content");
         if (heroContent) {
+          // Ensure hero section has proper positioning and doesn't get affected by pinned sections
           gsap.set(heroSlideRef.current, {
             height: "100vh",
+            position: "relative",
+            zIndex: 1,
           });
 
           const cleanup = scrollAnimation(heroContent as HTMLElement, {
@@ -451,6 +454,12 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
 
       // About section - with parallax effect
       if (aboutSlideRef.current) {
+        // Ensure about section has proper positioning and doesn't get affected by pinned sections
+        gsap.set(aboutSlideRef.current, {
+          position: "relative",
+          zIndex: 1,
+        });
+
         const aboutContent =
           aboutSlideRef.current.querySelector(".slide-content");
         const aboutBackground = aboutBackgroundRef.current;
@@ -526,10 +535,29 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
         if (cleanup) cleanupFunctions.push(cleanup);
       }
 
-      // Refresh ScrollTrigger after setup
+      // Refresh ScrollTrigger after setup to ensure proper pin spacing
+      // This prevents sections from overlapping during scroll
       if (typeof window !== "undefined") {
         const { ScrollTrigger } = require("gsap/ScrollTrigger");
-        ScrollTrigger.refresh();
+
+        // Wait a bit more for DOM to be ready and all animations to settle
+        setTimeout(() => {
+          // Refresh all ScrollTriggers to recalculate positions and spacing
+          ScrollTrigger.refresh();
+
+          // Force recalculation of pin spacing for pinned sections
+          ScrollTrigger.getAll().forEach((trigger: any) => {
+            if (trigger.vars && trigger.vars.pin && trigger.vars.pinSpacing) {
+              // Ensure pin spacing is properly calculated
+              trigger.refresh();
+            }
+          });
+
+          // Additional refresh after a small delay to ensure everything is settled
+          setTimeout(() => {
+            ScrollTrigger.refresh();
+          }, 50);
+        }, 150);
       }
     }, 150);
 

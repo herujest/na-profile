@@ -140,6 +140,8 @@ export const createStickySlide = (
   gsap.set(element, {
     position: "relative",
     overflow: "visible",
+    // Ensure element maintains its natural position in document flow
+    willChange: "auto",
   });
 
   // Set initial styles for content - start visible, will animate on scroll
@@ -160,6 +162,8 @@ export const createStickySlide = (
     onEnterBack: onEnterBack,
     onLeaveBack: onLeaveBack,
     anticipatePin: 1,
+    invalidateOnRefresh: true, // Ensure proper recalculation on refresh
+    preventOverlaps: true, // Prevent overlapping triggers
   });
 
   // Create animation for content
