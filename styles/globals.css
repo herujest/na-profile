@@ -475,3 +475,14 @@ html.dark .resume-page-wrapper,
 html:not(.dark) .resume-page-wrapper {
   background-color: #ffffff !important;
 }
+
+.lottie {
+  width: '18vw';
+  height: '18vw';
+  pointer-events: none;
+}
+.container.loaded .lottie {
+  opacity: 0;
+  transform: scale(1.2);
+  transition: all 0.4s ease-out;
+}

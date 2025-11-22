@@ -613,8 +613,8 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
 
   return (
     <>
+      <PageLoader />
       <div className="relative page-content">
-        <PageLoader />
         <Script
           src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"
           strategy="lazyOnload"
