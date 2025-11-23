@@ -5,8 +5,6 @@ import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Button from "@/components/Button";
-// Local Data
-import data from "@/lib/data/portfolio.json";
 
 // Type for Popover render prop (not exported from @headlessui/react)
 type PopoverRenderProps = {
@@ -35,12 +33,42 @@ const Header: React.FC<HeaderProps> = ({
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState<boolean>(false);
-
-  const { name, showBlog, showResume } = data;
+  const [settings, setSettings] = useState<{
+    name: string;
+    showBlog: boolean;
+    showResume: boolean;
+  }>({
+    name: "",
+    showBlog: false,
+    showResume: false,
+  });
 
   useEffect(() => {
     setMounted(true);
+    fetchSettings();
   }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch("/api/settings");
+      if (res.ok) {
+        const data = await res.json();
+        setSettings({
+          name: data.name || "",
+          showBlog: data.showBlog || false,
+          showResume: data.showResume || false,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching settings:", error);
+      // Fallback to defaults
+      setSettings({
+        name: "Nisa Aulia",
+        showBlog: true,
+        showResume: true,
+      });
+    }
+  };
 
   // Handle contact scroll - if on home page, scroll directly, otherwise navigate to home with hash
   const handleContactClick = () => {
@@ -85,7 +113,7 @@ const Header: React.FC<HeaderProps> = ({
                 onClick={() => router.push("/")}
                 className="font-medium p-2 laptop:p-0 link text-gray-900 dark:text-white cursor-pointer"
               >
-                {name}
+                {settings.name || "Nisa Aulia"}
               </h1>
 
               <div className="flex items-center">
@@ -127,10 +155,10 @@ const Header: React.FC<HeaderProps> = ({
                 <div className="grid grid-cols-1">
                   <Button onClick={handleWorkClick}>Work</Button>
                   <Button onClick={handleAboutClick}>About</Button>
-                  {showBlog && (
+                  {settings.showBlog && (
                     <Button onClick={() => router.push("/blog")}>Blog</Button>
                   )}
-                  {showResume && (
+                  {settings.showResume && (
                     <Button onClick={() => router.push("/resume")}>
                       Resume
                     </Button>
@@ -143,10 +171,10 @@ const Header: React.FC<HeaderProps> = ({
                   <Button onClick={() => router.push("/")} classes="first:ml-1">
                     Home
                   </Button>
-                  {showBlog && (
+                  {settings.showBlog && (
                     <Button onClick={() => router.push("/blog")}>Blog</Button>
                   )}
-                  {showResume && (
+                  {settings.showResume && (
                     <Button
                       onClick={() => router.push("/resume")}
                       classes="first:ml-1"
@@ -170,16 +198,16 @@ const Header: React.FC<HeaderProps> = ({
           onClick={() => router.push("/")}
           className="font-medium cursor-pointer mob:p-2 laptop:p-0 text-gray-900 dark:text-white"
         >
-          {name}.
+          {settings.name || "Nisa Aulia"}.
         </h1>
         {!isBlog ? (
           <div className="flex">
             <Button onClick={handleWorkClick}>Work</Button>
             <Button onClick={handleAboutClick}>About</Button>
-            {showBlog && (
+            {settings.showBlog && (
               <Button onClick={() => router.push("/blog")}>Blog</Button>
             )}
-            {showResume && (
+            {settings.showResume && (
               <Button
                 onClick={() => router.push("/resume")}
                 classes="first:ml-1"
@@ -204,10 +232,10 @@ const Header: React.FC<HeaderProps> = ({
         ) : (
           <div className="flex">
             <Button onClick={() => router.push("/")}>Home</Button>
-            {showBlog && (
+            {settings.showBlog && (
               <Button onClick={() => router.push("/blog")}>Blog</Button>
             )}
-            {showResume && (
+            {settings.showResume && (
               <Button
                 onClick={() => router.push("/resume")}
                 classes="first:ml-1"

@@ -55,3 +55,21 @@ model Portfolio {
   @@index([slug])
   @@index([featured])
 }
+
+model SiteSettings {
+  id                  String    @id @default(uuid())
+  name                String    @default("")
+  headerTaglineOne    String    @default("")
+  headerTaglineTwo    String    @default("")
+  headerTaglineThree  String    @default("")
+  headerTaglineFour   String    @default("")
+  showCursor          Boolean   @default(false)
+  showBlog            Boolean   @default(false)
+  darkMode            Boolean   @default(false)
+  showResume          Boolean   @default(false)
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@unique([id])
+}

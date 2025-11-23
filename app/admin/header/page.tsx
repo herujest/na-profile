@@ -22,16 +22,12 @@ const HeaderPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== "development") {
-      router.push("/");
-      return;
-    }
     fetchData();
-  }, [router]);
+  }, []);
 
   const fetchData = async () => {
     try {
-      const res = await fetch("/api/portfolio?admin=true");
+      const res = await fetch("/api/settings");
       if (res.ok) {
         const result = await res.json();
         setData({
@@ -57,21 +53,19 @@ const HeaderPage: React.FC = () => {
     if (!data) return;
     setSaving(true);
     try {
-      const res = await fetch("/api/portfolio?admin=true");
-      if (res.ok) {
-        const fullData = await res.json();
-        const updatedData = { ...fullData, ...data };
-        const saveRes = await fetch("/api/portfolio", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedData),
-        });
+      const saveRes = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
 
-        if (saveRes.ok) {
-          alert("Header settings saved successfully!");
-        } else {
-          alert("Failed to save data");
-        }
+      if (saveRes.ok) {
+        alert("Header settings saved successfully!");
+        // Refresh data to get updated values
+        await fetchData();
+      } else {
+        const errorData = await saveRes.json();
+        alert(`Failed to save data: ${errorData.error || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Error saving data:", error);
@@ -80,10 +74,6 @@ const HeaderPage: React.FC = () => {
       setSaving(false);
     }
   };
-
-  if (process.env.NODE_ENV !== "development") {
-    return null;
-  }
 
   if (loading || !data) {
     return <div className="text-center py-20">Loading...</div>;
