@@ -17,16 +17,12 @@ const ServicesPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== "development") {
-      router.push("/");
-      return;
-    }
     fetchData();
-  }, [router]);
+  }, []);
 
   const fetchData = async () => {
     try {
-      const res = await fetch("/api/portfolio?admin=true");
+      const res = await fetch("/api/services");
       if (res.ok) {
         const data = await res.json();
         setServices(data.services || []);
@@ -38,24 +34,74 @@ const ServicesPage: React.FC = () => {
     }
   };
 
-  const saveData = async () => {
-    setSaving(true);
+  const saveService = async (service: Service, index: number) => {
     try {
-      const res = await fetch("/api/portfolio?admin=true");
-      if (res.ok) {
-        const data = await res.json();
-        const updatedData = { ...data, services };
-        const saveRes = await fetch("/api/portfolio", {
+      if (service.id && service.id.startsWith("temp-")) {
+        // New service - create it
+        const res = await fetch("/api/services", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedData),
+          body: JSON.stringify({
+            title: service.title,
+            description: service.description,
+            order: index,
+          }),
         });
 
-        if (saveRes.ok) {
-          alert("Services saved successfully!");
+        if (res.ok) {
+          const newService = await res.json();
+          // Update local state with the new service ID
+          const updated = [...services];
+          updated[index] = newService;
+          setServices(updated);
+          return true;
         } else {
-          alert("Failed to save data");
+          const errorData = await res.json();
+          alert(`Failed to create service: ${errorData.error || "Unknown error"}`);
+          return false;
         }
+      } else {
+        // Existing service - update it
+        const res = await fetch(`/api/services/${service.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: service.title,
+            description: service.description,
+            order: index,
+          }),
+        });
+
+        if (res.ok) {
+          return true;
+        } else {
+          const errorData = await res.json();
+          alert(`Failed to update service: ${errorData.error || "Unknown error"}`);
+          return false;
+        }
+      }
+    } catch (error) {
+      console.error("Error saving service:", error);
+      alert("Error saving service");
+      return false;
+    }
+  };
+
+  const saveAllData = async () => {
+    setSaving(true);
+    try {
+      // Save all services
+      const savePromises = services.map((service, index) =>
+        saveService(service, index)
+      );
+      const results = await Promise.all(savePromises);
+
+      if (results.every((r) => r === true)) {
+        alert("All services saved successfully!");
+        // Refresh data to get updated IDs
+        await fetchData();
+      } else {
+        alert("Some services failed to save. Please check and try again.");
       }
     } catch (error) {
       console.error("Error saving data:", error);
@@ -67,7 +113,7 @@ const ServicesPage: React.FC = () => {
 
   const addService = () => {
     const newService = {
-      id: uuidv4(),
+      id: `temp-${uuidv4()}`, // Temporary ID for new services
       title: "New Service",
       description: "",
     };
@@ -80,16 +126,38 @@ const ServicesPage: React.FC = () => {
     setServices(updated);
   };
 
-  const deleteService = (index: number) => {
+  const deleteService = async (index: number) => {
+    const service = services[index];
+    if (!service) return;
+
     if (confirm("Are you sure you want to delete this service?")) {
-      const updated = services.filter((_, i) => i !== index);
-      setServices(updated);
+      // If it's a temporary service (not saved yet), just remove from state
+      if (service.id.startsWith("temp-")) {
+        const updated = services.filter((_, i) => i !== index);
+        setServices(updated);
+        return;
+      }
+
+      // Otherwise, delete from API
+      try {
+        const res = await fetch(`/api/services/${service.id}`, {
+          method: "DELETE",
+        });
+
+        if (res.ok) {
+          const updated = services.filter((_, i) => i !== index);
+          setServices(updated);
+          alert("Service deleted successfully!");
+        } else {
+          const errorData = await res.json();
+          alert(`Failed to delete service: ${errorData.error || "Unknown error"}`);
+        }
+      } catch (error) {
+        console.error("Error deleting service:", error);
+        alert("Error deleting service");
+      }
     }
   };
-
-  if (process.env.NODE_ENV !== "development") {
-    return null;
-  }
 
   if (loading) {
     return <div className="text-center py-20">Loading...</div>;
@@ -114,7 +182,7 @@ const ServicesPage: React.FC = () => {
             + Add Service
           </button>
           <button
-            onClick={saveData}
+            onClick={saveAllData}
             disabled={saving}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
           >

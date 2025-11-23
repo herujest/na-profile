@@ -42,6 +42,10 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
   // State for portfolio data - fetch from API to get complete data
   const [portfolioData, setPortfolioData] =
     useState<PortfolioData>(defaultPortfolioData);
+  // State for services - fetch from API
+  const [services, setServices] = useState<
+    Array<{ id: string; title: string; description: string }>
+  >([]);
   // Ref
   const workRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
@@ -81,7 +85,22 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
       }
     };
 
+    const fetchServices = async () => {
+      try {
+        const res = await fetch("/api/services");
+        if (res.ok) {
+          const data = await res.json();
+          setServices(data.services || []);
+        }
+      } catch (error) {
+        console.error("Error fetching services:", error);
+        // Fallback to default services if API fails
+        setServices(defaultPortfolioData.services || []);
+      }
+    };
+
     fetchPortfolioData();
+    fetchServices();
   }, []);
 
   // Refs for slide containers
@@ -720,13 +739,21 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
                 Services.
               </h1>
               <div className="grid grid-cols-1 mob:grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 gap-6 laptop:gap-12">
-                {portfolioData.services?.map((service, index: number) => (
-                  <ServiceCard
-                    key={index}
-                    name={service.title}
-                    description={service.description}
-                  />
-                ))}
+                {services.length > 0
+                  ? services.map((service) => (
+                      <ServiceCard
+                        key={service.id}
+                        name={service.title}
+                        description={service.description}
+                      />
+                    ))
+                  : portfolioData.services?.map((service, index: number) => (
+                      <ServiceCard
+                        key={index}
+                        name={service.title}
+                        description={service.description}
+                      />
+                    ))}
               </div>
             </div>
           </div>
