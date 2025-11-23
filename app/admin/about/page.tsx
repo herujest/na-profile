@@ -10,19 +10,15 @@ const AboutPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== "development") {
-      router.push("/");
-      return;
-    }
     fetchData();
-  }, [router]);
+  }, []);
 
   const fetchData = async () => {
     try {
-      const res = await fetch("/api/portfolio?admin=true");
+      const res = await fetch("/api/settings");
       if (res.ok) {
         const data = await res.json();
-        setAboutPara(data.aboutpara || "");
+        setAboutPara(data.aboutPara || "");
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -34,21 +30,19 @@ const AboutPage: React.FC = () => {
   const saveData = async () => {
     setSaving(true);
     try {
-      const res = await fetch("/api/portfolio?admin=true");
-      if (res.ok) {
-        const data = await res.json();
-        const updatedData = { ...data, aboutpara: aboutPara };
-        const saveRes = await fetch("/api/portfolio", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedData),
-        });
+      const saveRes = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ aboutPara }),
+      });
 
-        if (saveRes.ok) {
-          alert("About section saved successfully!");
-        } else {
-          alert("Failed to save data");
-        }
+      if (saveRes.ok) {
+        alert("About section saved successfully!");
+        // Refresh data to get updated values
+        await fetchData();
+      } else {
+        const errorData = await saveRes.json();
+        alert(`Failed to save data: ${errorData.error || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Error saving data:", error);
@@ -57,10 +51,6 @@ const AboutPage: React.FC = () => {
       setSaving(false);
     }
   };
-
-  if (process.env.NODE_ENV !== "development") {
-    return null;
-  }
 
   if (loading) {
     return <div className="text-center py-20">Loading...</div>;

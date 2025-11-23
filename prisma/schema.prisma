@@ -67,6 +67,7 @@ model SiteSettings {
   showBlog            Boolean   @default(false)
   darkMode            Boolean   @default(false)
   showResume          Boolean   @default(false)
+  aboutPara           String    @default("")  // About section paragraph
   
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt

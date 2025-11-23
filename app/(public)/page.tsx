@@ -46,6 +46,8 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
   const [services, setServices] = useState<
     Array<{ id: string; title: string; description: string }>
   >([]);
+  // State for about paragraph - fetch from settings API
+  const [aboutPara, setAboutPara] = useState<string>("");
   // Ref
   const workRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
@@ -99,8 +101,23 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
       }
     };
 
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch("/api/settings");
+        if (res.ok) {
+          const data = await res.json();
+          setAboutPara(data.aboutPara || "");
+        }
+      } catch (error) {
+        console.error("Error fetching settings:", error);
+        // Fallback to default aboutPara if API fails
+        setAboutPara(defaultPortfolioData.aboutpara || "");
+      }
+    };
+
     fetchPortfolioData();
     fetchServices();
+    fetchSettings();
   }, []);
 
   // Refs for slide containers
@@ -777,7 +794,7 @@ function Home({ workSlideRef, aboutSlideRef }: HomeProps) {
                 About.
               </h1>
               <p className="text-xl laptop:text-3xl w-full laptop:w-4/5 leading-relaxed">
-                {portfolioData.aboutpara}
+                {aboutPara || portfolioData.aboutpara}
               </p>
             </div>
           </div>

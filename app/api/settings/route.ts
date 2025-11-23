@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
           showBlog: true,
           darkMode: false,
           showResume: true,
+          aboutPara: "",
         },
       });
     }
@@ -61,6 +62,7 @@ export async function PUT(req: NextRequest) {
       showBlog,
       darkMode,
       showResume,
+      aboutPara,
     } = body;
 
     // Check if settings exist
@@ -91,6 +93,7 @@ export async function PUT(req: NextRequest) {
           ...(showBlog !== undefined && { showBlog: showBlog === true }),
           ...(darkMode !== undefined && { darkMode: darkMode === true }),
           ...(showResume !== undefined && { showResume: showResume === true }),
+          ...(aboutPara !== undefined && { aboutPara: aboutPara.trim() }),
         },
       });
     } else {
@@ -107,6 +110,7 @@ export async function PUT(req: NextRequest) {
           showBlog: showBlog === true,
           darkMode: darkMode === true,
           showResume: showResume === true,
+          aboutPara: aboutPara?.trim() || "",
         },
       });
     }
