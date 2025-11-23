@@ -2,69 +2,32 @@
 
 import Button from "@/components/Button";
 import type { Social } from "@/types/portfolio";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface SocialsProps {
   className?: string;
 }
 
-// TODO: handle route for affiliated products and blog
 const Socials: React.FC<SocialsProps> = ({ className }) => {
-  const [socials, setSocials] = useState<Social[]>([
-    {
-      id: "1",
-      title: "Instagram",
-      link: "https://instagram.com/nisa_wly",
-    },
-    {
-      id: "2",
-      title: "TikTok",
-      link: "https://www.tiktok.com/@racunnyacacaaa",
-    },
-    {
-      id: "3",
-      title: "Affiliated Products",
-      link: "",
-    },
-    {
-      id: "4",
-      title: "Blog",
-      link: "",
-    },
-    {
-      id: "5",
-      title: "Email",
-      link: "mailto:contact@nisaaulia.com",
-    },
-  ]);
+  const [socials, setSocials] = useState<Social[]>([]);
 
-  // useEffect(() => {
-  // Fetch socials from API with admin=true to get full portfolio data
-  // const fetchSocials = async () => {
-  //   try {
-  //     const res = await fetch("/api/portfolio?admin=true");
-  //     if (res.ok) {
-  //       const data = await res.json();
-  //       // Handle different response structures
-  //       if (data.socials && Array.isArray(data.socials)) {
-  //         setSocials(data.socials);
-  //       } else if (
-  //         Array.isArray(data) &&
-  //         data.length > 0 &&
-  //         data[0]?.socials
-  //       ) {
-  //         setSocials(data[0].socials);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching socials:", error);
-  //     // Fallback to empty array
-  //     setSocials([]);
-  //   }
-  // };
+  useEffect(() => {
+    const fetchSocials = async () => {
+      try {
+        const res = await fetch("/api/socials");
+        if (res.ok) {
+          const data = await res.json();
+          setSocials(data.socials || []);
+        }
+      } catch (error) {
+        console.error("Error fetching socials:", error);
+        // Fallback to empty array
+        setSocials([]);
+      }
+    };
 
-  // fetchSocials();
-  // }, []);
+    fetchSocials();
+  }, []);
 
   // Return null if no socials to avoid rendering empty div
   if (!socials || socials.length === 0) {
@@ -73,22 +36,18 @@ const Socials: React.FC<SocialsProps> = ({ className }) => {
 
   return (
     <div className={`${className || ""} flex flex-wrap mob:flex-nowrap link`}>
-      {socials.map((social: Social, index: number) => {
-        // Validate social has required properties
-        if (!social || !social.link || !social.title) {
-          return null;
-        }
-        return (
+      {socials
+        .filter((social: Social) => social && social.link && social.title)
+        .map((social: Social) => (
           <Button
-            key={social.id || `social-${index}`}
+            key={social.id}
             onClick={() =>
               window.open(social.link, "_blank", "noopener,noreferrer")
             }
           >
             {social.title}
           </Button>
-        );
-      })}
+        ))}
     </div>
   );
 };

@@ -17,16 +17,12 @@ const SocialsPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== "development") {
-      router.push("/");
-      return;
-    }
     fetchData();
-  }, [router]);
+  }, []);
 
   const fetchData = async () => {
     try {
-      const res = await fetch("/api/portfolio?admin=true");
+      const res = await fetch("/api/socials");
       if (res.ok) {
         const data = await res.json();
         setSocials(data.socials || []);
@@ -38,24 +34,74 @@ const SocialsPage: React.FC = () => {
     }
   };
 
-  const saveData = async () => {
-    setSaving(true);
+  const saveSocial = async (social: Social, index: number) => {
     try {
-      const res = await fetch("/api/portfolio?admin=true");
-      if (res.ok) {
-        const data = await res.json();
-        const updatedData = { ...data, socials };
-        const saveRes = await fetch("/api/portfolio", {
+      if (social.id && social.id.startsWith("temp-")) {
+        // New social - create it
+        const res = await fetch("/api/socials", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedData),
+          body: JSON.stringify({
+            title: social.title,
+            link: social.link,
+            order: index,
+          }),
         });
 
-        if (saveRes.ok) {
-          alert("Social links saved successfully!");
+        if (res.ok) {
+          const newSocial = await res.json();
+          // Update local state with the new social ID
+          const updated = [...socials];
+          updated[index] = newSocial;
+          setSocials(updated);
+          return true;
         } else {
-          alert("Failed to save data");
+          const errorData = await res.json();
+          alert(`Failed to create social: ${errorData.error || "Unknown error"}`);
+          return false;
         }
+      } else {
+        // Existing social - update it
+        const res = await fetch(`/api/socials/${social.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: social.title,
+            link: social.link,
+            order: index,
+          }),
+        });
+
+        if (res.ok) {
+          return true;
+        } else {
+          const errorData = await res.json();
+          alert(`Failed to update social: ${errorData.error || "Unknown error"}`);
+          return false;
+        }
+      }
+    } catch (error) {
+      console.error("Error saving social:", error);
+      alert("Error saving social");
+      return false;
+    }
+  };
+
+  const saveAllData = async () => {
+    setSaving(true);
+    try {
+      // Save all socials
+      const savePromises = socials.map((social, index) =>
+        saveSocial(social, index)
+      );
+      const results = await Promise.all(savePromises);
+
+      if (results.every((r) => r === true)) {
+        alert("All social links saved successfully!");
+        // Refresh data to get updated IDs
+        await fetchData();
+      } else {
+        alert("Some social links failed to save. Please check and try again.");
       }
     } catch (error) {
       console.error("Error saving data:", error);
@@ -67,7 +113,7 @@ const SocialsPage: React.FC = () => {
 
   const addSocial = () => {
     const newSocial = {
-      id: uuidv4(),
+      id: `temp-${uuidv4()}`, // Temporary ID for new socials
       title: "New Social",
       link: "",
     };
@@ -80,16 +126,38 @@ const SocialsPage: React.FC = () => {
     setSocials(updated);
   };
 
-  const deleteSocial = (index: number) => {
+  const deleteSocial = async (index: number) => {
+    const social = socials[index];
+    if (!social) return;
+
     if (confirm("Are you sure you want to delete this social link?")) {
-      const updated = socials.filter((_, i) => i !== index);
-      setSocials(updated);
+      // If it's a temporary social (not saved yet), just remove from state
+      if (social.id.startsWith("temp-")) {
+        const updated = socials.filter((_, i) => i !== index);
+        setSocials(updated);
+        return;
+      }
+
+      // Otherwise, delete from API
+      try {
+        const res = await fetch(`/api/socials/${social.id}`, {
+          method: "DELETE",
+        });
+
+        if (res.ok) {
+          const updated = socials.filter((_, i) => i !== index);
+          setSocials(updated);
+          alert("Social link deleted successfully!");
+        } else {
+          const errorData = await res.json();
+          alert(`Failed to delete social: ${errorData.error || "Unknown error"}`);
+        }
+      } catch (error) {
+        console.error("Error deleting social:", error);
+        alert("Error deleting social");
+      }
     }
   };
-
-  if (process.env.NODE_ENV !== "development") {
-    return null;
-  }
 
   if (loading) {
     return <div className="text-center py-20">Loading...</div>;
@@ -114,7 +182,7 @@ const SocialsPage: React.FC = () => {
             + Add Social Link
           </button>
           <button
-            onClick={saveData}
+            onClick={saveAllData}
             disabled={saving}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
           >
