@@ -55,9 +55,11 @@ export async function POST(req: NextRequest) {
     const timestamp = Date.now();
     const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, "_");
 
-    // Create R2 key with structure: portfolio/[slug]/[timestamp]-[filename]
-    // Grouped by portfolio item slug
-    const r2Key = `portfolio/${slug}/${timestamp}-${sanitizedFilename}`;
+    // Create R2 key with structure: [dev/]portfolio/[slug]/[timestamp]-[filename]
+    // Prefix with "dev/" in development environment
+    const isDev = process.env.NODE_ENV === "development";
+    const basePath = isDev ? "dev/portfolio" : "portfolio";
+    const r2Key = `${basePath}/${slug}/${timestamp}-${sanitizedFilename}`;
 
     // Convert File to Buffer
     const bytes = await file.arrayBuffer();

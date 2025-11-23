@@ -27,8 +27,8 @@ function transformImageUrls(images: string[]): string[] {
     // If URL contains "aulia-bucket" or bucket name, extract the key and rebuild
     const bucketName = process.env.R2_BUCKET_NAME || "";
     if (imageUrl.includes("aulia-bucket") || (bucketName && imageUrl.includes(bucketName))) {
-      // Extract the key path (everything after portfolio/)
-      const portfolioMatch = imageUrl.match(/portfolio\/.+/);
+      // Extract the key path (everything after portfolio/ or dev/portfolio/)
+      const portfolioMatch = imageUrl.match(/(?:dev\/)?portfolio\/.+/);
       if (portfolioMatch) {
         const key = portfolioMatch[0];
         return `${baseUrl}/${key}`;
@@ -43,13 +43,17 @@ function transformImageUrls(images: string[]): string[] {
     }
 
     // If URL starts with http/https but doesn't match our base, try to extract key
-    // For URLs like https://aulia-bucket/portfolio/...
+    // For URLs like https://aulia-bucket/portfolio/... or https://aulia-bucket/dev/portfolio/...
     try {
       const url = new URL(imageUrl);
-      const pathParts = url.pathname.split("/");
+      const pathParts = url.pathname.split("/").filter(Boolean); // Remove empty strings
       const portfolioIndex = pathParts.indexOf("portfolio");
       if (portfolioIndex !== -1) {
-        const key = pathParts.slice(portfolioIndex).join("/");
+        // Include "dev" prefix if it exists before "portfolio"
+        const startIndex = portfolioIndex > 0 && pathParts[portfolioIndex - 1] === "dev" 
+          ? portfolioIndex - 1 
+          : portfolioIndex;
+        const key = pathParts.slice(startIndex).join("/");
         return `${baseUrl}/${key}`;
       }
     } catch {
