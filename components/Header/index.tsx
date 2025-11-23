@@ -8,6 +8,17 @@ import Button from "@/components/Button";
 // Local Data
 import data from "@/lib/data/portfolio.json";
 
+// Type for Popover render prop (not exported from @headlessui/react)
+type PopoverRenderProps = {
+  open: boolean;
+  close: (
+    focusableElement?:
+      | HTMLElement
+      | React.MutableRefObject<HTMLElement | null>
+      | React.MouseEvent<HTMLElement>
+  ) => void;
+};
+
 interface HeaderProps {
   handleWorkScroll?: () => void;
   handleAboutScroll?: () => void;
@@ -66,16 +77,15 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      {/* @ts-ignore - @headlessui/react Popover has type issues with React 18 */}
       <Popover className="block tablet:hidden mt-5 relative z-50">
-        {({ open }: { open: boolean }): React.ReactNode => (
+        {({ open }: PopoverRenderProps): React.ReactElement => (
           <>
             <div className="flex items-center justify-between p-2 laptop:p-0">
               <h1
                 onClick={() => router.push("/")}
                 className="font-medium p-2 laptop:p-0 link text-gray-900 dark:text-white cursor-pointer"
               >
-                {name}.
+                {name}
               </h1>
 
               <div className="flex items-center">
@@ -95,7 +105,6 @@ const Header: React.FC<HeaderProps> = ({
                   </Button>
                 )}
 
-                {/* @ts-ignore */}
                 <Popover.Button>
                   <img
                     className="h-5"
@@ -113,7 +122,6 @@ const Header: React.FC<HeaderProps> = ({
                 </Popover.Button>
               </div>
             </div>
-            {/* @ts-ignore */}
             <Popover.Panel className="absolute right-0 z-50 w-11/12 p-4 bg-white/95 dark:bg-black/95 backdrop-blur-md shadow-md rounded-md border border-gray-200/50 dark:border-gray-800/50">
               {!isBlog ? (
                 <div className="grid grid-cols-1">
