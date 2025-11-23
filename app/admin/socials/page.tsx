@@ -15,6 +15,12 @@ const SocialsPage: React.FC = () => {
   const [socials, setSocials] = useState<Social[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [newSocial, setNewSocial] = useState<{ title: string; link: string }>({
+    title: "",
+    link: "",
+  });
+  const [savingNew, setSavingNew] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -111,13 +117,50 @@ const SocialsPage: React.FC = () => {
     }
   };
 
-  const addSocial = () => {
-    const newSocial = {
-      id: `temp-${uuidv4()}`, // Temporary ID for new socials
-      title: "New Social",
-      link: "",
-    };
-    setSocials([...socials, newSocial]);
+  const openAddModal = () => {
+    setNewSocial({ title: "", link: "" });
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setNewSocial({ title: "", link: "" });
+  };
+
+  const handleSaveNewSocial = async () => {
+    // Validation
+    if (!newSocial.title.trim() || !newSocial.link.trim()) {
+      alert("Please fill in both title and link fields");
+      return;
+    }
+
+    setSavingNew(true);
+    try {
+      const res = await fetch("/api/socials", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newSocial.title.trim(),
+          link: newSocial.link.trim(),
+          order: socials.length,
+        }),
+      });
+
+      if (res.ok) {
+        const savedSocial = await res.json();
+        setSocials([...socials, savedSocial]);
+        closeModal();
+        alert("Social link added successfully!");
+      } else {
+        const errorData = await res.json();
+        alert(`Failed to create social: ${errorData.error || "Unknown error"}`);
+      }
+    } catch (error) {
+      console.error("Error creating social:", error);
+      alert("Error creating social");
+    } finally {
+      setSavingNew(false);
+    }
   };
 
   const updateSocial = (index: number, field: string, value: string) => {
@@ -176,7 +219,7 @@ const SocialsPage: React.FC = () => {
         </div>
         <div className="flex gap-4">
           <button
-            onClick={addSocial}
+            onClick={openAddModal}
             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
           >
             + Add Social Link
@@ -190,6 +233,88 @@ const SocialsPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Add Social Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Add Social Link
+                </h2>
+                <button
+                  onClick={closeModal}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Title <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newSocial.title}
+                    onChange={(e) =>
+                      setNewSocial({ ...newSocial, title: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="e.g., Instagram, TikTok, Email"
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Link <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newSocial.link}
+                    onChange={(e) =>
+                      setNewSocial({ ...newSocial, link: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={closeModal}
+                  disabled={savingNew}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveNewSocial}
+                  disabled={savingNew}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {savingNew ? "Saving..." : "Save"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         {socials.map((social, index) => (
