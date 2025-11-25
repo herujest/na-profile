@@ -7,10 +7,10 @@ WORKDIR /app
 # Copy package files
 COPY package.json yarn.lock* package-lock.json* ./
 
-# Install dependencies
+# Install dependencies (skip postinstall scripts - we'll run prisma generate in builder stage)
 RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci; \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile --ignore-scripts; \
+  elif [ -f package-lock.json ]; then npm ci --ignore-scripts; \
   else echo "Lockfile not found." && exit 1; \
   fi
 
@@ -35,7 +35,7 @@ ENV NODE_ENV=production
 RUN rm -rf node_modules/.prisma && npx prisma generate
 
 # Build Next.js application
-RUN yarn build
+RUN npm run build || yarn build
 
 # Stage 3: Runner
 FROM node:18-alpine AS runner
@@ -51,41 +51,31 @@ RUN apk add --no-cache curl
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy necessary files from builder
+# Copy standalone build from builder (includes minimal server and dependencies)
+# Standalone output creates a self-contained server in .next/standalone
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+# Copy static files (standalone doesn't include static assets)
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy public folder (standalone doesn't include it)
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
-# Copy Next.js build files
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-
-# Copy styles folder (CSS files)
+# Copy additional runtime files needed
 COPY --from=builder --chown=nextjs:nodejs /app/styles ./styles
-
-# Copy data folder (JSON files used at runtime)
-COPY --from=builder --chown=nextjs:nodejs /app/data ./data
-
-# Copy _posts folder (blog markdown files)
-COPY --from=builder --chown=nextjs:nodejs /app/_posts ./_posts
-
-# Copy assets folder
+COPY --from=builder --chown=nextjs:nodejs /app/lib/data ./lib/data
+COPY --from=builder --chown=nextjs:nodejs /app/app/content ./app/content
 COPY --from=builder --chown=nextjs:nodejs /app/assets ./assets
-
-# Copy webpack folder (for GSAP mock)
 COPY --from=builder --chown=nextjs:nodejs /app/webpack ./webpack
 
-# Copy config files needed at runtime
-COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./next.config.js
-COPY --from=builder --chown=nextjs:nodejs /app/tailwind.config.js ./tailwind.config.js
-COPY --from=builder --chown=nextjs:nodejs /app/postcss.config.js ./postcss.config.js
-
-# Copy Prisma files
+# Copy Prisma files (needed for runtime - standalone may not include them properly)
+# Check if they exist in standalone first, if not copy from builder
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
-# Copy package.json and node_modules (needed for Next.js to run)
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+# Copy startup script
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/start.sh ./scripts/start.sh
+RUN chmod +x ./scripts/start.sh
 
 USER nextjs
 
@@ -94,5 +84,5 @@ EXPOSE 5175
 ENV PORT=5175
 ENV HOSTNAME="0.0.0.0"
 
-# Run migrations and start the app
-CMD ["sh", "-c", "npx prisma migrate deploy && node_modules/.bin/next start -p 5175"]
+# Run migrations and start the app using startup script
+CMD ["./scripts/start.sh"]

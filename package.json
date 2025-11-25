@@ -8,10 +8,14 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",
-    "docker:build": "./scripts/docker-build.sh latest --local",
-    "docker:build:local": "./scripts/docker-build.sh latest --local",
-    "docker:build:push": "./scripts/docker-build.sh latest --push",
-    "docker:build:push:amd": "./scripts/docker-build.sh latest --push-amd"
+    "migrate:deploy": "prisma migrate deploy",
+    "migrate:status": "prisma migrate status",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
+    "docker:build": "./scripts/docker-build.sh 2.1.1 --local",
+    "docker:build:local": "./scripts/docker-build.sh 2.1.1 --local",
+    "docker:build:push": "./scripts/docker-build.sh 2.1.1 --push",
+    "docker:build:push:amd": "./scripts/docker-build.sh 2.1.1 --push-amd"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.723.0",

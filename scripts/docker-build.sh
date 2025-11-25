@@ -36,12 +36,12 @@ if [ "$MODE" == "--local" ]; then
 elif [ "$MODE" == "--push" ]; then
   echo "📦 Building for platforms: linux/amd64, linux/arm64"
   echo "📤 Pushing multi-arch image"
-  BUILD_CMD="docker buildx build --platform linux/amd64,linux/arm64 -t ${FULL_IMAGE} --push"
+  BUILD_CMD="docker buildx build --platform linux/amd64,linux/arm64 -t ${FULL_IMAGE} --push --provenance=false --sbom=false"
   PUSH_MODE=true
 elif [ "$MODE" == "--push-amd" ]; then
   echo "📦 Building for linux/amd64 ONLY (recommended for VPS)"
   echo "📤 Pushing amd64 image to registry"
-  BUILD_CMD="docker buildx build --platform linux/amd64 -t ${FULL_IMAGE} --push"
+  BUILD_CMD="docker buildx build --platform linux/amd64 -t ${FULL_IMAGE} --push --provenance=false --sbom=false"
   PUSH_MODE=true
 else
   echo "⚠️  Unknown mode. Using local build."

@@ -18,6 +18,8 @@ const nextConfig = {
     // Optimize for Next.js 14
     optimizePackageImports: ["@headlessui/react", "framer-motion"],
   },
+  // Enable standalone output for smaller Docker images
+  output: "standalone",
   images: {
     // Allow images from external domains (R2/CDN)
     remotePatterns: [
