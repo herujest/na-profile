@@ -30,6 +30,9 @@ COPY . .
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+# Provide a dummy DATABASE_URL during build to allow Prisma Client to initialize
+# The actual DATABASE_URL will be provided at runtime
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
 
 # Remove existing Prisma Client if exists and generate new one
 RUN rm -rf node_modules/.prisma && npx prisma generate
@@ -39,6 +42,10 @@ RUN npm run build || yarn build
 
 # Stage 3: Runner
 FROM node:18-alpine AS runner
+# Accept build version as build argument
+ARG BUILD_VERSION
+LABEL version="${BUILD_VERSION}"
+
 WORKDIR /app
 
 ENV NODE_ENV=production
