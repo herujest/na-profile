@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'error';
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import PortfolioCard from "@/components/PortfolioCard";

@@ -1,6 +1,11 @@
 #!/bin/sh
 set -e
 
+# Set npm cache directory to a writable location (avoid permission issues)
+export npm_config_cache=/tmp/.npm
+export NPM_CONFIG_CACHE=/tmp/.npm
+mkdir -p /tmp/.npm
+
 echo "🔧 Generating Prisma Client..."
 # Generate Prisma Client at runtime to avoid Docker build issues
 # This is necessary because Prisma generation fails during Docker builds with assertion errors

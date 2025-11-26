@@ -1,6 +1,8 @@
 import BlogClient from "./BlogClient";
 import { getAllPosts } from "@/lib/api";
 
+export const dynamic = 'error';
+
 interface BlogPost {
   slug: string;
   title: string;

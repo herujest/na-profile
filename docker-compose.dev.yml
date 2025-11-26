@@ -43,6 +43,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+      args:
+        - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres-dev:5432/${POSTGRES_DB:-nisa_profile_dev}?connection_limit=10&pool_timeout=20
     image: registry.gigsnow.in/nisa-profile:${VERSION:-latest}-dev
     ports:
       - "${APP_PORT:-3001}:3001"

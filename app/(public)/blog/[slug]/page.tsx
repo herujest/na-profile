@@ -2,6 +2,8 @@ import { getPostBySlug, getAllPosts } from "@/lib/api";
 import type { Metadata } from "next";
 import BlogPostClient from "./BlogPostClient";
 
+export const dynamic = 'error';
+
 interface BlogPost {
   date: string;
   slug: string;

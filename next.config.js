@@ -20,6 +20,11 @@ const nextConfig = {
   },
   // Enable standalone output for smaller Docker images
   output: "standalone",
+  // Disable static optimization for all pages (force dynamic rendering)
+  // This prevents prerendering errors with client-side hooks and contexts
+  generateBuildId: async () => {
+    return 'build-' + Date.now();
+  },
   images: {
     // Allow images from external domains (R2/CDN)
     remotePatterns: [

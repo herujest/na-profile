@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'error';
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";

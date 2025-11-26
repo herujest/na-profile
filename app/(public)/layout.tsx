@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'error';
+
 import { MainLayout } from "@/components/layouts";
 import { ScrollProvider, useScroll } from "./ScrollContext";
 import { useEffect, useState } from "react";
