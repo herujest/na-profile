@@ -4,6 +4,9 @@ import { cookies } from "next/headers";
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "nisaaulia";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "thunderbolt";
 
+// Mark as dynamic since we use cookies
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();

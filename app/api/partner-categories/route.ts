@@ -47,13 +47,25 @@ export async function POST(req: NextRequest) {
         .replace(/^-+|-+$/g, "");
 
     // Check if slug already exists
-    const existing = await prisma.partnerCategory.findUnique({
+    const existingBySlug = await prisma.partnerCategory.findUnique({
       where: { slug: categorySlug },
     });
 
-    if (existing) {
+    if (existingBySlug) {
       return NextResponse.json(
         { error: "Slug already exists" },
+        { status: 400 }
+      );
+    }
+
+    // Check if name already exists
+    const existingByName = await prisma.partnerCategory.findUnique({
+      where: { name: name.trim() },
+    });
+
+    if (existingByName) {
+      return NextResponse.json(
+        { error: "Category name already exists" },
         { status: 400 }
       );
     }
@@ -70,13 +82,33 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error("Error creating partner category:", error);
     if (error.code === "P2002") {
+      // Prisma unique constraint violation
+      const target = error.meta?.target;
+      if (Array.isArray(target)) {
+        if (target.includes("slug")) {
+          return NextResponse.json(
+            { error: "Slug already exists" },
+            { status: 400 }
+          );
+        }
+        if (target.includes("name")) {
+          return NextResponse.json(
+            { error: "Category name already exists" },
+            { status: 400 }
+          );
+        }
+      }
       return NextResponse.json(
         { error: "Category name or slug already exists" },
         { status: 400 }
       );
     }
+    // Return more detailed error in development
+    const errorMessage = process.env.NODE_ENV === "development" 
+      ? error?.message || "Failed to create partner category"
+      : "Failed to create partner category";
     return NextResponse.json(
-      { error: "Failed to create partner category" },
+      { error: errorMessage, details: process.env.NODE_ENV === "development" ? error?.stack : undefined },
       { status: 500 }
     );
   }

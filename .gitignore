@@ -32,8 +32,11 @@ yarn-error.log*
 .env*.local
 .env
 !.env.example
+.env.development
 .env.production
 .env.production.local
+# Allow template files to be tracked
+!env.*.template
 
 # vercel
 .vercel

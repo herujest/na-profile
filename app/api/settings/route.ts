@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAuthenticated } from "@/lib/auth";
 
+// Mark as dynamic since we use database
+export const dynamic = 'force-dynamic';
+
 // GET /api/settings - Get site settings
 export async function GET(req: NextRequest) {
   try {

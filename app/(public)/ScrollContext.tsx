@@ -41,7 +41,11 @@ export const ScrollProvider: React.FC<{
   );
 };
 
-export const useScroll = () => useContext(ScrollContext);
+export const useScroll = () => {
+  const context = useContext(ScrollContext);
+  // Return context or empty object to prevent null errors during SSR
+  return context || {};
+};
 
 export const useSetScrollHandlers = () => {
   const { setHandlers } = useScroll();

@@ -1,0 +1,84 @@
+version: "3.8"
+
+services:
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: nisa-profile-db-dev
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-nisa_profile_dev}
+      # PostgreSQL performance optimizations
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    command: >
+      postgres
+      -c max_connections=50
+      -c shared_buffers=128MB
+      -c effective_cache_size=512MB
+      -c maintenance_work_mem=32MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=8MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c work_mem=2MB
+      -c min_wal_size=512MB
+      -c max_wal_size=2GB
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - nisa-network-dev
+
+  nisa-profile-dev:
+    container_name: nisa-profile-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: registry.gigsnow.in/nisa-profile:${VERSION:-latest}-dev
+    ports:
+      - "${APP_PORT:-3001}:3001"
+    environment:
+      - NODE_ENV=development
+      # Add connection pool parameters to DATABASE_URL
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres-dev:5432/${POSTGRES_DB:-nisa_profile_dev}?connection_limit=10&pool_timeout=20
+      - NEXT_TELEMETRY_DISABLED=1
+      # Admin Authentication
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      # R2/S3 Configuration
+      - R2_ENDPOINT=${R2_ENDPOINT}
+      - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
+      - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}
+      - R2_BUCKET_NAME=${R2_BUCKET_NAME}
+      - R2_PUBLIC_URL=${R2_PUBLIC_URL}
+      - NEXT_PUBLIC_R2_PUBLIC_BASE=${NEXT_PUBLIC_R2_PUBLIC_BASE:-${R2_PUBLIC_URL}}
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - nisa-network-dev
+
+networks:
+  nisa-network-dev:
+    driver: bridge
+
+volumes:
+  postgres_dev_data:
+    driver: local
+

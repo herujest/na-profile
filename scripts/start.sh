@@ -1,6 +1,17 @@
 #!/bin/sh
 set -e
 
+echo "🔧 Generating Prisma Client..."
+# Generate Prisma Client at runtime to avoid Docker build issues
+# This is necessary because Prisma generation fails during Docker builds with assertion errors
+npx prisma generate --schema=./prisma/schema.prisma || {
+  echo "⚠️  Prisma generation failed, trying with yarn..."
+  yarn prisma generate --schema=./prisma/schema.prisma || {
+    echo "❌ Prisma generation failed with both npm and yarn"
+    exit 1
+  }
+}
+
 echo "🔍 Checking Prisma migration status..."
 
 # Mark failed migration as rolled back if it exists

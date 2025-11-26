@@ -9,10 +9,11 @@ import type { ReactNode } from "react";
 function PublicLayoutContent({ children }: { children: ReactNode }) {
   const scrollContext = useScroll();
   const pathname = usePathname();
+  // Initialize with empty handlers to prevent null errors during SSR
   const [handlers, setHandlers] = useState({
-    handleWorkScroll: scrollContext?.handleWorkScroll,
-    handleAboutScroll: scrollContext?.handleAboutScroll,
-    handleContactScroll: scrollContext?.handleContactScroll,
+    handleWorkScroll: scrollContext?.handleWorkScroll || undefined,
+    handleAboutScroll: scrollContext?.handleAboutScroll || undefined,
+    handleContactScroll: scrollContext?.handleContactScroll || undefined,
   });
 
   // Detect if current page is a blog page

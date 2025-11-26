@@ -3,6 +3,9 @@ import { cookies } from "next/headers";
 
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "nisaaulia";
 
+// Mark as dynamic since we use cookies
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const cookieStore = await cookies();
