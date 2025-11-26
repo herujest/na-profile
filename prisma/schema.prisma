@@ -11,15 +11,56 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model PartnerCategory {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  slug      String    @unique
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  partners  Partner[] 
+}
+
+model PartnerRank {
+  id          String   @id @default(uuid())
+  name        String   // e.g. "Platinum", "Gold", "Silver", "Bronze"
+  slug        String   @unique
+  description String?
+  weight      Float    @default(0) // optional, for score calculation
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  partners    Partner[] 
+}
+
+model PartnerSocial {
+  id        String   @id @default(uuid())
+  partner   Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  partnerId String
+  platform  String   // e.g. "instagram", "whatsapp", "tiktok", "facebook"
+  handle    String
+  url       String?
+  order     Int      @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([partnerId])
+}
+
 model Partner {
-  id                 String    @id @default(uuid())
+  id                 String            @id @default(uuid())
   name               String
-  category           String      // MUA, Photographer, Videographer, Stylist, Wardrobe, etc.
+  categoryLegacy     String?           // Legacy field - kept for backward compatibility (deprecated)
+  categoryId         String?           // FK ke PartnerCategory (nullable)
+  category           PartnerCategory?  @relation(fields: [categoryId], references: [id])
   description        String?
   location           String?
   
-  whatsapp           String?
-  instagram          String?
+  whatsapp           String?           // Legacy - kept for backward compatibility
+  instagram          String?           // Legacy - kept for backward compatibility
   email              String?
 
   priceRange         String?     // ex: "1.5jt – 3jt"
@@ -33,8 +74,18 @@ model Partner {
   internalRank       Float       @default(0)   // for sorting (not displayed)
   manualScore        Float       @default(0)   // Manual score 0-5 for rank calculation
 
+  rankId             String?           // FK ke PartnerRank
+  rank               PartnerRank?      @relation(fields: [rankId], references: [id])
+
+  socials            PartnerSocial[]
+
+  portfolios         Portfolio[]       @relation("PortfolioPartner") // relasi 1-N
+
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
+
+  @@index([categoryId])
+  @@index([rankId])
 }
 
 model Portfolio {
@@ -49,11 +100,18 @@ model Portfolio {
   featured      Boolean   @default(false)
   order         Int       @default(0)   // For custom ordering
   
+  partnerId     String    // mandatory: every portfolio has a partner
+  partner       Partner   @relation("PortfolioPartner", fields: [partnerId], references: [id])
+
+  datePublished DateTime? // gunakan ini untuk menghitung collaboration berdasarkan tanggal
+  
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   @@index([slug])
   @@index([featured])
+  @@index([partnerId])
+  @@index([datePublished])
 }
 
 model SiteSettings {

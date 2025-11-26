@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAuthenticated } from "@/lib/auth";
+import { updatePortfolio, deletePortfolio } from "@/lib/portfolio-utils";
 
 // Helper function to transform image URLs to use NEXT_PUBLIC_R2_PUBLIC_BASE
 function transformImageUrls(images: string[]): string[] {
@@ -77,6 +78,21 @@ export async function GET(
 
     const portfolioItem = await prisma.portfolio.findUnique({
       where: { slug },
+      include: {
+        partner: {
+          select: {
+            id: true,
+            name: true,
+            avatarUrl: true,
+            category: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!portfolioItem) {
@@ -128,6 +144,8 @@ export async function PUT(
       brands,
       featured,
       order,
+      partnerId, // Can update partner
+      datePublished,
     } = body;
 
     // Check if portfolio exists
@@ -142,32 +160,21 @@ export async function PUT(
       );
     }
 
-    // Update portfolio
-    const portfolioItem = await prisma.portfolio.update({
-      where: { slug },
-      data: {
-        ...(title !== undefined && { title: title.trim() }),
-        ...(summary !== undefined && {
-          summary: summary?.trim() || null,
-        }),
-        ...(images !== undefined && {
-          images: Array.isArray(images) ? images : [],
-        }),
-        ...(tags !== undefined && {
-          tags: Array.isArray(tags) ? tags : [],
-        }),
-        ...(categories !== undefined && {
-          categories: Array.isArray(categories) ? categories : [],
-        }),
-        ...(brands !== undefined && {
-          brands: Array.isArray(brands) ? brands : [],
-        }),
-        ...(featured !== undefined && { featured: featured === true }),
-        ...(order !== undefined && {
-          order: typeof order === "number" ? order : 0,
-        }),
-      },
-    });
+    // Prepare update data
+    const updateData: any = {};
+    if (title !== undefined) updateData.title = title.trim();
+    if (summary !== undefined) updateData.summary = summary?.trim() || null;
+    if (images !== undefined) updateData.images = Array.isArray(images) ? images : [];
+    if (tags !== undefined) updateData.tags = Array.isArray(tags) ? tags : [];
+    if (categories !== undefined) updateData.categories = Array.isArray(categories) ? categories : [];
+    if (brands !== undefined) updateData.brands = Array.isArray(brands) ? brands : [];
+    if (featured !== undefined) updateData.featured = featured === true;
+    if (order !== undefined) updateData.order = typeof order === "number" ? order : 0;
+    if (partnerId !== undefined) updateData.partnerId = partnerId.trim();
+    if (datePublished !== undefined) updateData.datePublished = datePublished || null;
+
+    // Update portfolio using utility function (handles collaborationCount updates)
+    const portfolioItem = await updatePortfolio(existing.id, updateData);
 
     console.log("[PORTFOLIO API] Portfolio updated:", {
       id: portfolioItem.id,
@@ -221,10 +228,8 @@ export async function DELETE(
       );
     }
 
-    // Delete portfolio
-    await prisma.portfolio.delete({
-      where: { slug },
-    });
+    // Delete portfolio using utility function (handles collaborationCount decrement)
+    await deletePortfolio(existing.id);
 
     console.log("[PORTFOLIO API] Portfolio deleted:", {
       slug,

@@ -1,15 +1,27 @@
 import React from "react";
 import Image from "next/image";
 
+interface PartnerCategory {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface Partner {
   id: string;
   name: string;
-  category: string;
+  category?: string; // Legacy
+  categoryId?: string;
+  categoryRelation?: PartnerCategory;
   location?: string;
   priceRange?: string;
   tags: string[];
   collaborationCount: number;
   avatarUrl?: string;
+  rank?: {
+    id: string;
+    name: string;
+  };
 }
 
 interface PartnerCardProps {
@@ -21,12 +33,19 @@ const PartnerCard: React.FC<PartnerCardProps> = ({ partner, onClick }) => {
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
       MUA: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200",
-      Photographer: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-      Videographer: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
-      Stylist: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-      Wardrobe: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+      Photographer:
+        "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+      Videographer:
+        "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+      Stylist:
+        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+      Wardrobe:
+        "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
     };
-    return colors[category] || "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
+    return (
+      colors[category] ||
+      "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+    );
   };
 
   return (
@@ -65,11 +84,16 @@ const PartnerCard: React.FC<PartnerCardProps> = ({ partner, onClick }) => {
         <div className="mb-3">
           <span
             className={`inline-block text-xs font-medium px-3 py-1 rounded-full ${getCategoryColor(
-              partner.category
+              partner.categoryRelation?.name || partner.category || "Others"
             )}`}
           >
-            {partner.category}
+            {partner.categoryRelation?.name || partner.category || "Others"}
           </span>
+          {partner.rank && (
+            <span className="ml-2 inline-block text-xs font-medium px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+              {partner.rank.name}
+            </span>
+          )}
         </div>
 
         {/* Location */}
@@ -140,4 +164,3 @@ const PartnerCard: React.FC<PartnerCardProps> = ({ partner, onClick }) => {
 };
 
 export default PartnerCard;
-

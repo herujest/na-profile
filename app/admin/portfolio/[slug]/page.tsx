@@ -6,6 +6,16 @@ import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 import { uploadImage } from "@/lib/upload";
 
+interface Partner {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  category?: {
+    id: string;
+    name: string;
+  };
+}
+
 interface PortfolioItem {
   id: string;
   title: string;
@@ -16,6 +26,9 @@ interface PortfolioItem {
   categories?: string[];
   brands?: string[];
   featured?: boolean;
+  partnerId?: string;
+  partner?: Partner;
+  datePublished?: string;
 }
 
 interface PortfolioEditPageProps {
@@ -56,7 +69,10 @@ const PortfolioEditPage: React.FC<PortfolioEditPageProps> = ({ params }) => {
     categories: [],
     brands: [],
     featured: false,
+    partnerId: "",
+    datePublished: "",
   });
+  const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [imageInput, setImageInput] = useState("");
@@ -87,6 +103,8 @@ const PortfolioEditPage: React.FC<PortfolioEditPageProps> = ({ params }) => {
         categories: [],
         brands: [],
         featured: false,
+        partnerId: "",
+        datePublished: "",
       });
       setTagsInput("");
       setCategoriesInput("");
@@ -95,6 +113,7 @@ const PortfolioEditPage: React.FC<PortfolioEditPageProps> = ({ params }) => {
     } else {
       fetchPortfolioItem();
     }
+    fetchPartners();
 
     // Cleanup: revoke object URLs when component unmounts
     return () => {
@@ -133,12 +152,28 @@ const PortfolioEditPage: React.FC<PortfolioEditPageProps> = ({ params }) => {
     setPreviewImageIndex(0);
   }, [allPreviewImages.length]);
 
+  const fetchPartners = async () => {
+    try {
+      const res = await fetch("/api/partners");
+      if (res.ok) {
+        const data = await res.json();
+        setPartners(Array.isArray(data) ? data : data.partners || []);
+      }
+    } catch (error) {
+      console.error("Error fetching partners:", error);
+    }
+  };
+
   const fetchPortfolioItem = async () => {
     try {
       const res = await fetch(`/api/portfolio/${slug}`);
       if (res.ok) {
         const item = await res.json();
-        setPortfolioItem(item);
+        setPortfolioItem({
+          ...item,
+          partnerId: item.partnerId || item.partner?.id || "",
+          datePublished: item.datePublished ? new Date(item.datePublished).toISOString().split('T')[0] : "",
+        });
         // Initialize input values from array fields
         setTagsInput((item.tags || []).join(", "));
         setCategoriesInput((item.categories || []).join(", "));
@@ -233,6 +268,14 @@ const PortfolioEditPage: React.FC<PortfolioEditPageProps> = ({ params }) => {
       return;
     }
 
+    if (!portfolioItem.partnerId) {
+      console.warn(
+        `${requestId} [FRONTEND] Validation failed: Partner is required`
+      );
+      alert("Please select a partner");
+      return;
+    }
+
     setSaving(true);
     setUploading(true);
     try {
@@ -303,6 +346,8 @@ const PortfolioEditPage: React.FC<PortfolioEditPageProps> = ({ params }) => {
           ...itemWithoutSlug,
           slug: finalSlug,
           images: allImages,
+          partnerId: portfolioItem.partnerId,
+          datePublished: portfolioItem.datePublished || null,
         };
 
         console.log(`${requestId} [FRONTEND] Step 3: Creating portfolio...`, {
@@ -374,6 +419,8 @@ const PortfolioEditPage: React.FC<PortfolioEditPageProps> = ({ params }) => {
         const updateData = {
           ...itemWithoutSlug,
           images: allImages,
+          partnerId: portfolioItem.partnerId,
+          datePublished: portfolioItem.datePublished || null,
         };
 
         const updateRes = await fetch(`/api/portfolio/${finalSlug}`, {
@@ -622,6 +669,73 @@ const PortfolioEditPage: React.FC<PortfolioEditPageProps> = ({ params }) => {
                     </p>
                   </div>
                 )}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    Partner <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    required
+                    value={portfolioItem.partnerId || ""}
+                    onChange={(e) =>
+                      setPortfolioItem({
+                        ...portfolioItem,
+                        partnerId: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  >
+                    <option value="">-- Select Partner --</option>
+                    {partners.map((partner) => (
+                      <option key={partner.id} value={partner.id}>
+                        {partner.name} {partner.category?.name ? `(${partner.category.name})` : ""}
+                      </option>
+                    ))}
+                  </select>
+                  {portfolioItem.partnerId && (
+                    <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      {(() => {
+                        const selectedPartner = partners.find(p => p.id === portfolioItem.partnerId);
+                        return selectedPartner ? (
+                          <div className="flex items-center gap-3">
+                            {selectedPartner.avatarUrl && (
+                              <img src={selectedPartner.avatarUrl} alt={selectedPartner.name} className="w-12 h-12 rounded-full object-cover" />
+                            )}
+                            <div>
+                              <p className="font-medium text-gray-900 dark:text-white">{selectedPartner.name}</p>
+                              {selectedPartner.category && (
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{selectedPartner.category.name}</p>
+                              )}
+                            </div>
+                          </div>
+                        ) : null;
+                      })()}
+                    </div>
+                  )}
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Every portfolio must be associated with a partner
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    Date Published
+                  </label>
+                  <input
+                    type="date"
+                    value={portfolioItem.datePublished || ""}
+                    onChange={(e) =>
+                      setPortfolioItem({
+                        ...portfolioItem,
+                        datePublished: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Used for collaboration count calculation
+                  </p>
+                </div>
+
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                     Summary

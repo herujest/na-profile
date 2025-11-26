@@ -1,17 +1,39 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import PartnerCard from "@/components/PartnerCard";
-import PartnerDetail from "@/components/PartnerDetail";
+
+interface PartnerCategory {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+interface PartnerRank {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+interface PartnerSocial {
+  id: string;
+  platform: string;
+  handle: string;
+  url?: string;
+  order: number;
+}
 
 interface Partner {
   id: string;
   name: string;
-  category: string;
+  category?: string; // Legacy
+  categoryId?: string;
+  categoryRelation?: PartnerCategory;
   description?: string;
   location?: string;
-  whatsapp?: string;
-  instagram?: string;
+  whatsapp?: string; // Legacy
+  instagram?: string; // Legacy
   email?: string;
   priceRange?: string;
   portfolioUrl?: string;
@@ -20,13 +42,19 @@ interface Partner {
   collaborationCount: number;
   notes?: string;
   internalRank?: number;
+  rankId?: string;
+  rank?: PartnerRank;
+  socials?: PartnerSocial[];
 }
 
 const Collaboration: React.FC = () => {
+  const router = useRouter();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
+  const [availableCategories, setAvailableCategories] = useState<string[]>([
+    "All",
+  ]);
 
   const categories = [
     "All",
@@ -46,13 +74,44 @@ const Collaboration: React.FC = () => {
   const fetchPartners = async () => {
     try {
       setLoading(true);
-      const categoryParam =
-        selectedCategory === "All" ? "" : `?category=${selectedCategory}`;
+      // Fetch categories first to build filter
+      const categoriesRes = await fetch("/api/partner-categories");
+      let categoryList: PartnerCategory[] = [];
+      if (categoriesRes.ok) {
+        categoryList = await categoriesRes.json();
+      }
+
+      // Build category filter
+      let categoryParam = "";
+      if (selectedCategory !== "All") {
+        const category = categoryList.find((c) => c.name === selectedCategory);
+        if (category) {
+          categoryParam = `?categoryId=${category.id}`;
+        } else if (selectedCategory === "Others") {
+          // For "Others", we'll filter client-side
+          categoryParam = "";
+        } else {
+          // Legacy category support
+          categoryParam = `?category=${selectedCategory}`;
+        }
+      }
+
       const res = await fetch(`/api/partners${categoryParam}`);
       if (res.ok) {
         const data = await res.json();
         // Handle both formats: array or { partners }
-        setPartners(Array.isArray(data) ? data : data.partners || []);
+        let fetchedPartners = Array.isArray(data) ? data : data.partners || [];
+
+        // Filter for "Others" category
+        if (selectedCategory === "Others") {
+          const mainCategoryNames = categoryList.map((c) => c.name);
+          fetchedPartners = fetchedPartners.filter((p: Partner) => {
+            const categoryName = p.categoryRelation?.name || p.category;
+            return categoryName && !mainCategoryNames.includes(categoryName);
+          });
+        }
+
+        setPartners(fetchedPartners);
       }
     } catch (error) {
       console.error("Failed to fetch partners:", error);
@@ -61,17 +120,33 @@ const Collaboration: React.FC = () => {
     }
   };
 
-  const filteredPartners =
-    selectedCategory === "All"
-      ? partners
-      : partners.filter((p) => p.category === selectedCategory);
+  // Fetch categories for filter buttons
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/partner-categories");
+        if (res.ok) {
+          const data = await res.json();
+          const categoryNames = data.map((c: PartnerCategory) => c.name);
+          setAvailableCategories(["All", ...categoryNames, "Others"]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  const filteredPartners = partners;
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading partners...</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            Loading partners...
+          </p>
         </div>
       </div>
     );
@@ -81,7 +156,7 @@ const Collaboration: React.FC = () => {
     <div className="w-full">
       {/* Category Filter */}
       <div className="flex flex-wrap gap-3 mb-10">
-        {categories.map((category) => (
+        {availableCategories.map((category) => (
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
@@ -108,37 +183,16 @@ const Collaboration: React.FC = () => {
           {filteredPartners.map((partner) => (
             <div
               key={partner.id}
-              onClick={() => setSelectedPartner(partner)}
+              onClick={() => router.push(`/partner/${partner.id}`)}
               className="cursor-pointer"
             >
               <PartnerCard
-                id={partner.id}
-                name={partner.name}
-                category={partner.category}
-                description={partner.description}
-                location={partner.location}
-                whatsapp={partner.whatsapp}
-                instagram={partner.instagram}
-                email={partner.email}
-                priceRange={partner.priceRange}
-                portfolioUrl={partner.portfolioUrl}
-                avatarUrl={partner.avatarUrl}
-                tags={partner.tags}
-                collaborationCount={partner.collaborationCount}
-                notes={partner.notes}
-                internalRank={partner.internalRank}
+                partner={partner}
+                onClick={() => router.push(`/partner/${partner.id}`)}
               />
             </div>
           ))}
         </div>
-      )}
-
-      {/* Partner Detail Modal */}
-      {selectedPartner && (
-        <PartnerDetail
-          partner={selectedPartner}
-          onClose={() => setSelectedPartner(null)}
-        />
       )}
     </div>
   );

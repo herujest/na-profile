@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAuthenticated } from "@/lib/auth";
 import { v4 as uuidv4 } from "uuid";
+import { createPortfolio } from "@/lib/portfolio-utils";
 
 // Helper function to transform image URLs to use NEXT_PUBLIC_R2_PUBLIC_BASE
 function transformImageUrls(images: string[]): string[] {
@@ -136,6 +137,21 @@ export async function GET(req: NextRequest) {
     try {
       const portfolioItems = await prisma.portfolio.findMany({
         where,
+        include: {
+          partner: {
+            select: {
+              id: true,
+              name: true,
+              avatarUrl: true,
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
         orderBy: [{ order: "asc" }, { createdAt: "desc" }],
       });
 
@@ -182,6 +198,8 @@ export async function POST(req: NextRequest) {
       brands,
       featured,
       order,
+      partnerId, // REQUIRED: every portfolio must have a partner
+      datePublished,
       slug: providedSlug, // Slug can be provided (from generate-slug endpoint)
     } = body;
 
@@ -189,6 +207,13 @@ export async function POST(req: NextRequest) {
     if (!title || typeof title !== "string" || title.trim().length === 0) {
       return NextResponse.json(
         { error: "Title is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!partnerId || typeof partnerId !== "string" || partnerId.trim().length === 0) {
+      return NextResponse.json(
+        { error: "Partner ID is required" },
         { status: 400 }
       );
     }
@@ -240,19 +265,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Create portfolio
-    const portfolioItem = await prisma.portfolio.create({
-      data: {
-        title: title.trim(),
-        slug,
-        summary: summary?.trim() || null,
-        images: Array.isArray(images) ? images : [],
-        tags: Array.isArray(tags) ? tags : [],
-        categories: Array.isArray(categories) ? categories : [],
-        brands: Array.isArray(brands) ? brands : [],
-        featured: featured === true,
-        order: typeof order === "number" ? order : 0,
-      },
+    // Create portfolio using utility function (handles collaborationCount increment)
+    const portfolioItem = await createPortfolio({
+      title: title.trim(),
+      slug,
+      partnerId: partnerId.trim(),
+      summary: summary?.trim() || null,
+      images: Array.isArray(images) ? images : [],
+      tags: Array.isArray(tags) ? tags : [],
+      categories: Array.isArray(categories) ? categories : [],
+      brands: Array.isArray(brands) ? brands : [],
+      featured: featured === true,
+      order: typeof order === "number" ? order : 0,
+      datePublished: datePublished || null,
     });
 
     console.log("[PORTFOLIO API] Portfolio created:", {

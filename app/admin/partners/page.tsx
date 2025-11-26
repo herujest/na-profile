@@ -4,10 +4,32 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+interface PartnerSocial {
+  id?: string;
+  platform: string;
+  handle: string;
+  url?: string;
+  order?: number;
+}
+
+interface PartnerCategory {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+interface PartnerRank {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface Partner {
   id: string;
   name: string;
-  category: string;
+  category?: string; // Legacy
+  categoryId?: string;
+  categoryRelation?: PartnerCategory;
   description?: string;
   location?: string;
   whatsapp?: string;
@@ -21,6 +43,9 @@ interface Partner {
   notes?: string;
   internalRank?: number;
   manualScore?: number;
+  rankId?: string;
+  rank?: PartnerRank;
+  socials?: PartnerSocial[];
 }
 
 export default function AdminPartners() {
@@ -29,9 +54,12 @@ export default function AdminPartners() {
   const [loading, setLoading] = useState(true);
   const [editingPartner, setEditingPartner] = useState<Partner | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [categories, setCategories] = useState<PartnerCategory[]>([]);
+  const [ranks, setRanks] = useState<PartnerRank[]>([]);
   const [formData, setFormData] = useState<Partial<Partner>>({
     name: "",
-    category: "MUA",
+    category: "MUA", // Legacy
+    categoryId: "",
     description: "",
     location: "",
     whatsapp: "",
@@ -44,6 +72,8 @@ export default function AdminPartners() {
     collaborationCount: 0,
     notes: "",
     manualScore: 0,
+    rankId: "",
+    socials: [],
   });
 
   useEffect(() => {
@@ -52,7 +82,33 @@ export default function AdminPartners() {
       return;
     }
     fetchPartners();
+    fetchCategories();
+    fetchRanks();
   }, [router]);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("/api/partner-categories");
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(Array.isArray(data) ? data : []);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  const fetchRanks = async () => {
+    try {
+      const res = await fetch("/api/partner-ranks");
+      if (res.ok) {
+        const data = await res.json();
+        setRanks(Array.isArray(data) ? data : []);
+      }
+    } catch (error) {
+      console.error("Error fetching ranks:", error);
+    }
+  };
 
   const fetchPartners = async () => {
     try {
@@ -121,7 +177,8 @@ export default function AdminPartners() {
     setEditingPartner(partner);
     setFormData({
       name: partner.name,
-      category: partner.category,
+      category: partner.category || "", // Legacy
+      categoryId: partner.categoryId || partner.categoryRelation?.id || "",
       description: partner.description || "",
       location: partner.location || "",
       whatsapp: partner.whatsapp || "",
@@ -134,6 +191,8 @@ export default function AdminPartners() {
       collaborationCount: partner.collaborationCount,
       notes: partner.notes || "",
       manualScore: partner.manualScore || 0,
+      rankId: partner.rankId || partner.rank?.id || "",
+      socials: partner.socials || [],
     });
     setShowForm(true);
   };
@@ -143,7 +202,8 @@ export default function AdminPartners() {
     setShowForm(false);
     setFormData({
       name: "",
-      category: "MUA",
+      category: "MUA", // Legacy
+      categoryId: "",
       description: "",
       location: "",
       whatsapp: "",
@@ -156,7 +216,29 @@ export default function AdminPartners() {
       collaborationCount: 0,
       notes: "",
       manualScore: 0,
+      rankId: "",
+      socials: [],
     });
+  };
+
+  const addSocial = () => {
+    setFormData({
+      ...formData,
+      socials: [...(formData.socials || []), { platform: "instagram", handle: "", url: "", order: (formData.socials?.length || 0) }],
+    });
+  };
+
+  const removeSocial = (index: number) => {
+    setFormData({
+      ...formData,
+      socials: formData.socials?.filter((_, i) => i !== index) || [],
+    });
+  };
+
+  const updateSocial = (index: number, field: keyof PartnerSocial, value: string | number) => {
+    const newSocials = [...(formData.socials || [])];
+    newSocials[index] = { ...newSocials[index], [field]: value };
+    setFormData({ ...formData, socials: newSocials });
   };
 
   const addTag = (tag: string) => {
@@ -241,20 +323,49 @@ export default function AdminPartners() {
                       Category *
                     </label>
                     <select
-                      required
-                      value={formData.category}
+                      value={formData.categoryId || ""}
                       onChange={(e) =>
-                        setFormData({ ...formData, category: e.target.value })
+                        setFormData({ ...formData, categoryId: e.target.value || undefined })
                       }
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     >
-                      <option value="MUA">MUA</option>
-                      <option value="Photographer">Photographer</option>
-                      <option value="Videographer">Videographer</option>
-                      <option value="Stylist">Stylist</option>
-                      <option value="Wardrobe">Wardrobe</option>
-                      <option value="Others">Others</option>
+                      <option value="">-- Select Category --</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
                     </select>
+                    <p className="mt-1 text-xs text-gray-500">
+                      <Link href="/admin/partner-categories" className="text-blue-600 hover:underline">
+                        Manage Categories
+                      </Link>
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Rank
+                    </label>
+                    <select
+                      value={formData.rankId || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, rankId: e.target.value || undefined })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                      <option value="">-- No Rank --</option>
+                      {ranks.map((rank) => (
+                        <option key={rank.id} value={rank.id}>
+                          {rank.name}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-xs text-gray-500">
+                      <Link href="/admin/partner-ranks" className="text-blue-600 hover:underline">
+                        Manage Ranks
+                      </Link>
+                    </p>
                   </div>
                 </div>
 
@@ -455,6 +566,58 @@ export default function AdminPartners() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Social Media Links
+                  </label>
+                  <div className="space-y-2">
+                    {formData.socials?.map((social, index) => (
+                      <div key={index} className="flex gap-2 items-end">
+                        <select
+                          value={social.platform}
+                          onChange={(e) => updateSocial(index, "platform", e.target.value)}
+                          className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        >
+                          <option value="instagram">Instagram</option>
+                          <option value="whatsapp">WhatsApp</option>
+                          <option value="tiktok">TikTok</option>
+                          <option value="facebook">Facebook</option>
+                          <option value="twitter">Twitter</option>
+                          <option value="youtube">YouTube</option>
+                        </select>
+                        <input
+                          type="text"
+                          placeholder="Handle/Username"
+                          value={social.handle}
+                          onChange={(e) => updateSocial(index, "handle", e.target.value)}
+                          className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                        <input
+                          type="url"
+                          placeholder="URL (optional)"
+                          value={social.url || ""}
+                          onChange={(e) => updateSocial(index, "url", e.target.value)}
+                          className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeSocial(index)}
+                          className="px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={addSocial}
+                      className="w-full px-3 py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-blue-500 hover:text-blue-600"
+                    >
+                      + Add Social Media
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Internal Notes
                   </label>
                   <textarea
@@ -537,7 +700,7 @@ export default function AdminPartners() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                          {partner.category}
+                          {partner.categoryRelation?.name || partner.category || "-"}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -547,9 +710,9 @@ export default function AdminPartners() {
                         {partner.collaborationCount}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {partner.internalRank
+                        {partner.rank?.name || (partner.internalRank
                           ? `${getRankLabel(partner.internalRank)} (${partner.internalRank.toFixed(1)})`
-                          : "-"}
+                          : "-")}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button

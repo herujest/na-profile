@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isAuthenticated } from "@/lib/auth";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -15,6 +16,28 @@ export async function GET(
 
     const partner = await prisma.partner.findUnique({
       where: { id },
+      include: {
+        category: true,
+        rank: true,
+        socials: {
+          orderBy: { order: "asc" },
+        },
+        portfolios: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            datePublished: true,
+            createdAt: true,
+          },
+          orderBy: { datePublished: "desc" },
+        },
+        _count: {
+          select: {
+            portfolios: true,
+          },
+        },
+      },
     });
 
     if (!partner) {
@@ -34,21 +57,28 @@ export async function GET(
   }
 }
 
-// PATCH /api/partners/[id] - Update partner
+// PATCH /api/partners/[id] - Update partner (admin only)
 export async function PATCH(
   req: NextRequest,
   { params }: RouteContext
 ) {
   try {
+    // Check authentication
+    const authenticated = await isAuthenticated();
+    if (!authenticated) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
     const body = await req.json();
     const {
       name,
-      category,
+      category, // Legacy field
+      categoryId,
       description,
       location,
-      whatsapp,
-      instagram,
+      whatsapp, // Legacy field
+      instagram, // Legacy field
       email,
       priceRange,
       portfolioUrl,
@@ -57,6 +87,8 @@ export async function PATCH(
       notes,
       collaborationCount,
       manualScore,
+      rankId,
+      socials, // Array of { id?, platform, handle, url, order } - if provided, will replace all socials
     } = body;
 
     // Get existing partner to calculate new rank
@@ -80,47 +112,123 @@ export async function PATCH(
       manualScore !== undefined ? manualScore : existingPartner.manualScore;
     const internalRank = newCollaborationCount * 0.5 + newManualScore;
 
-    // Prepare update data
-    const updateData: any = {};
-    if (name !== undefined) updateData.name = name;
-    if (category !== undefined) updateData.category = category;
-    if (description !== undefined) updateData.description = description;
-    if (location !== undefined) updateData.location = location;
-    if (whatsapp !== undefined) updateData.whatsapp = whatsapp;
-    if (instagram !== undefined) updateData.instagram = instagram;
-    if (email !== undefined) updateData.email = email;
-    if (priceRange !== undefined) updateData.priceRange = priceRange;
-    if (portfolioUrl !== undefined) updateData.portfolioUrl = portfolioUrl;
-    if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl;
-    if (tags !== undefined) updateData.tags = tags;
-    if (notes !== undefined) updateData.notes = notes;
-    if (collaborationCount !== undefined)
-      updateData.collaborationCount = collaborationCount;
-    if (manualScore !== undefined) updateData.manualScore = manualScore;
-    updateData.internalRank = internalRank;
+    // Update partner and socials in transaction
+    const partner = await prisma.$transaction(async (tx) => {
+      // Prepare update data
+      const updateData: any = {};
+      if (name !== undefined) updateData.name = name.trim();
+      if (category !== undefined) updateData.categoryLegacy = category || null;
+      if (categoryId !== undefined) updateData.categoryId = categoryId || null;
+      if (description !== undefined) updateData.description = description?.trim() || null;
+      if (location !== undefined) updateData.location = location?.trim() || null;
+      if (whatsapp !== undefined) updateData.whatsapp = whatsapp || null;
+      if (instagram !== undefined) updateData.instagram = instagram || null;
+      if (email !== undefined) updateData.email = email?.trim() || null;
+      if (priceRange !== undefined) updateData.priceRange = priceRange?.trim() || null;
+      if (portfolioUrl !== undefined) updateData.portfolioUrl = portfolioUrl?.trim() || null;
+      if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl?.trim() || null;
+      if (tags !== undefined) updateData.tags = Array.isArray(tags) ? tags : [];
+      if (notes !== undefined) updateData.notes = notes?.trim() || null;
+      if (collaborationCount !== undefined)
+        updateData.collaborationCount = collaborationCount;
+      if (manualScore !== undefined) updateData.manualScore = manualScore;
+      if (rankId !== undefined) updateData.rankId = rankId || null;
+      updateData.internalRank = internalRank;
 
-    const partner = await prisma.partner.update({
-      where: { id },
-      data: updateData,
+      const updatedPartner = await tx.partner.update({
+        where: { id },
+        data: updateData,
+      });
+
+      // Update socials if provided
+      if (Array.isArray(socials)) {
+        // Delete existing socials
+        await tx.partnerSocial.deleteMany({
+          where: { partnerId: id },
+        });
+
+        // Create new socials
+        if (socials.length > 0) {
+          await tx.partnerSocial.createMany({
+            data: socials.map((social: any) => ({
+              partnerId: id,
+              platform: social.platform?.trim() || "",
+              handle: social.handle?.trim() || "",
+              url: social.url?.trim() || null,
+              order: typeof social.order === "number" ? social.order : 0,
+            })),
+          });
+        }
+      }
+
+      // Return partner with relations
+      return await tx.partner.findUnique({
+        where: { id },
+        include: {
+          category: true,
+          rank: true,
+          socials: {
+            orderBy: { order: "asc" },
+          },
+        },
+      });
     });
 
     return NextResponse.json(partner, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error updating partner:", error);
     return NextResponse.json(
-      { error: "Failed to update partner" },
+      {
+        error: "Failed to update partner",
+        details: error?.message,
+      },
       { status: 500 }
     );
   }
 }
 
-// DELETE /api/partners/[id] - Delete partner
+// DELETE /api/partners/[id] - Delete partner (admin only)
 export async function DELETE(
   req: NextRequest,
   { params }: RouteContext
 ) {
   try {
+    // Check authentication
+    const authenticated = await isAuthenticated();
+    if (!authenticated) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
+
+    // Check if partner has portfolios
+    const partner = await prisma.partner.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: {
+            portfolios: true,
+          },
+        },
+      },
+    });
+
+    if (!partner) {
+      return NextResponse.json(
+        { error: "Partner not found" },
+        { status: 404 }
+      );
+    }
+
+    if (partner._count.portfolios > 0) {
+      return NextResponse.json(
+        {
+          error: "Cannot delete partner with existing portfolios",
+          portfolioCount: partner._count.portfolios,
+        },
+        { status: 400 }
+      );
+    }
 
     await prisma.partner.delete({
       where: { id },
