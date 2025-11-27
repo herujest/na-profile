@@ -58,6 +58,7 @@ export default function AdminPartners() {
   const [showForm, setShowForm] = useState(false);
   const [categories, setCategories] = useState<PartnerCategory[]>([]);
   const [ranks, setRanks] = useState<PartnerRank[]>([]);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [formData, setFormData] = useState<Partial<Partner>>({
     name: "",
     category: "MUA", // Legacy
@@ -478,16 +479,93 @@ export default function AdminPartners() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Avatar URL
+                      Avatar (Upload Image or Enter URL)
                     </label>
-                    <input
-                      type="url"
-                      value={formData.avatarUrl}
-                      onChange={(e) =>
-                        setFormData({ ...formData, avatarUrl: e.target.value })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    />
+                    <div className="space-y-2">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          
+                          try {
+                            setUploadingAvatar(true);
+                            
+                            // Use partner name or ID for folder structure
+                            // If creating new partner without name yet, show warning
+                            if (!formData.name && !editingPartner) {
+                              alert("Please enter partner name first before uploading avatar");
+                              setUploadingAvatar(false);
+                              e.target.value = "";
+                              return;
+                            }
+
+                            const uploadFormData = new FormData();
+                            uploadFormData.append("file", file);
+                            uploadFormData.append("partnerId", editingPartner?.id || "");
+                            uploadFormData.append("partnerName", formData.name || "");
+
+                            const res = await fetch("/api/upload-partner-avatar", {
+                              method: "POST",
+                              body: uploadFormData,
+                            });
+
+                            if (!res.ok) {
+                              const error = await res.json();
+                              throw new Error(error.error || "Failed to upload avatar");
+                            }
+
+                            const result = await res.json();
+                            setFormData({ ...formData, avatarUrl: result.publicUrl });
+                            alert("Avatar uploaded successfully!");
+                          } catch (error: any) {
+                            console.error("Error uploading avatar:", error);
+                            alert(`Failed to upload avatar: ${error.message}`);
+                          } finally {
+                            setUploadingAvatar(false);
+                            e.target.value = ""; // Reset input
+                          }
+                        }}
+                        disabled={uploadingAvatar || !formData.name}
+                        className="block w-full text-sm text-gray-500 dark:text-gray-400
+                          file:mr-4 file:py-2 file:px-4
+                          file:rounded-lg file:border-0
+                          file:text-sm file:font-semibold
+                          file:bg-blue-50 file:text-blue-700
+                          hover:file:bg-blue-100
+                          dark:file:bg-blue-900/30 dark:file:text-blue-300
+                          disabled:opacity-50 disabled:cursor-not-allowed"
+                      />
+                      {uploadingAvatar && (
+                        <p className="text-sm text-blue-600 dark:text-blue-400">
+                          Uploading avatar...
+                        </p>
+                      )}
+                      <div className="relative">
+                        <input
+                          type="url"
+                          value={formData.avatarUrl}
+                          onChange={(e) =>
+                            setFormData({ ...formData, avatarUrl: e.target.value })
+                          }
+                          placeholder="Or enter avatar URL directly"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                        {formData.avatarUrl && (
+                          <div className="mt-2">
+                            <img
+                              src={formData.avatarUrl}
+                              alt="Avatar preview"
+                              className="w-20 h-20 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = "none";
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
