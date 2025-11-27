@@ -80,11 +80,15 @@ export async function GET(
       where: { slug },
       include: {
         partner: {
-          select: {
-            id: true,
-            name: true,
-            avatarUrl: true,
+          include: {
             category: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+            rank: {
               select: {
                 id: true,
                 name: true,

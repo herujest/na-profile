@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import RelatedPortfolioCard from "@/components/PortfolioDetail/RelatedPortfolioCard";
 
 interface PartnerCategory {
   id: string;
@@ -528,90 +529,23 @@ const PartnerDetailContent: React.FC<PartnerDetailContentProps> = ({
             {/* Related Portfolios Section */}
             {partner.portfolios && partner.portfolios.length > 0 ? (
               <div className="mb-12 mt-16 pt-12 border-t border-gray-200 dark:border-gray-800">
-                <div className="flex items-center justify-between mb-8">
-                  <div>
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                      Related Portfolios
-                    </h2>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Portfolios featuring {partner.name}
-                    </p>
-                  </div>
-                  <span className="text-lg font-semibold text-gray-500 dark:text-gray-400">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                    Related Works Portfolios with {partner.name}
+                  </h3>
+                  <span className="text-xs font-medium text-gray-400 dark:text-gray-500">
                     {partner.portfolios.length}
                   </span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {partner.portfolios.map((portfolio) => (
-                    <Link
-                      key={portfolio.id}
-                      href={`/portfolio/${portfolio.slug}`}
-                      className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group border border-gray-200 dark:border-gray-700"
-                    >
-                      {portfolio.images && portfolio.images.length > 0 ? (
-                        <div className="relative h-56 w-full overflow-hidden bg-gray-100 dark:bg-gray-700">
-                          <Image
-                            src={portfolio.images[0]}
-                            alt={portfolio.title}
-                            fill
-                            className="object-cover group-hover:scale-110 transition-transform duration-500"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        </div>
-                      ) : (
-                        <div className="relative h-56 w-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
-                          <svg
-                            className="w-16 h-16 text-gray-400 dark:text-gray-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={1.5}
-                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
-                        </div>
-                      )}
-                      <div className="p-5">
-                        <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">
-                          {portfolio.title}
-                        </h3>
-                        {portfolio.summary && (
-                          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
-                            {portfolio.summary}
-                          </p>
-                        )}
-                        {portfolio.datePublished && (
-                          <div className="flex items-center text-xs text-gray-500 dark:text-gray-500">
-                            <svg
-                              className="w-4 h-4 mr-1"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                              />
-                            </svg>
-                            {new Date(
-                              portfolio.datePublished
-                            ).toLocaleDateString("en-US", {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    </Link>
-                  ))}
+                <div className="max-w-4xl">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                    {partner.portfolios.map((portfolio) => (
+                      <RelatedPortfolioCard
+                        key={portfolio.id}
+                        portfolio={portfolio}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             ) : null}
