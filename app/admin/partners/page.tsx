@@ -29,7 +29,7 @@ interface PartnerRank {
 interface Partner {
   id: string;
   name: string;
-  category?: string; // Legacy
+  category?: string | PartnerCategory; // Legacy string or object from API
   categoryId?: string;
   categoryRelation?: PartnerCategory;
   description?: string;
@@ -179,8 +179,8 @@ export default function AdminPartners() {
     setEditingPartner(partner);
     setFormData({
       name: partner.name,
-      category: partner.category || "", // Legacy
-      categoryId: partner.categoryId || partner.categoryRelation?.id || "",
+      category: typeof partner.category === 'string' ? partner.category : "", // Legacy
+      categoryId: partner.categoryId || partner.categoryRelation?.id || (typeof partner.category === 'object' ? partner.category?.id : "") || "",
       description: partner.description || "",
       location: partner.location || "",
       whatsapp: partner.whatsapp || "",
@@ -702,7 +702,10 @@ export default function AdminPartners() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                          {partner.categoryRelation?.name || partner.category || "-"}
+                          {partner.categoryRelation?.name || 
+                           (typeof partner.category === 'object' && partner.category?.name) ||
+                           (typeof partner.category === 'string' ? partner.category : null) ||
+                           "-"}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">

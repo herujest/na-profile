@@ -24,7 +24,7 @@ interface PartnerSocial {
 interface Partner {
   id: string;
   name: string;
-  category?: string; // Legacy
+  category?: string | PartnerCategory; // Legacy string or object from API
   categoryId?: string;
   categoryRelation?: PartnerCategory;
   description?: string;
@@ -118,10 +118,16 @@ const PartnerDetail: React.FC<PartnerDetailProps> = ({
             <div className="flex flex-wrap gap-2 mb-2">
               <span
                 className={`inline-block text-sm font-medium px-3 py-1 rounded-full ${getCategoryColor(
-                  partner.categoryRelation?.name || partner.category || "Others"
+                  partner.categoryRelation?.name || 
+                  (typeof partner.category === 'object' && partner.category?.name) ||
+                  (typeof partner.category === 'string' ? partner.category : null) ||
+                  "Others"
                 )}`}
               >
-                {partner.categoryRelation?.name || partner.category || "Others"}
+                {partner.categoryRelation?.name || 
+                 (typeof partner.category === 'object' && partner.category?.name) ||
+                 (typeof partner.category === 'string' ? partner.category : null) ||
+                 "Others"}
               </span>
               {partner.rank && (
                 <span className="inline-block text-sm font-medium px-3 py-1 rounded-full bg-yellow-500 text-white">

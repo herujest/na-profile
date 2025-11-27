@@ -10,7 +10,7 @@ interface PartnerCategory {
 interface Partner {
   id: string;
   name: string;
-  category?: string; // Legacy
+  category?: string | PartnerCategory; // Legacy string or object from API
   categoryId?: string;
   categoryRelation?: PartnerCategory;
   location?: string;
@@ -50,11 +50,11 @@ const PartnerCard: React.FC<PartnerCardProps> = ({ partner, onClick }) => {
 
   return (
     <div
-      className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 cursor-pointer h-full flex flex-col"
+      className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 cursor-pointer flex flex-col"
       onClick={onClick}
     >
       {/* Avatar */}
-      <div className="relative h-48 overflow-hidden bg-gray-100 dark:bg-gray-700">
+      <div className="relative h-56 md:h-64 overflow-hidden bg-gray-100 dark:bg-gray-700">
         {partner.avatarUrl ? (
           <Image
             src={partner.avatarUrl}
@@ -84,10 +84,16 @@ const PartnerCard: React.FC<PartnerCardProps> = ({ partner, onClick }) => {
         <div className="mb-3">
           <span
             className={`inline-block text-xs font-medium px-3 py-1 rounded-full ${getCategoryColor(
-              partner.categoryRelation?.name || partner.category || "Others"
+              partner.categoryRelation?.name || 
+              (typeof partner.category === 'object' && partner.category?.name) ||
+              (typeof partner.category === 'string' ? partner.category : null) ||
+              "Others"
             )}`}
           >
-            {partner.categoryRelation?.name || partner.category || "Others"}
+            {partner.categoryRelation?.name || 
+             (typeof partner.category === 'object' && partner.category?.name) ||
+             (typeof partner.category === 'string' ? partner.category : null) ||
+             "Others"}
           </span>
           {partner.rank && (
             <span className="ml-2 inline-block text-xs font-medium px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
